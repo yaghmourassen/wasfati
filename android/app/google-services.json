@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "700656915997",
+    "project_id": "files-8c16e",
+    "storage_bucket": "files-8c16e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700656915997:android:e025128b17c292dd7698f4",
+        "android_client_info": {
+          "package_name": "com.example.wasfati_fb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVgEg3Rb1muXqbsGGzBoPdWJicx5L4ZsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700656915997:android:1674ec0a82cfd9347698f4",
+        "android_client_info": {
+          "package_name": "com.example.wasfati_fb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVgEg3Rb1muXqbsGGzBoPdWJicx5L4ZsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
