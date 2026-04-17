@@ -37,14 +37,27 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
           child: Column(
             children: [
-              // ================= HEADER =================
+
+              // ================= HEADER (FIXED) =================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(
-                    Icons.restaurant_menu_rounded,
-                    size: 40,
-                    color: Color(0xFF2E7D32),
+
+                  // 🍲 RECIPE BUTTON
+                  IconButton(
+                    icon: const Icon(
+                      Icons.restaurant_menu_rounded,
+                      size: 30,
+                      color: Color(0xFF2E7D32),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RecipeView(),
+                        ),
+                      );
+                    },
                   ),
 
                   Row(
@@ -62,7 +75,7 @@ class _HomeViewState extends State<HomeView> {
                         },
                       ),
 
-                      // ⚙️ SETTINGS PAGE
+                      // ⚙️ SETTINGS
                       IconButton(
                         icon: const Icon(
                           Icons.settings,
@@ -78,12 +91,13 @@ class _HomeViewState extends State<HomeView> {
                         },
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
 
               const SizedBox(height: 20),
 
+              // ================= TITLE =================
               Text(
                 "Welcome to Wasfaty 🌿",
                 style: TextStyle(
@@ -123,9 +137,7 @@ class _HomeViewState extends State<HomeView> {
                           size: 60,
                           color: Color(0xFF2E7D32),
                         ),
-
                         const SizedBox(height: 12),
-
                         const Text(
                           "Your Kitchen Hub",
                           style: TextStyle(
@@ -133,15 +145,12 @@ class _HomeViewState extends State<HomeView> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-
                         const SizedBox(height: 8),
-
                         const Text(
                           "Explore recipes, save favorites, and share your cooking creations.",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 13),
                         ),
-
                         const SizedBox(height: 20),
 
                         SizedBox(

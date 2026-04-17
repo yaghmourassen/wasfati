@@ -1,197 +1,203 @@
-import 'dart:ui';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 
-class RecipeView extends StatelessWidget {
+class RecipeView extends StatefulWidget {
   const RecipeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final RecipeController controller = RecipeController();
-    final Color accentColor = const Color(0xFFD3756B);
+  State<RecipeView> createState() => _RecipeViewState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recipes'),
-        backgroundColor: accentColor,
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFDFCFB), Color(0xFFE2D1C3)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: StreamBuilder<List<RecipeModel>>(
-            stream: controller.getRecipesStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+class _RecipeViewState extends State<RecipeView> {
+  final RecipeController controller = RecipeController();
 
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No recipes found.'));
-              }
+  File? selectedImage;
 
-              final recipes = snapshot.data!;
+  // ================= PICK IMAGE =================
+  Future<void> pickImage(StateSetter setStateDialog) async {
+    print("OPEN IMAGE PICKER");
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: recipes.length,
-                itemBuilder: (context, index) {
-                  final recipe = recipes[index];
-
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.85),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              recipe.title,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              recipe.description,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Ingredients: ${recipe.ingredients.join(', ')}',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
-                                  onPressed: () {
-                                    _showRecipeDialog(context, controller, recipe: recipe);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () {
-                                    controller.deleteRecipe(recipe.id!);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: accentColor,
-        child: const Icon(Icons.add),
-        onPressed: () {
-          _showRecipeDialog(context, controller);
-        },
-      ),
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
     );
+
+    if (picked != null) {
+      print("IMAGE SELECTED: ${picked.path}");
+
+      setState(() {
+        selectedImage = File(picked.path);
+      });
+
+      setStateDialog(() {}); // تحديث الـ dialog
+    } else {
+      print("NO IMAGE SELECTED");
+    }
   }
 
-  /// Dialog for Add / Edit Recipe
-  void _showRecipeDialog(BuildContext context, RecipeController controller, {RecipeModel? recipe}) {
-    final TextEditingController titleController =
-    TextEditingController(text: recipe?.title ?? '');
-    final TextEditingController descriptionController =
-    TextEditingController(text: recipe?.description ?? '');
-    final TextEditingController ingredientsController =
-    TextEditingController(text: recipe?.ingredients.join(', ') ?? '');
+  // ================= ADD RECIPE DIALOG =================
+  void _showAddRecipeDialog() {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    final ingredientsController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(recipe == null ? 'Add Recipe' : 'Edit Recipe'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-              TextField(
-                controller: ingredientsController,
-                decoration: const InputDecoration(labelText: 'Ingredients (comma separated)'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final title = titleController.text.trim();
-              final description = descriptionController.text.trim();
-              final ingredients = ingredientsController.text
-                  .split(',')
-                  .map((e) => e.trim())
-                  .where((e) => e.isNotEmpty)
-                  .toList();
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text("Add Recipe"),
 
-              if (recipe == null) {
-                // Add new recipe
-                controller.addRecipe(
-                  title: title,
-                  description: description,
-                  ingredients: ingredients,
-                );
-              } else {
-                // Update existing recipe
-                controller.updateRecipe(
-                  id: recipe.id!,
-                  title: title,
-                  description: description,
-                  ingredients: ingredients,
-                );
-              }
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: "Title"),
+                    ),
+                    TextField(
+                      controller: descController,
+                      decoration:
+                      const InputDecoration(labelText: "Description"),
+                    ),
+                    TextField(
+                      controller: ingredientsController,
+                      decoration: const InputDecoration(
+                        labelText: "Ingredients (comma separated)",
+                      ),
+                    ),
 
-              Navigator.pop(context);
+                    const SizedBox(height: 10),
+
+                    // ================= IMAGE BUTTON =================
+                    TextButton.icon(
+                      onPressed: () async {
+                        await pickImage(setStateDialog);
+                      },
+                      icon: const Icon(Icons.image),
+                      label: const Text("Choose Image"),
+                    ),
+
+                    if (selectedImage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Image.file(
+                          selectedImage!,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedImage = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    final ingredientsList = ingredientsController.text
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList();
+
+                    String? imageUrl;
+
+                    if (selectedImage != null) {
+                      imageUrl =
+                      await controller.uploadToCloudinary(selectedImage!);
+                    }
+
+                    await controller.addRecipe(
+                      title: titleController.text,
+                      description: descController.text,
+                      ingredients: ingredientsList,
+                      imageUrl: imageUrl,
+                    );
+
+                    setState(() {
+                      selectedImage = null;
+                    });
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Save"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Recipes"),
+        backgroundColor: const Color(0xFF2E7D32),
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF2E7D32),
+        onPressed: _showAddRecipeDialog,
+        child: const Icon(Icons.add),
+      ),
+
+      body: StreamBuilder<List<RecipeModel>>(
+        stream: controller.getRecipesStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text("No recipes yet 🍲"),
+            );
+          }
+
+          final recipes = snapshot.data!;
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: recipes.length,
+            itemBuilder: (context, index) {
+              final recipe = recipes[index];
+
+              return Card(
+                child: ListTile(
+                  leading: recipe.imageUrl != null
+                      ? Image.network(
+                    recipe.imageUrl!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
+                      : const Icon(Icons.fastfood),
+
+                  title: Text(recipe.title),
+                  subtitle: Text(recipe.description),
+                ),
+              );
             },
-            child: Text(recipe == null ? 'Add' : 'Update'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

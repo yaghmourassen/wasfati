@@ -3,12 +3,14 @@ class RecipeModel {
   final String title;
   final String description;
   final List<String> ingredients;
+  final String? imageUrl; // ✅ NEW
 
   RecipeModel({
     this.id,
     required this.title,
     required this.description,
     required this.ingredients,
+    this.imageUrl, // ✅ NEW
   });
 
   /// Convert RecipeModel to Map for Firestore
@@ -17,6 +19,7 @@ class RecipeModel {
       'title': title,
       'description': description,
       'ingredients': ingredients,
+      'imageUrl': imageUrl, // ✅ NEW
     };
   }
 
@@ -27,6 +30,7 @@ class RecipeModel {
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       ingredients: List<String>.from(map['ingredients'] ?? []),
+      imageUrl: map['imageUrl'], // ✅ NEW
     );
   }
 }
