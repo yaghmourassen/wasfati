@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
-import '../controller/setting_controller.dart';
 import 'auth_view.dart';
 import 'recipe_view.dart';
 import 'setting_view.dart';
@@ -15,30 +14,20 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final authController = AuthController();
-  final settingsController = SettingsController();
 
   @override
   Widget build(BuildContext context) {
-    final isDark = settingsController.isDarkMode;
-
-    final bgColor =
-    isDark ? const Color(0xFF0F1B12) : const Color(0xFFF4FBF5);
-
-    final cardColor =
-    isDark ? const Color(0xFF1B2B20) : Colors.white;
-
-    final textColor =
-    isDark ? Colors.white : const Color(0xFF1B5E20);
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+
           child: Column(
             children: [
 
-              // ================= HEADER (FIXED) =================
+              // ================= HEADER =================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,18 +51,6 @@ class _HomeViewState extends State<HomeView> {
 
                   Row(
                     children: [
-                      // 🌙 THEME TOGGLE
-                      IconButton(
-                        icon: Icon(
-                          isDark ? Icons.light_mode : Icons.dark_mode,
-                          color: const Color(0xFF2E7D32),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            settingsController.toggleTheme();
-                          });
-                        },
-                      ),
 
                       // ⚙️ SETTINGS
                       IconButton(
@@ -100,10 +77,11 @@ class _HomeViewState extends State<HomeView> {
               // ================= TITLE =================
               Text(
                 "Welcome to Wasfaty 🌿",
-                style: TextStyle(
-                  fontSize: 24,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: textColor,
                 ),
               ),
 
@@ -112,15 +90,21 @@ class _HomeViewState extends State<HomeView> {
               // ================= MAIN CARD =================
               ClipRRect(
                 borderRadius: BorderRadius.circular(26),
+
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+
                   child: Container(
                     padding: const EdgeInsets.all(20),
+
                     decoration: BoxDecoration(
-                      color: cardColor.withOpacity(0.9),
+                      color: Theme.of(context).cardColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(26),
                       border: Border.all(
-                        color: const Color(0xFFA5D6A7),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.3),
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -130,29 +114,39 @@ class _HomeViewState extends State<HomeView> {
                         )
                       ],
                     ),
+
                     child: Column(
                       children: [
+
                         const Icon(
                           Icons.local_dining_rounded,
                           size: 60,
                           color: Color(0xFF2E7D32),
                         ),
+
                         const SizedBox(height: 12),
-                        const Text(
+
+                        Text(
                           "Your Kitchen Hub",
-                          style: TextStyle(
-                            fontSize: 18,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+
                         const SizedBox(height: 8),
-                        const Text(
+
+                        Text(
                           "Explore recipes, save favorites, and share your cooking creations.",
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 13),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
+
                         const SizedBox(height: 20),
 
+                        // ================= BUTTON =================
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
@@ -164,14 +158,19 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               );
                             },
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2E7D32),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
+
                             icon: const Icon(Icons.restaurant_menu),
+
                             label: const Text(
                               "Explore Recipes",
                               style: TextStyle(
@@ -192,9 +191,11 @@ class _HomeViewState extends State<HomeView> {
               // ================= LOGOUT =================
               SizedBox(
                 width: double.infinity,
+
                 child: OutlinedButton.icon(
                   onPressed: () async {
                     await authController.logout();
+
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
@@ -204,7 +205,12 @@ class _HomeViewState extends State<HomeView> {
                       );
                     }
                   },
-                  icon: const Icon(Icons.logout, color: Color(0xFF2E7D32)),
+
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Color(0xFF2E7D32),
+                  ),
+
                   label: const Text(
                     "Logout",
                     style: TextStyle(
@@ -212,6 +218,7 @@ class _HomeViewState extends State<HomeView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: const BorderSide(color: Color(0xFF2E7D32)),

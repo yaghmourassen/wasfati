@@ -7,13 +7,10 @@ import 'package:http/http.dart' as http;
 class RecipeController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Collection reference
   CollectionReference get _recipesCollection =>
       _firestore.collection('recipes');
 
-  // ======================================================
-  // ☁️ CLOUDINARY UPLOAD (MVC LOGIC)
-  // ======================================================
+  // ================= CLOUDINARY =================
   Future<String?> uploadToCloudinary(File file) async {
     try {
       final url = Uri.parse(
@@ -42,9 +39,7 @@ class RecipeController {
     }
   }
 
-  // ======================================================
-  // ➕ ADD RECIPE
-  // ======================================================
+  // ================= CREATE =================
   Future<String?> addRecipe({
     required String title,
     required String description,
@@ -52,23 +47,44 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
-      RecipeModel newRecipe = RecipeModel(
+      if (title.isEmpty || description.isEmpty) {
+        return "Title and description are required";
+      }
+
+      RecipeModel recipe = RecipeModel(
         title: title,
         description: description,
         ingredients: ingredients,
         imageUrl: imageUrl,
       );
 
-      await _recipesCollection.add(newRecipe.toMap());
+      final data = recipe.toMap();
+      data['createdAt'] = FieldValue.serverTimestamp();
+
+      await _recipesCollection.add(data);
+
       return null;
     } catch (e) {
       return e.toString();
     }
   }
 
-  // ======================================================
-  // ✏️ UPDATE RECIPE
-  // ======================================================
+  // ================= READ =================
+  Stream<List<RecipeModel>> getRecipesStream() {
+    return _recipesCollection
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+          .map((doc) => RecipeModel.fromMap(
+        doc.id,
+        doc.data() as Map<String, dynamic>,
+      ))
+          .toList(),
+    );
+  }
+
+  // ================= UPDATE =================
   Future<String?> updateRecipe({
     required String id,
     required String title,
@@ -77,24 +93,20 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
-      RecipeModel updatedRecipe = RecipeModel(
-        id: id,
-        title: title,
-        description: description,
-        ingredients: ingredients,
-        imageUrl: imageUrl,
-      );
+      await _recipesCollection.doc(id).update({
+        "title": title,
+        "description": description,
+        "ingredients": ingredients,
+        "imageUrl": imageUrl,
+      });
 
-      await _recipesCollection.doc(id).update(updatedRecipe.toMap());
       return null;
     } catch (e) {
       return e.toString();
     }
   }
 
-  // ======================================================
-  // 🗑 DELETE RECIPE
-  // ======================================================
+  // ================= DELETE =================
   Future<String?> deleteRecipe(String id) async {
     try {
       await _recipesCollection.doc(id).delete();
@@ -102,19 +114,5 @@ class RecipeController {
     } catch (e) {
       return e.toString();
     }
-  }
-
-  // ======================================================
-  // 📡 STREAM RECIPES
-  // ======================================================
-  Stream<List<RecipeModel>> getRecipesStream() {
-    return _recipesCollection.orderBy('title').snapshots().map(
-          (snapshot) => snapshot.docs
-          .map((doc) => RecipeModel.fromMap(
-        doc.id,
-        doc.data() as Map<String, dynamic>,
-      ))
-          .toList(),
-    );
   }
 }

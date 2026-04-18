@@ -1,33 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../controller/setting_controller.dart';
 
-
-/// ===============================
-/// 🌿 SETTINGS VIEW (UI LAYER)
-/// ===============================
-/// Connected to SettingsController
-/// - Theme toggle
-/// - Language switch
-/// ===============================
-
-class SettingsView extends StatefulWidget {
+class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
   @override
-  State<SettingsView> createState() => _SettingsViewState();
-}
-
-class _SettingsViewState extends State<SettingsView> {
-  final SettingsController controller = SettingsController();
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<SettingsController>(context);
     final isDark = controller.isDarkMode;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF0F1B12)
-          : const Color(0xFFF4FBF5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         title: const Text("Settings"),
@@ -38,21 +22,26 @@ class _SettingsViewState extends State<SettingsView> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+
             // ================= THEME CARD =================
             Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1B2B20) : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: const Color(0xFFA5D6A7)),
               ),
               child: SwitchListTile(
-                title: const Text("Dark Mode"),
-                secondary: const Icon(Icons.dark_mode),
+                title: Text(
+                  isDark ? "Dark Mode" : "Light Mode",
+                ),
+                secondary: Icon(
+                  isDark ? Icons.dark_mode : Icons.light_mode,
+                ),
+
                 value: isDark,
+
                 onChanged: (value) {
-                  setState(() {
-                    controller.toggleTheme();
-                  });
+                  controller.toggleTheme();
                 },
               ),
             ),
@@ -62,7 +51,7 @@ class _SettingsViewState extends State<SettingsView> {
             // ================= LANGUAGE CARD =================
             Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1B2B20) : Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: const Color(0xFFA5D6A7)),
               ),
@@ -70,6 +59,7 @@ class _SettingsViewState extends State<SettingsView> {
                 leading: const Icon(Icons.language),
                 title: const Text("Language"),
                 subtitle: Text(controller.language),
+
                 trailing: DropdownButton<String>(
                   value: controller.language,
                   items: const [
@@ -84,9 +74,7 @@ class _SettingsViewState extends State<SettingsView> {
                   ],
                   onChanged: (value) {
                     if (value != null) {
-                      setState(() {
-                        controller.setLanguage(value);
-                      });
+                      controller.setLanguage(value);
                     }
                   },
                 ),

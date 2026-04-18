@@ -15,34 +15,25 @@ class RecipeView extends StatefulWidget {
 class _RecipeViewState extends State<RecipeView> {
   final RecipeController controller = RecipeController();
 
-  File? selectedImage;
+  bool _isLoading = false;
 
-  // ================= PICK IMAGE =================
-  Future<void> pickImage(StateSetter setStateDialog) async {
-    print("OPEN IMAGE PICKER");
-
+  // ================= IMAGE PICK =================
+  Future<File?> pickImage() async {
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
 
-    if (picked != null) {
-      print("IMAGE SELECTED: ${picked.path}");
-
-      setState(() {
-        selectedImage = File(picked.path);
-      });
-
-      setStateDialog(() {}); // تحديث الـ dialog
-    } else {
-      print("NO IMAGE SELECTED");
-    }
+    if (picked != null) return File(picked.path);
+    return null;
   }
 
-  // ================= ADD RECIPE DIALOG =================
-  void _showAddRecipeDialog() {
+  // ================= ADD =================
+  void _showAddDialog() {
     final titleController = TextEditingController();
     final descController = TextEditingController();
     final ingredientsController = TextEditingController();
+
+    File? localImage;
 
     showDialog(
       context: context,
@@ -50,6 +41,8 @@ class _RecipeViewState extends State<RecipeView> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
+              backgroundColor: Theme.of(context).dialogBackgroundColor,
+
               title: const Text("Add Recipe"),
 
               content: SingleChildScrollView(
@@ -58,84 +51,96 @@ class _RecipeViewState extends State<RecipeView> {
                   children: [
                     TextField(
                       controller: titleController,
-                      decoration: const InputDecoration(labelText: "Title"),
+                      decoration: InputDecoration(
+                        labelText: "Title",
+                        filled: true,
+                        fillColor: Theme.of(context).cardColor,
+                      ),
                     ),
                     TextField(
                       controller: descController,
-                      decoration:
-                      const InputDecoration(labelText: "Description"),
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        filled: true,
+                        fillColor: Theme.of(context).cardColor,
+                      ),
                     ),
                     TextField(
                       controller: ingredientsController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Ingredients (comma separated)",
+                        filled: true,
+                        fillColor: Theme.of(context).cardColor,
                       ),
                     ),
 
                     const SizedBox(height: 10),
 
-                    // ================= IMAGE BUTTON =================
-                    TextButton.icon(
+                    TextButton(
                       onPressed: () async {
-                        await pickImage(setStateDialog);
+                        localImage = await pickImage();
+                        setStateDialog(() {});
                       },
-                      icon: const Icon(Icons.image),
-                      label: const Text("Choose Image"),
+                      child: const Text("Pick Image"),
                     ),
 
-                    if (selectedImage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Image.file(
-                          selectedImage!,
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                    if (localImage != null)
+                      Image.file(localImage!, height: 100),
                   ],
                 ),
               ),
 
               actions: [
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedImage = null;
-                    });
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.pop(context),
                   child: const Text("Cancel"),
                 ),
 
                 ElevatedButton(
-                  onPressed: () async {
-                    final ingredientsList = ingredientsController.text
-                        .split(',')
-                        .map((e) => e.trim())
-                        .toList();
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                    if (titleController.text.isEmpty ||
+                        descController.text.isEmpty) return;
 
-                    String? imageUrl;
+                    setState(() => _isLoading = true);
 
-                    if (selectedImage != null) {
-                      imageUrl =
-                      await controller.uploadToCloudinary(selectedImage!);
+                    try {
+                      final ingredients = ingredientsController.text
+                          .split(',')
+                          .map((e) => e.trim())
+                          .toList();
+
+                      String? imageUrl;
+
+                      if (localImage != null) {
+                        imageUrl =
+                        await controller.uploadToCloudinary(localImage!);
+                      }
+
+                      await controller.addRecipe(
+                        title: titleController.text,
+                        description: descController.text,
+                        ingredients: ingredients,
+                        imageUrl: imageUrl,
+                      );
+
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error: $e")),
+                      );
                     }
 
-                    await controller.addRecipe(
-                      title: titleController.text,
-                      description: descController.text,
-                      ingredients: ingredientsList,
-                      imageUrl: imageUrl,
-                    );
-
-                    setState(() {
-                      selectedImage = null;
-                    });
-
-                    Navigator.pop(context);
+                    setState(() => _isLoading = false);
                   },
-                  child: const Text("Save"),
+                  child: _isLoading
+                      ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                      : const Text("Save"),
                 ),
               ],
             );
@@ -145,17 +150,122 @@ class _RecipeViewState extends State<RecipeView> {
     );
   }
 
+  // ================= EDIT =================
+  void _showEditDialog(RecipeModel recipe) {
+    final titleController = TextEditingController(text: recipe.title);
+    final descController = TextEditingController(text: recipe.description);
+    final ingredientsController =
+    TextEditingController(text: recipe.ingredients.join(','));
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).dialogBackgroundColor,
+
+          title: const Text("Edit Recipe"),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: "Title",
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                ),
+              ),
+              TextField(
+                controller: descController,
+                decoration: InputDecoration(
+                  labelText: "Description",
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                ),
+              ),
+              TextField(
+                controller: ingredientsController,
+                decoration: InputDecoration(
+                  labelText: "Ingredients",
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                ),
+              ),
+            ],
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                final ingredients = ingredientsController.text
+                    .split(',')
+                    .map((e) => e.trim())
+                    .toList();
+
+                await controller.updateRecipe(
+                  id: recipe.id!,
+                  title: titleController.text,
+                  description: descController.text,
+                  ingredients: ingredients,
+                  imageUrl: recipe.imageUrl,
+                );
+
+                Navigator.pop(context);
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ================= DELETE =================
+  Future<void> _deleteRecipe(String id) async {
+    final confirm = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Theme.of(context).dialogBackgroundColor,
+
+        title: const Text("Delete Recipe"),
+        content: const Text("Are you sure?"),
+
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await controller.deleteRecipe(id);
+    }
+  }
+
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text("Recipes"),
-        backgroundColor: const Color(0xFF2E7D32),
+        title: const Text("Wasfaty 🍲"),
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF2E7D32),
-        onPressed: _showAddRecipeDialog,
+        onPressed: _showAddDialog,
         child: const Icon(Icons.add),
       ),
 
@@ -167,32 +277,44 @@ class _RecipeViewState extends State<RecipeView> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text("No recipes yet 🍲"),
-            );
+            return const Center(child: Text("No recipes yet 🍽️"));
           }
 
           final recipes = snapshot.data!;
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
             itemCount: recipes.length,
             itemBuilder: (context, index) {
               final recipe = recipes[index];
 
               return Card(
+                color: Theme.of(context).cardColor,
+
                 child: ListTile(
                   leading: recipe.imageUrl != null
                       ? Image.network(
                     recipe.imageUrl!,
                     width: 50,
-                    height: 50,
                     fit: BoxFit.cover,
                   )
                       : const Icon(Icons.fastfood),
 
                   title: Text(recipe.title),
                   subtitle: Text(recipe.description),
+
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showEditDialog(recipe),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteRecipe(recipe.id!),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

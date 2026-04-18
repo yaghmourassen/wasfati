@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
 import 'home_view.dart';
@@ -29,6 +28,7 @@ class _AuthViewState extends State<AuthView>
   @override
   void initState() {
     super.initState();
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -70,9 +70,7 @@ class _AuthViewState extends State<AuthView>
 
         if (user != null && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account created! Please log in.'),
-            ),
+            const SnackBar(content: Text('Account created! Please log in.')),
           );
 
           await _controller.logout();
@@ -101,14 +99,11 @@ class _AuthViewState extends State<AuthView>
 
   @override
   Widget build(BuildContext context) {
-    // 🌿 KITCHEN GREEN THEME
-    const primary = Color(0xFF2E7D32);
-    const darkGreen = Color(0xFF1B5E20);
-    const softGreen = Color(0xFFA5D6A7);
-    const bg = Color(0xFFF3FAF4);
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -118,29 +113,36 @@ class _AuthViewState extends State<AuthView>
                 opacity: _fadeAnimation,
                 child: Column(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.restaurant_menu_rounded,
                       size: 70,
                       color: primary,
                     ),
+
                     const SizedBox(height: 10),
-                    const Text(
+
+                    Text(
                       "Wasfaty",
                       style: TextStyle(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,
-                        color: darkGreen,
+                        color: primary,
                         letterSpacing: 1.2,
                       ),
                     ),
+
                     const SizedBox(height: 6),
+
                     Text(
                       _isLogin
                           ? "Welcome back chef 👨‍🍳"
                           : "Create your kitchen account 🍳",
                       style: TextStyle(
                         fontSize: 15,
-                        color: Colors.grey.shade700,
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.color,
                       ),
                     ),
                   ],
@@ -149,13 +151,15 @@ class _AuthViewState extends State<AuthView>
 
               const SizedBox(height: 30),
 
-              // 🧊 CLEAN CARD (NO HEAVY BLUR)
+              // ================= CARD =================
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: softGreen.withOpacity(0.4)),
+                  border: Border.all(
+                    color: primary.withOpacity(0.2),
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
@@ -218,7 +222,7 @@ class _AuthViewState extends State<AuthView>
 
                       const SizedBox(height: 10),
 
-                      // 🔘 BUTTON
+                      // ================= BUTTON =================
                       SizedBox(
                         width: double.infinity,
                         height: 52,
@@ -232,7 +236,8 @@ class _AuthViewState extends State<AuthView>
                           ),
                           child: _isLoading
                               ? const CircularProgressIndicator(
-                              color: Colors.white)
+                            color: Colors.white,
+                          )
                               : Text(
                             _isLogin ? "Login" : "Create Account",
                             style: const TextStyle(
@@ -252,10 +257,7 @@ class _AuthViewState extends State<AuthView>
                           _isLogin
                               ? "New here? Join cooking 🌿"
                               : "Already have account? Login",
-                          style: const TextStyle(
-                            color: primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(color: primary),
                         ),
                       ),
                     ],
@@ -283,9 +285,12 @@ class _AuthViewState extends State<AuthView>
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: color),
+
         suffixIcon: suffix,
+
         filled: true,
-        fillColor: const Color(0xFFF7FBF7),
+        fillColor: Theme.of(context).cardColor,
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

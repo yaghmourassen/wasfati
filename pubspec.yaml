@@ -1,26 +1,26 @@
 name: wasfati_fb
 description: "A new Flutter project."
 
-publish_to:
-
+publish_to: none
 
 version: 1.0.0+1
 
 environment:
   sdk: ^3.9.2
 
-
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
   cloud_firestore: ^6.0.2
   image_picker: ^1.2.1
   http: ^1.6.0
 
+  provider: ^6.1.2   # ✅ ADD THIS
 
 dev_dependencies:
   flutter_test:
@@ -30,4 +30,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
