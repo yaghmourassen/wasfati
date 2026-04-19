@@ -104,17 +104,17 @@ abstract class AppLocalizations {
   /// **'Wasfaty'**
   String get appTitle;
 
-  /// No description provided for @addRecipe.
+  /// No description provided for @login.
   ///
   /// In en, this message translates to:
-  /// **'Add Recipe'**
-  String get addRecipe;
+  /// **'Login'**
+  String get login;
 
-  /// No description provided for @settings.
+  /// No description provided for @createAccount.
   ///
   /// In en, this message translates to:
-  /// **'Settings'**
-  String get settings;
+  /// **'Create Account'**
+  String get createAccount;
 
   /// No description provided for @welcomeBack.
   ///
@@ -122,11 +122,107 @@ abstract class AppLocalizations {
   /// **'Welcome back chef 👨‍🍳'**
   String get welcomeBack;
 
-  /// No description provided for @createAccount.
+  /// No description provided for @createAccountMsg.
   ///
   /// In en, this message translates to:
   /// **'Create your kitchen account 🍳'**
-  String get createAccount;
+  String get createAccountMsg;
+
+  /// No description provided for @newHere.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Join cooking 🌿'**
+  String get newHere;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have account? Login'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'Required field'**
+  String get requiredField;
+
+  /// No description provided for @accountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created! Please log in.'**
+  String get accountCreated;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @lightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Mode'**
+  String get lightMode;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @arabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get arabic;
+
+  /// No description provided for @addRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Recipe'**
+  String get addRecipe;
+
+  /// No description provided for @myRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'My Recipes'**
+  String get myRecipes;
+
+  /// No description provided for @noRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes yet'**
+  String get noRecipes;
 }
 
 class _AppLocalizationsDelegate

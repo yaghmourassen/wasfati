@@ -1,7 +1,26 @@
 {
   "appTitle": "وصفتـي",
-  "addRecipe": "إضافة وصفة",
-  "settings": "الإعدادات",
+
+  "login": "تسجيل الدخول",
+  "createAccount": "إنشاء حساب",
   "welcomeBack": "مرحبا بعودتك يا شيف 👨‍🍳",
-  "createAccount": "أنشئ حساب مطبخك 🍳"
+  "createAccountMsg": "أنشئ حساب مطبخك 🍳",
+  "newHere": "جديد هنا؟ انضم لعالم الطبخ 🌿",
+  "alreadyHaveAccount": "لديك حساب؟ سجل الدخول",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "fullName": "الاسم الكامل",
+  "requiredField": "حقل مطلوب",
+  "accountCreated": "تم إنشاء الحساب! يرجى تسجيل الدخول",
+
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "darkMode": "الوضع الداكن",
+  "lightMode": "الوضع الفاتح",
+  "english": "إنجليزي",
+  "arabic": "عربي",
+
+  "addRecipe": "إضافة وصفة",
+  "myRecipes": "وصفاتي",
+  "noRecipes": "لا توجد وصفات بعد"
 }

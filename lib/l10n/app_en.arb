@@ -1,7 +1,26 @@
 {
   "appTitle": "Wasfaty",
-  "addRecipe": "Add Recipe",
-  "settings": "Settings",
+
+  "login": "Login",
+  "createAccount": "Create Account",
   "welcomeBack": "Welcome back chef 👨‍🍳",
-  "createAccount": "Create your kitchen account 🍳"
+  "createAccountMsg": "Create your kitchen account 🍳",
+  "newHere": "New here? Join cooking 🌿",
+  "alreadyHaveAccount": "Already have account? Login",
+  "email": "Email",
+  "password": "Password",
+  "fullName": "Full Name",
+  "requiredField": "Required field",
+  "accountCreated": "Account created! Please log in.",
+
+  "settings": "Settings",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "english": "English",
+  "arabic": "Arabic",
+
+  "addRecipe": "Add Recipe",
+  "myRecipes": "My Recipes",
+  "noRecipes": "No recipes yet"
 }

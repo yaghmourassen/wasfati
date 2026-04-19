@@ -41,6 +41,15 @@ class _AuthViewState extends State<AuthView>
     );
   }
 
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleAuth() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -70,9 +79,12 @@ class _AuthViewState extends State<AuthView>
         );
 
         if (user != null && mounted) {
+          final t = AppLocalizations.of(context)!;
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created! Please log in.')),
+            SnackBar(content: Text(t.accountCreated)),
           );
+
 
           await _controller.logout();
 
@@ -111,6 +123,8 @@ class _AuthViewState extends State<AuthView>
           padding: const EdgeInsets.symmetric(horizontal: 22),
           child: Column(
             children: [
+
+              // ================= HEADER =================
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Column(
@@ -124,7 +138,7 @@ class _AuthViewState extends State<AuthView>
                     const SizedBox(height: 10),
 
                     Text(
-                      "Wasfaty",
+                      t.appTitle,
                       style: TextStyle(
                         fontSize: 34,
                         fontWeight: FontWeight.bold,
@@ -135,16 +149,19 @@ class _AuthViewState extends State<AuthView>
 
                     const SizedBox(height: 6),
 
-
-          Text(
-          _isLogin
-          ? t.welcomeBack
-              : t.createAccount,
-          style: TextStyle(
-            fontSize: 15,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
-        ),
+                    Text(
+                      _isLogin
+                          ? t.welcomeBack
+                          : t.createAccountMsg,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.color ??
+                            Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -172,28 +189,32 @@ class _AuthViewState extends State<AuthView>
                   key: _formKey,
                   child: Column(
                     children: [
+
+                      // FULL NAME
                       if (!_isLogin) ...[
                         _field(
                           controller: _nameController,
-                          hint: "Full Name",
+                          hint: t.fullName,
                           icon: Icons.person_outline,
                           color: primary,
                         ),
                         const SizedBox(height: 14),
                       ],
 
+                      // EMAIL
                       _field(
                         controller: _emailController,
-                        hint: "Email",
+                        hint: t.email,
                         icon: Icons.email_outlined,
                         color: primary,
                       ),
 
                       const SizedBox(height: 14),
 
+                      // PASSWORD
                       _field(
                         controller: _passwordController,
-                        hint: "Password",
+                        hint: t.password,
                         icon: Icons.lock_outline,
                         color: primary,
                         obscure: _obscurePassword,
@@ -214,6 +235,7 @@ class _AuthViewState extends State<AuthView>
 
                       const SizedBox(height: 18),
 
+                      // ERROR
                       if (_errorMessage != null)
                         Text(
                           _errorMessage!,
@@ -222,7 +244,7 @@ class _AuthViewState extends State<AuthView>
 
                       const SizedBox(height: 10),
 
-                      // ================= BUTTON =================
+                      // BUTTON
                       SizedBox(
                         width: double.infinity,
                         height: 52,
@@ -239,7 +261,9 @@ class _AuthViewState extends State<AuthView>
                             color: Colors.white,
                           )
                               : Text(
-                            _isLogin ? "Login" : "Create Account",
+                            _isLogin
+                                ? t.login
+                                : t.createAccount,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -251,13 +275,16 @@ class _AuthViewState extends State<AuthView>
 
                       const SizedBox(height: 14),
 
+                      // SWITCH TEXT
                       TextButton(
                         onPressed: _toggleForm,
                         child: Text(
                           _isLogin
-                              ? "New here? Join cooking 🌿"
-                              : "Already have account? Login",
-                          style: TextStyle(color: primary),
+                              ? t.newHere
+                              : t.alreadyHaveAccount,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       ),
                     ],
@@ -279,24 +306,23 @@ class _AuthViewState extends State<AuthView>
     bool obscure = false,
     Widget? suffix,
   }) {
+    final t = AppLocalizations.of(context)!;
+
     return TextFormField(
       controller: controller,
       obscureText: obscure,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: color),
-
         suffixIcon: suffix,
-
         filled: true,
         fillColor: Theme.of(context).cardColor,
-
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
       ),
-      validator: (v) => v!.isEmpty ? "Required field" : null,
+      validator: (v) => v!.isEmpty ? t.requiredField : null,
     );
   }
 }
