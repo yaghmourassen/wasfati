@@ -37,9 +37,7 @@ class SettingsView extends StatelessWidget {
                 secondary: Icon(
                   isDark ? Icons.dark_mode : Icons.light_mode,
                 ),
-
                 value: isDark,
-
                 onChanged: (value) {
                   controller.toggleTheme();
                 },
@@ -58,23 +56,29 @@ class SettingsView extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.language),
                 title: const Text("Language"),
-                subtitle: Text(controller.language),
+
+                // 🌍 show current language nicely
+                subtitle: Text(
+                  controller.locale.languageCode == 'ar'
+                      ? "Arabic"
+                      : "English",
+                ),
 
                 trailing: DropdownButton<String>(
-                  value: controller.language,
+                  value: controller.locale.languageCode,
                   items: const [
                     DropdownMenuItem(
-                      value: "EN",
+                      value: "en",
                       child: Text("English"),
                     ),
                     DropdownMenuItem(
-                      value: "AR",
+                      value: "ar",
                       child: Text("Arabic"),
                     ),
                   ],
                   onChanged: (value) {
                     if (value != null) {
-                      controller.setLanguage(value);
+                      controller.setLocale(Locale(value));
                     }
                   },
                 ),

@@ -2,24 +2,27 @@ import 'package:flutter/material.dart';
 
 class SettingsController extends ChangeNotifier {
   bool _isDarkMode = false;
-  String _language = "EN";
+
+  // 🌍 Locale instead of String
+  Locale _locale = const Locale('en');
 
   bool get isDarkMode => _isDarkMode;
-  String get language => _language;
+  Locale get locale => _locale;
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 
-  void setLanguage(String lang) {
-    _language = lang;
+  // 🌍 Change language properly
+  void setLocale(Locale locale) {
+    _locale = locale;
     notifyListeners();
   }
 
   void reset() {
     _isDarkMode = false;
-    _language = "EN";
+    _locale = const Locale('en');
     notifyListeners();
   }
 }

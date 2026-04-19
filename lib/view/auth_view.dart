@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'home_view.dart';
 
 class AuthView extends StatefulWidget {
@@ -99,6 +100,7 @@ class _AuthViewState extends State<AuthView>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
@@ -133,18 +135,16 @@ class _AuthViewState extends State<AuthView>
 
                     const SizedBox(height: 6),
 
-                    Text(
-                      _isLogin
-                          ? "Welcome back chef 👨‍🍳"
-                          : "Create your kitchen account 🍳",
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.color,
-                      ),
-                    ),
+
+          Text(
+          _isLogin
+          ? t.welcomeBack
+              : t.createAccount,
+          style: TextStyle(
+            fontSize: 15,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
                   ],
                 ),
               ),
