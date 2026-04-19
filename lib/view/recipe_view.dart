@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class RecipeView extends StatefulWidget {
   const RecipeView({super.key});
@@ -29,6 +29,8 @@ class _RecipeViewState extends State<RecipeView> {
 
   // ================= ADD =================
   void _showAddDialog() {
+    final t = AppLocalizations.of(context)!;
+
     final titleController = TextEditingController();
     final descController = TextEditingController();
     final ingredientsController = TextEditingController();
@@ -43,32 +45,35 @@ class _RecipeViewState extends State<RecipeView> {
             return AlertDialog(
               backgroundColor: Theme.of(context).dialogBackgroundColor,
 
-              title: const Text("Add Recipe"),
+              title: Text(t.addRecipe),
 
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        labelText: "Title",
+                        labelText: t.title,
                         filled: true,
                         fillColor: Theme.of(context).cardColor,
                       ),
                     ),
+
                     TextField(
                       controller: descController,
                       decoration: InputDecoration(
-                        labelText: "Description",
+                        labelText: t.description,
                         filled: true,
                         fillColor: Theme.of(context).cardColor,
                       ),
                     ),
+
                     TextField(
                       controller: ingredientsController,
                       decoration: InputDecoration(
-                        labelText: "Ingredients (comma separated)",
+                        labelText: t.ingredients,
                         filled: true,
                         fillColor: Theme.of(context).cardColor,
                       ),
@@ -81,7 +86,7 @@ class _RecipeViewState extends State<RecipeView> {
                         localImage = await pickImage();
                         setStateDialog(() {});
                       },
-                      child: const Text("Pick Image"),
+                      child: Text(t.pickImage),
                     ),
 
                     if (localImage != null)
@@ -91,9 +96,10 @@ class _RecipeViewState extends State<RecipeView> {
               ),
 
               actions: [
+
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel"),
+                  child: Text(t.cancel),
                 ),
 
                 ElevatedButton(
@@ -114,8 +120,7 @@ class _RecipeViewState extends State<RecipeView> {
                       String? imageUrl;
 
                       if (localImage != null) {
-                        imageUrl =
-                        await controller.uploadToCloudinary(localImage!);
+                        imageUrl = await controller.uploadToCloudinary(localImage!);
                       }
 
                       await controller.addRecipe(
@@ -128,7 +133,7 @@ class _RecipeViewState extends State<RecipeView> {
                       Navigator.pop(context);
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: $e")),
+                        SnackBar(content: Text("${t.error}: $e")),
                       );
                     }
 
@@ -140,7 +145,7 @@ class _RecipeViewState extends State<RecipeView> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text("Save"),
+                      : Text(t.save),
                 ),
               ],
             );
@@ -152,6 +157,8 @@ class _RecipeViewState extends State<RecipeView> {
 
   // ================= EDIT =================
   void _showEditDialog(RecipeModel recipe) {
+    final t = AppLocalizations.of(context)!;
+
     final titleController = TextEditingController(text: recipe.title);
     final descController = TextEditingController(text: recipe.description);
     final ingredientsController =
@@ -163,31 +170,34 @@ class _RecipeViewState extends State<RecipeView> {
         return AlertDialog(
           backgroundColor: Theme.of(context).dialogBackgroundColor,
 
-          title: const Text("Edit Recipe"),
+          title: Text(t.editRecipe),
 
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+
               TextField(
                 controller: titleController,
                 decoration: InputDecoration(
-                  labelText: "Title",
+                  labelText: t.title,
                   filled: true,
                   fillColor: Theme.of(context).cardColor,
                 ),
               ),
+
               TextField(
                 controller: descController,
                 decoration: InputDecoration(
-                  labelText: "Description",
+                  labelText: t.description,
                   filled: true,
                   fillColor: Theme.of(context).cardColor,
                 ),
               ),
+
               TextField(
                 controller: ingredientsController,
                 decoration: InputDecoration(
-                  labelText: "Ingredients",
+                  labelText: t.ingredients,
                   filled: true,
                   fillColor: Theme.of(context).cardColor,
                 ),
@@ -196,9 +206,10 @@ class _RecipeViewState extends State<RecipeView> {
           ),
 
           actions: [
+
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text(t.cancel),
             ),
 
             ElevatedButton(
@@ -218,7 +229,7 @@ class _RecipeViewState extends State<RecipeView> {
 
                 Navigator.pop(context);
               },
-              child: const Text("Update"),
+              child: Text(t.update),
             ),
           ],
         );
@@ -228,22 +239,26 @@ class _RecipeViewState extends State<RecipeView> {
 
   // ================= DELETE =================
   Future<void> _deleteRecipe(String id) async {
+    final t = AppLocalizations.of(context)!;
+
     final confirm = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Theme.of(context).dialogBackgroundColor,
 
-        title: const Text("Delete Recipe"),
-        content: const Text("Are you sure?"),
+        title: Text(t.deleteRecipe),
+        content: Text(t.deleteConfirm),
 
         actions: [
+
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+            child: Text(t.cancel),
           ),
+
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete"),
+            child: Text(t.delete),
           ),
         ],
       ),
@@ -257,11 +272,13 @@ class _RecipeViewState extends State<RecipeView> {
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
-        title: const Text("Wasfaty 🍲"),
+        title: Text(t.appTitle),
       ),
 
       floatingActionButton: FloatingActionButton(
@@ -277,7 +294,7 @@ class _RecipeViewState extends State<RecipeView> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No recipes yet 🍽️"));
+            return Center(child: Text(t.noRecipes));
           }
 
           final recipes = snapshot.data!;
@@ -305,10 +322,12 @@ class _RecipeViewState extends State<RecipeView> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () => _showEditDialog(recipe),
                       ),
+
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => _deleteRecipe(recipe.id!),

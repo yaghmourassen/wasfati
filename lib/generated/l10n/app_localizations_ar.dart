@@ -70,4 +70,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noRecipes => 'لا توجد وصفات بعد';
+
+  @override
+  String get welcomeHome => 'مرحبًا بك في وصفتـي 🌿';
+
+  @override
+  String get kitchenHub => 'مطبخك الذكي';
+
+  @override
+  String get homeDescription => 'استكشف الوصفات، احفظ المفضلة وشارك إبداعاتك.';
+
+  @override
+  String get exploreRecipes => 'استعرض الوصفات';
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get title => 'العنوان';
+
+  @override
+  String get description => 'الوصف';
+
+  @override
+  String get ingredients => 'المكونات';
+
+  @override
+  String get pickImage => 'اختيار صورة';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get update => 'تحديث';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get deleteRecipe => 'حذف الوصفة';
+
+  @override
+  String get deleteConfirm => 'هل أنت متأكد؟';
+
+  @override
+  String get error => 'خطأ';
+
+  @override
+  String get editRecipe => 'تعديل الوصفة';
 }

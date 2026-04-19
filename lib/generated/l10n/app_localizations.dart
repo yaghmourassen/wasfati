@@ -223,6 +223,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No recipes yet'**
   String get noRecipes;
+
+  /// No description provided for @welcomeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Wasfaty 🌿'**
+  String get welcomeHome;
+
+  /// No description provided for @kitchenHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Kitchen Hub'**
+  String get kitchenHub;
+
+  /// No description provided for @homeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore recipes, save favorites, and share your cooking creations.'**
+  String get homeDescription;
+
+  /// No description provided for @exploreRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore Recipes'**
+  String get exploreRecipes;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @ingredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get ingredients;
+
+  /// No description provided for @pickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Image'**
+  String get pickImage;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleteRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Recipe'**
+  String get deleteRecipe;
+
+  /// No description provided for @deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get deleteConfirm;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @editRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Recipe'**
+  String get editRecipe;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/setting_controller.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -9,12 +10,13 @@ class SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Provider.of<SettingsController>(context);
     final isDark = controller.isDarkMode;
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
-        title: const Text("Settings"),
+        title: Text(t.settings),
         backgroundColor: const Color(0xFF2E7D32),
       ),
 
@@ -32,7 +34,7 @@ class SettingsView extends StatelessWidget {
               ),
               child: SwitchListTile(
                 title: Text(
-                  isDark ? "Dark Mode" : "Light Mode",
+                  isDark ? t.darkMode : t.lightMode,
                 ),
                 secondary: Icon(
                   isDark ? Icons.dark_mode : Icons.light_mode,
@@ -55,25 +57,25 @@ class SettingsView extends StatelessWidget {
               ),
               child: ListTile(
                 leading: const Icon(Icons.language),
-                title: const Text("Language"),
+                title: Text(t.language),
 
-                // 🌍 show current language nicely
+                // 🌍 current language
                 subtitle: Text(
                   controller.locale.languageCode == 'ar'
-                      ? "Arabic"
-                      : "English",
+                      ? t.arabic
+                      : t.english,
                 ),
 
                 trailing: DropdownButton<String>(
                   value: controller.locale.languageCode,
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: "en",
-                      child: Text("English"),
+                      child: Text(t.english),
                     ),
                     DropdownMenuItem(
                       value: "ar",
-                      child: Text("Arabic"),
+                      child: Text(t.arabic),
                     ),
                   ],
                   onChanged: (value) {

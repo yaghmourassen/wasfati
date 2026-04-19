@@ -22,5 +22,24 @@
 
   "addRecipe": "Add Recipe",
   "myRecipes": "My Recipes",
-  "noRecipes": "No recipes yet"
+  "noRecipes": "No recipes yet",
+
+  "welcomeHome": "Welcome to Wasfaty 🌿",
+  "kitchenHub": "Your Kitchen Hub",
+  "homeDescription": "Explore recipes, save favorites, and share your cooking creations.",
+  "exploreRecipes": "Explore Recipes",
+  "logout": "Logout",
+
+  "title": "Title",
+  "description": "Description",
+  "ingredients": "Ingredients",
+  "pickImage": "Pick Image",
+  "cancel": "Cancel",
+  "save": "Save",
+  "update": "Update",
+  "delete": "Delete",
+  "deleteRecipe": "Delete Recipe",
+  "deleteConfirm": "Are you sure?",
+  "error": "Error",
+  "editRecipe": "Edit Recipe"
 }

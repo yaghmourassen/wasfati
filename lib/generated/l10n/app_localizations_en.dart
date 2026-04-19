@@ -70,4 +70,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRecipes => 'No recipes yet';
+
+  @override
+  String get welcomeHome => 'Welcome to Wasfaty 🌿';
+
+  @override
+  String get kitchenHub => 'Your Kitchen Hub';
+
+  @override
+  String get homeDescription =>
+      'Explore recipes, save favorites, and share your cooking creations.';
+
+  @override
+  String get exploreRecipes => 'Explore Recipes';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get ingredients => 'Ingredients';
+
+  @override
+  String get pickImage => 'Pick Image';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteRecipe => 'Delete Recipe';
+
+  @override
+  String get deleteConfirm => 'Are you sure?';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get editRecipe => 'Edit Recipe';
 }

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'auth_view.dart';
 import 'recipe_view.dart';
 import 'setting_view.dart';
@@ -17,6 +18,8 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
@@ -49,25 +52,20 @@ class _HomeViewState extends State<HomeView> {
                     },
                   ),
 
-                  Row(
-                    children: [
-
-                      // ⚙️ SETTINGS
-                      IconButton(
-                        icon: const Icon(
-                          Icons.settings,
-                          color: Color(0xFF2E7D32),
+                  // ⚙️ SETTINGS
+                  IconButton(
+                    icon: const Icon(
+                      Icons.settings,
+                      color: Color(0xFF2E7D32),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsView(),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingsView(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ],
               ),
@@ -76,7 +74,7 @@ class _HomeViewState extends State<HomeView> {
 
               // ================= TITLE =================
               Text(
-                "Welcome to Wasfaty 🌿",
+                t.welcomeHome, // 👈 add this in localization
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
@@ -127,7 +125,7 @@ class _HomeViewState extends State<HomeView> {
                         const SizedBox(height: 12),
 
                         Text(
-                          "Your Kitchen Hub",
+                          t.kitchenHub, // 👈 localization
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -139,7 +137,7 @@ class _HomeViewState extends State<HomeView> {
                         const SizedBox(height: 8),
 
                         Text(
-                          "Explore recipes, save favorites, and share your cooking creations.",
+                          t.homeDescription, // 👈 localization
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
@@ -171,9 +169,9 @@ class _HomeViewState extends State<HomeView> {
 
                             icon: const Icon(Icons.restaurant_menu),
 
-                            label: const Text(
-                              "Explore Recipes",
-                              style: TextStyle(
+                            label: Text(
+                              t.exploreRecipes, // 👈 localization
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -211,9 +209,9 @@ class _HomeViewState extends State<HomeView> {
                     color: Color(0xFF2E7D32),
                   ),
 
-                  label: const Text(
-                    "Logout",
-                    style: TextStyle(
+                  label: Text(
+                    t.logout, // 👈 localization
+                    style: const TextStyle(
                       color: Color(0xFF2E7D32),
                       fontWeight: FontWeight.bold,
                     ),

@@ -22,5 +22,24 @@
 
   "addRecipe": "إضافة وصفة",
   "myRecipes": "وصفاتي",
-  "noRecipes": "لا توجد وصفات بعد"
+  "noRecipes": "لا توجد وصفات بعد",
+
+  "welcomeHome": "مرحبًا بك في وصفتـي 🌿",
+  "kitchenHub": "مطبخك الذكي",
+  "homeDescription": "استكشف الوصفات، احفظ المفضلة وشارك إبداعاتك.",
+  "exploreRecipes": "استعرض الوصفات",
+  "logout": "تسجيل الخروج",
+
+  "title": "العنوان",
+  "description": "الوصف",
+  "ingredients": "المكونات",
+  "pickImage": "اختيار صورة",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "update": "تحديث",
+  "delete": "حذف",
+  "deleteRecipe": "حذف الوصفة",
+  "deleteConfirm": "هل أنت متأكد؟",
+  "error": "خطأ",
+  "editRecipe": "تعديل الوصفة"
 }
