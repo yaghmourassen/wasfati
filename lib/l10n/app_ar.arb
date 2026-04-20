@@ -41,5 +41,17 @@
   "deleteRecipe": "حذف الوصفة",
   "deleteConfirm": "هل أنت متأكد؟",
   "error": "خطأ",
-  "editRecipe": "تعديل الوصفة"
+  "editRecipe": "تعديل الوصفة",
+
+
+  "breakfast": "إفطار",
+  "lunch": "غداء",
+  "dinner": "عشاء",
+  "dessert": "حلويات",
+  "healthy": "صحي",
+  "fastfood": "وجبات سريعة",
+  "traditional": "تقليدي",
+  "drinks": "مشروبات",
+
+  "selectCategory": "اختر الفئة"
 }

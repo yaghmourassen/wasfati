@@ -122,4 +122,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editRecipe => 'Edit Recipe';
+
+  @override
+  String get breakfast => 'Breakfast';
+
+  @override
+  String get lunch => 'Lunch';
+
+  @override
+  String get dinner => 'Dinner';
+
+  @override
+  String get dessert => 'Dessert';
+
+  @override
+  String get healthy => 'Healthy';
+
+  @override
+  String get fastfood => 'Fast Food';
+
+  @override
+  String get traditional => 'Traditional';
+
+  @override
+  String get drinks => 'Drinks';
+
+  @override
+  String get selectCategory => 'Select Category';
 }

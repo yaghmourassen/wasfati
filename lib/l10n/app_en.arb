@@ -41,5 +41,16 @@
   "deleteRecipe": "Delete Recipe",
   "deleteConfirm": "Are you sure?",
   "error": "Error",
-  "editRecipe": "Edit Recipe"
+  "editRecipe": "Edit Recipe",
+
+  "breakfast": "Breakfast",
+  "lunch": "Lunch",
+  "dinner": "Dinner",
+  "dessert": "Dessert",
+  "healthy": "Healthy",
+  "fastfood": "Fast Food",
+  "traditional": "Traditional",
+  "drinks": "Drinks",
+
+  "selectCategory": "Select Category"
 }

@@ -2,15 +2,17 @@ class RecipeModel {
   final String? id; // Firestore document ID
   final String title;
   final String description;
+  final String categoryId; // 👈 مهم جداً
   final List<String> ingredients;
-  final String? imageUrl; // ✅ NEW
+  final String? imageUrl;
 
   RecipeModel({
     this.id,
     required this.title,
     required this.description,
+    required this.categoryId, // 👈 لازم تكون موجودة
     required this.ingredients,
-    this.imageUrl, // ✅ NEW
+    this.imageUrl,
   });
 
   /// Convert RecipeModel to Map for Firestore
@@ -18,8 +20,9 @@ class RecipeModel {
     return {
       'title': title,
       'description': description,
+      'categoryId': categoryId, // 👈 مهم
       'ingredients': ingredients,
-      'imageUrl': imageUrl, // ✅ NEW
+      'imageUrl': imageUrl,
     };
   }
 
@@ -29,8 +32,9 @@ class RecipeModel {
       id: id,
       title: map['title'] ?? '',
       description: map['description'] ?? '',
+      categoryId: map['categoryId'] ?? '', // 👈 مهم
       ingredients: List<String>.from(map['ingredients'] ?? []),
-      imageUrl: map['imageUrl'], // ✅ NEW
+      imageUrl: map['imageUrl'],
     );
   }
 }

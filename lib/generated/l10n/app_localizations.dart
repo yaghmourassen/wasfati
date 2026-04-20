@@ -325,6 +325,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit Recipe'**
   String get editRecipe;
+
+  /// No description provided for @breakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast'**
+  String get breakfast;
+
+  /// No description provided for @lunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch'**
+  String get lunch;
+
+  /// No description provided for @dinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner'**
+  String get dinner;
+
+  /// No description provided for @dessert.
+  ///
+  /// In en, this message translates to:
+  /// **'Dessert'**
+  String get dessert;
+
+  /// No description provided for @healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get healthy;
+
+  /// No description provided for @fastfood.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast Food'**
+  String get fastfood;
+
+  /// No description provided for @traditional.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional'**
+  String get traditional;
+
+  /// No description provided for @drinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Drinks'**
+  String get drinks;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Category'**
+  String get selectCategory;
 }
 
 class _AppLocalizationsDelegate

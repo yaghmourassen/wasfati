@@ -121,4 +121,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editRecipe => 'تعديل الوصفة';
+
+  @override
+  String get breakfast => 'إفطار';
+
+  @override
+  String get lunch => 'غداء';
+
+  @override
+  String get dinner => 'عشاء';
+
+  @override
+  String get dessert => 'حلويات';
+
+  @override
+  String get healthy => 'صحي';
+
+  @override
+  String get fastfood => 'وجبات سريعة';
+
+  @override
+  String get traditional => 'تقليدي';
+
+  @override
+  String get drinks => 'مشروبات';
+
+  @override
+  String get selectCategory => 'اختر الفئة';
 }
