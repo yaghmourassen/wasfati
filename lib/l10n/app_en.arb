@@ -52,5 +52,6 @@
   "traditional": "Traditional",
   "drinks": "Drinks",
 
-  "selectCategory": "Select Category"
+  "selectCategory": "Select Category",
+  "categories": "Categories"
 }

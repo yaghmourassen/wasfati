@@ -43,7 +43,6 @@
   "error": "خطأ",
   "editRecipe": "تعديل الوصفة",
 
-
   "breakfast": "إفطار",
   "lunch": "غداء",
   "dinner": "عشاء",
@@ -53,5 +52,6 @@
   "traditional": "تقليدي",
   "drinks": "مشروبات",
 
-  "selectCategory": "اختر الفئة"
+  "selectCategory": "اختر الفئة",
+  "categories": "التصنيفات"
 }

@@ -148,4 +148,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get selectCategory => 'اختر الفئة';
+
+  @override
+  String get categories => 'التصنيفات';
 }

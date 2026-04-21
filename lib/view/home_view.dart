@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../controller/auth_controller.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'auth_view.dart';
-import 'recipe_view.dart';
+import 'category_view.dart'; // ✅ IMPORT OK
 import 'setting_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -35,7 +35,7 @@ class _HomeViewState extends State<HomeView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
 
-                  // 🍲 RECIPE BUTTON
+                  // 🍲 CATEGORY BUTTON
                   IconButton(
                     icon: const Icon(
                       Icons.restaurant_menu_rounded,
@@ -46,7 +46,7 @@ class _HomeViewState extends State<HomeView> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const RecipeView(),
+                          builder: (_) => const CategoryView(), // ✅ FIXED
                         ),
                       );
                     },
@@ -74,13 +74,11 @@ class _HomeViewState extends State<HomeView> {
 
               // ================= TITLE =================
               Text(
-                t.welcomeHome, // 👈 add this in localization
+                t.welcomeHome,
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 25),
@@ -88,13 +86,11 @@ class _HomeViewState extends State<HomeView> {
               // ================= MAIN CARD =================
               ClipRRect(
                 borderRadius: BorderRadius.circular(26),
-
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
 
                   child: Container(
                     padding: const EdgeInsets.all(20),
-
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(26),
@@ -104,13 +100,6 @@ class _HomeViewState extends State<HomeView> {
                             .primary
                             .withOpacity(0.3),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        )
-                      ],
                     ),
 
                     child: Column(
@@ -125,19 +114,17 @@ class _HomeViewState extends State<HomeView> {
                         const SizedBox(height: 12),
 
                         Text(
-                          t.kitchenHub, // 👈 localization
+                          t.kitchenHub,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
-                              ?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
 
                         const SizedBox(height: 8),
 
                         Text(
-                          t.homeDescription, // 👈 localization
+                          t.homeDescription,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
@@ -152,25 +139,20 @@ class _HomeViewState extends State<HomeView> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const RecipeView(),
+                                  builder: (_) => const CategoryView(), // ✅ FIXED
                                 ),
                               );
                             },
-
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2E7D32),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-
                             icon: const Icon(Icons.restaurant_menu),
-
                             label: Text(
-                              t.exploreRecipes, // 👈 localization
+                              t.exploreRecipes,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -189,7 +171,6 @@ class _HomeViewState extends State<HomeView> {
               // ================= LOGOUT =================
               SizedBox(
                 width: double.infinity,
-
                 child: OutlinedButton.icon(
                   onPressed: () async {
                     await authController.logout();
@@ -203,25 +184,12 @@ class _HomeViewState extends State<HomeView> {
                       );
                     }
                   },
-
-                  icon: const Icon(
-                    Icons.logout,
-                    color: Color(0xFF2E7D32),
-                  ),
-
+                  icon: const Icon(Icons.logout, color: Color(0xFF2E7D32)),
                   label: Text(
-                    t.logout, // 👈 localization
+                    t.logout,
                     style: const TextStyle(
                       color: Color(0xFF2E7D32),
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: Color(0xFF2E7D32)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),

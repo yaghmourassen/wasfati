@@ -6,7 +6,9 @@ import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
 
 class RecipeView extends StatefulWidget {
-  const RecipeView({super.key});
+  final String? categoryId; // ✅ ADD THIS
+
+  const RecipeView({super.key, this.categoryId}); // ✅ MODIFY
 
   @override
   State<RecipeView> createState() => _RecipeViewState();
@@ -17,6 +19,12 @@ class _RecipeViewState extends State<RecipeView> {
 
   bool _isLoading = false;
   String? selectedCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategoryId = widget.categoryId; // ✅ ADD THIS
+  }
 
   // ================= CATEGORY IDS ONLY =================
   final List<Map<String, String>> categories = [

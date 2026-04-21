@@ -149,4 +149,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectCategory => 'Select Category';
+
+  @override
+  String get categories => 'Categories';
 }
