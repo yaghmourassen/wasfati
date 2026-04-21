@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
-
+import 'recipe_detail_view.dart';
 class RecipeView extends StatefulWidget {
   final String? categoryId; // ✅ ADD THIS
 
@@ -343,37 +343,48 @@ class _RecipeViewState extends State<RecipeView> {
 
               return Card(
                 margin: const EdgeInsets.all(8),
-                child: ListTile(
-                  leading: recipe.imageUrl != null
-                      ? Image.network(recipe.imageUrl!, width: 50)
-                      : const Icon(Icons.fastfood),
-
-                  title: Text(recipe.title),
-
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(recipe.description),
-                      const SizedBox(height: 4),
-                      Text(
-                        _catName(context, recipe.categoryId),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => RecipeDetailView(recipe: recipe),
                       ),
-                    ],
-                  ),
+                    );
+                  },
 
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () => _showEditDialog(recipe),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteRecipe(recipe.id!),
-                      ),
-                    ],
+                  child: ListTile(
+                    leading: recipe.imageUrl != null
+                        ? Image.network(recipe.imageUrl!, width: 50)
+                        : const Icon(Icons.fastfood),
+
+                    title: Text(recipe.title),
+
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(recipe.description),
+                        const SizedBox(height: 4),
+                        Text(
+                          _catName(context, recipe.categoryId),
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _showEditDialog(recipe),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteRecipe(recipe.id!),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
