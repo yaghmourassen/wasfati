@@ -53,5 +53,7 @@
   "drinks": "مشروبات",
 
   "selectCategory": "اختر الفئة",
-  "categories": "التصنيفات"
+  "categories": "التصنيفات",
+   "ingredients": "المكونات",
+    "howToPrepare": "طريقة التحضير"
 }

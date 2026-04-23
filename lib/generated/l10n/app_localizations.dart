@@ -385,6 +385,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Categories'**
   String get categories;
+
+  /// No description provided for @howToPrepare.
+  ///
+  /// In en, this message translates to:
+  /// **'How to prepare'**
+  String get howToPrepare;
 }
 
 class _AppLocalizationsDelegate

@@ -5,10 +5,11 @@ import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'recipe_detail_view.dart';
-class RecipeView extends StatefulWidget {
-  final String? categoryId; // ✅ ADD THIS
 
-  const RecipeView({super.key, this.categoryId}); // ✅ MODIFY
+class RecipeView extends StatefulWidget {
+  final String? categoryId;
+
+  const RecipeView({super.key, this.categoryId});
 
   @override
   State<RecipeView> createState() => _RecipeViewState();
@@ -23,10 +24,9 @@ class _RecipeViewState extends State<RecipeView> {
   @override
   void initState() {
     super.initState();
-    selectedCategoryId = widget.categoryId; // ✅ ADD THIS
+    selectedCategoryId = widget.categoryId;
   }
 
-  // ================= CATEGORY IDS ONLY =================
   final List<Map<String, String>> categories = [
     {"id": "breakfast"},
     {"id": "lunch"},
@@ -38,7 +38,6 @@ class _RecipeViewState extends State<RecipeView> {
     {"id": "drinks"},
   ];
 
-  // ================= TRANSLATION =================
   String _catName(BuildContext context, String? id) {
     final t = AppLocalizations.of(context)!;
     if (id == null) return "";
@@ -65,24 +64,23 @@ class _RecipeViewState extends State<RecipeView> {
     }
   }
 
-  // ================= IMAGE PICK =================
   Future<File?> pickImage() async {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     return picked != null ? File(picked.path) : null;
   }
 
-  // ================= ADD =================
+  // ================= ADD RECIPE =================
   void _showAddDialog() {
     final t = AppLocalizations.of(context)!;
 
     final title = TextEditingController();
     final desc = TextEditingController();
-    final ingredients = TextEditingController();
 
     String? dialogCategory;
     File? image;
+
+    List<String> ingredientsList = [];
+    TextEditingController ingredientCtrl = TextEditingController();
 
     showDialog(
       context: context,
@@ -109,9 +107,7 @@ class _RecipeViewState extends State<RecipeView> {
                       onChanged: (value) {
                         setStateDialog(() => dialogCategory = value);
                       },
-                      decoration: InputDecoration(
-                        labelText: t.selectCategory,
-                      ),
+                      decoration: InputDecoration(labelText: t.selectCategory),
                     ),
 
                     TextField(
@@ -119,15 +115,53 @@ class _RecipeViewState extends State<RecipeView> {
                       decoration: InputDecoration(labelText: t.title),
                     ),
 
-                    TextField(
-                      controller: desc,
-                      decoration: InputDecoration(labelText: t.description),
-                    ),
+                    const SizedBox(height: 10),
 
                     TextField(
-                      controller: ingredients,
-                      decoration: InputDecoration(labelText: t.ingredients),
+                      controller: desc,
+                      maxLines: 4,
+                      minLines: 2,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        labelText: t.description,
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
+
+                    const SizedBox(height: 10),
+
+                    // INGREDIENTS INPUT
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: ingredientCtrl,
+                            decoration: InputDecoration(
+                              labelText: t.ingredients,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () {
+                            if (ingredientCtrl.text.isNotEmpty) {
+                              setStateDialog(() {
+                                ingredientsList.add(ingredientCtrl.text);
+                                ingredientCtrl.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+
+                    Wrap(
+                      children: ingredientsList
+                          .map((e) => Chip(label: Text(e)))
+                          .toList(),
+                    ),
+
+                    const SizedBox(height: 10),
 
                     TextButton(
                       onPressed: () async {
@@ -168,10 +202,7 @@ class _RecipeViewState extends State<RecipeView> {
                       title: title.text,
                       description: desc.text,
                       categoryId: dialogCategory!,
-                      ingredients: ingredients.text
-                          .split(',')
-                          .map((e) => e.trim())
-                          .toList(),
+                      ingredients: ingredientsList,
                       imageUrl: imageUrl,
                     );
 
@@ -179,120 +210,6 @@ class _RecipeViewState extends State<RecipeView> {
                     Navigator.pop(context);
                   },
                   child: Text(t.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ================= EDIT =================
-  void _showEditDialog(RecipeModel recipe) {
-    final t = AppLocalizations.of(context)!;
-
-    final title = TextEditingController(text: recipe.title);
-    final desc = TextEditingController(text: recipe.description);
-    final ingredients =
-    TextEditingController(text: recipe.ingredients.join(','));
-
-    String? editCategory = recipe.categoryId;
-    File? newImage;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              title: Text(t.editRecipe),
-
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-
-                    DropdownButtonFormField<String>(
-                      value: editCategory,
-                      items: categories.map((cat) {
-                        final id = cat["id"]!;
-                        return DropdownMenuItem(
-                          value: id,
-                          child: Text(_catName(context, id)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setStateDialog(() => editCategory = value);
-                      },
-                      decoration: InputDecoration(
-                        labelText: t.selectCategory,
-                      ),
-                    ),
-
-                    TextField(
-                      controller: title,
-                      decoration: InputDecoration(labelText: t.title),
-                    ),
-
-                    TextField(
-                      controller: desc,
-                      decoration: InputDecoration(labelText: t.description),
-                    ),
-
-                    TextField(
-                      controller: ingredients,
-                      decoration: InputDecoration(labelText: t.ingredients),
-                    ),
-
-                    TextButton(
-                      onPressed: () async {
-                        newImage = await pickImage();
-                        setStateDialog(() {});
-                      },
-                      child: Text(t.pickImage),
-                    ),
-
-                    if (newImage != null)
-                      Image.file(newImage!, height: 100)
-                    else if (recipe.imageUrl != null)
-                      Image.network(recipe.imageUrl!, height: 100),
-                  ],
-                ),
-              ),
-
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(t.cancel),
-                ),
-
-                ElevatedButton(
-                  onPressed: () async {
-                    if (editCategory == null) return;
-
-                    String? updatedImageUrl = recipe.imageUrl;
-
-                    if (newImage != null) {
-                      updatedImageUrl =
-                      await controller.uploadToCloudinary(newImage!);
-                    }
-
-                    await controller.updateRecipe(
-                      id: recipe.id!,
-                      title: title.text,
-                      description: desc.text,
-                      categoryId: editCategory!,
-                      ingredients: ingredients.text
-                          .split(',')
-                          .map((e) => e.trim())
-                          .toList(),
-                      imageUrl: updatedImageUrl,
-                    );
-
-                    Navigator.pop(context);
-                  },
-                  child: Text(t.update),
                 ),
               ],
             );
@@ -343,48 +260,67 @@ class _RecipeViewState extends State<RecipeView> {
 
               return Card(
                 margin: const EdgeInsets.all(8),
-                child: InkWell(
+
+                child: ListTile(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => RecipeDetailView(recipe: recipe),
+                        builder: (_) =>
+                            RecipeDetailView(recipe: recipe),
                       ),
                     );
                   },
 
-                  child: ListTile(
-                    leading: recipe.imageUrl != null
-                        ? Image.network(recipe.imageUrl!, width: 50)
-                        : const Icon(Icons.fastfood),
+                  leading: recipe.imageUrl != null
+                      ? Image.network(recipe.imageUrl!, width: 50, fit: BoxFit.cover)
+                      : const Icon(Icons.fastfood),
 
-                    title: Text(recipe.title),
-
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(recipe.description),
-                        const SizedBox(height: 4),
-                        Text(
-                          _catName(context, recipe.categoryId),
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
+                  title: Text(
+                    recipe.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
 
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _showEditDialog(recipe),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+
+                      Text(
+                        "${recipe.ingredients.length} ingredients",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteRecipe(recipe.id!),
+                      ),
+
+                      const SizedBox(height: 2),
+
+                      Text(
+                        _catName(context, recipe.categoryId),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteRecipe(recipe.id!),
+                      ),
+                    ],
                   ),
                 ),
               );

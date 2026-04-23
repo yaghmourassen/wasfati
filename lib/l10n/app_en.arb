@@ -53,5 +53,8 @@
   "drinks": "Drinks",
 
   "selectCategory": "Select Category",
-  "categories": "Categories"
+  "categories": "Categories",
+
+  "ingredients": "Ingredients",
+  "howToPrepare": "How to prepare"
 }

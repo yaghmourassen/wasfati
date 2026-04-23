@@ -151,4 +151,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get categories => 'التصنيفات';
+
+  @override
+  String get howToPrepare => 'طريقة التحضير';
 }
