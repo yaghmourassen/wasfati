@@ -55,6 +55,11 @@
   "selectCategory": "Select Category",
   "categories": "Categories",
 
-  "ingredients": "Ingredients",
-  "howToPrepare": "How to prepare"
+  "howToPrepare": "How to prepare",
+
+
+  "restaurantsTitle": "Restaurants",
+  "exploreRestaurants": "Explore the best restaurants",
+  "restaurantDescription": "Fast food and premium restaurants and recommend your dishes",
+  "comingSoon": "COMING SOON"
 }

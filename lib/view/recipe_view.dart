@@ -40,8 +40,6 @@ class _RecipeViewState extends State<RecipeView> {
 
   String _catName(BuildContext context, String? id) {
     final t = AppLocalizations.of(context)!;
-    if (id == null) return "";
-
     switch (id) {
       case "breakfast":
         return t.breakfast;
@@ -60,7 +58,7 @@ class _RecipeViewState extends State<RecipeView> {
       case "drinks":
         return t.drinks;
       default:
-        return id;
+        return id ?? "";
     }
   }
 
@@ -69,17 +67,19 @@ class _RecipeViewState extends State<RecipeView> {
     return picked != null ? File(picked.path) : null;
   }
 
-  // ================= ADD RECIPE =================
-  void _showAddDialog() {
+  // ================= ADD / EDIT DIALOG =================
+  void _showRecipeDialog({RecipeModel? recipe}) {
     final t = AppLocalizations.of(context)!;
 
-    final title = TextEditingController();
-    final desc = TextEditingController();
+    final title = TextEditingController(text: recipe?.title ?? "");
+    final desc = TextEditingController(text: recipe?.description ?? "");
 
-    String? dialogCategory;
+    String? dialogCategory = recipe?.categoryId;
     File? image;
 
-    List<String> ingredientsList = [];
+    List<String> ingredientsList =
+    recipe != null ? List.from(recipe.ingredients) : [];
+
     TextEditingController ingredientCtrl = TextEditingController();
 
     showDialog(
@@ -88,13 +88,11 @@ class _RecipeViewState extends State<RecipeView> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: Text(t.addRecipe),
+              title: Text(recipe == null ? t.addRecipe : t.editRecipe),
 
               content: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-
                     DropdownButtonFormField<String>(
                       value: dialogCategory,
                       items: categories.map((cat) {
@@ -104,10 +102,10 @@ class _RecipeViewState extends State<RecipeView> {
                           child: Text(_catName(context, id)),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setStateDialog(() => dialogCategory = value);
-                      },
-                      decoration: InputDecoration(labelText: t.selectCategory),
+                      onChanged: (value) =>
+                          setStateDialog(() => dialogCategory = value),
+                      decoration:
+                      InputDecoration(labelText: t.selectCategory),
                     ),
 
                     TextField(
@@ -120,8 +118,6 @@ class _RecipeViewState extends State<RecipeView> {
                     TextField(
                       controller: desc,
                       maxLines: 4,
-                      minLines: 2,
-                      keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         labelText: t.description,
                         border: const OutlineInputBorder(),
@@ -130,15 +126,13 @@ class _RecipeViewState extends State<RecipeView> {
 
                     const SizedBox(height: 10),
 
-                    // INGREDIENTS INPUT
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
                             controller: ingredientCtrl,
-                            decoration: InputDecoration(
-                              labelText: t.ingredients,
-                            ),
+                            decoration:
+                            InputDecoration(labelText: t.ingredients),
                           ),
                         ),
                         IconButton(
@@ -157,7 +151,14 @@ class _RecipeViewState extends State<RecipeView> {
 
                     Wrap(
                       children: ingredientsList
-                          .map((e) => Chip(label: Text(e)))
+                          .map((e) => Chip(
+                        label: Text(e),
+                        onDeleted: () {
+                          setStateDialog(() {
+                            ingredientsList.remove(e);
+                          });
+                        },
+                      ))
                           .toList(),
                     ),
 
@@ -172,7 +173,9 @@ class _RecipeViewState extends State<RecipeView> {
                     ),
 
                     if (image != null)
-                      Image.file(image!, height: 100),
+                      Image.file(image!, height: 100)
+                    else if (recipe?.imageUrl != null)
+                      Image.network(recipe!.imageUrl!, height: 100),
                   ],
                 ),
               ),
@@ -184,30 +187,52 @@ class _RecipeViewState extends State<RecipeView> {
                 ),
 
                 ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () async {
+                  onPressed: () async {
                     if (title.text.isEmpty ||
                         desc.text.isEmpty ||
-                        dialogCategory == null) return;
+                        dialogCategory == null) {
+                      return;
+                    }
 
                     setState(() => _isLoading = true);
 
-                    String? imageUrl;
+                    String? imageUrl = recipe?.imageUrl;
+
                     if (image != null) {
-                      imageUrl = await controller.uploadToCloudinary(image!);
+                      imageUrl =
+                      await controller.uploadToCloudinary(image!);
                     }
 
-                    await controller.addRecipe(
-                      title: title.text,
-                      description: desc.text,
-                      categoryId: dialogCategory!,
-                      ingredients: ingredientsList,
-                      imageUrl: imageUrl,
-                    );
+                    String? error;
+
+                    if (recipe == null) {
+                      error = await controller.addRecipe(
+                        title: title.text,
+                        description: desc.text,
+                        categoryId: dialogCategory!,
+                        ingredients: ingredientsList,
+                        imageUrl: imageUrl,
+                      );
+                    } else {
+                      error = await controller.updateRecipe(
+                        id: recipe.id!,
+                        title: title.text,
+                        description: desc.text,
+                        categoryId: dialogCategory!,
+                        ingredients: ingredientsList,
+                        imageUrl: imageUrl,
+                      );
+                    }
 
                     setState(() => _isLoading = false);
-                    Navigator.pop(context);
+
+                    if (error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error)),
+                      );
+                    } else {
+                      Navigator.pop(context);
+                    }
                   },
                   child: Text(t.save),
                 ),
@@ -233,7 +258,7 @@ class _RecipeViewState extends State<RecipeView> {
       appBar: AppBar(title: Text(t.appTitle)),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddDialog,
+        onPressed: () => _showRecipeDialog(),
         child: const Icon(Icons.add),
       ),
 
@@ -241,7 +266,6 @@ class _RecipeViewState extends State<RecipeView> {
         stream: selectedCategoryId == null
             ? controller.getRecipesStream()
             : controller.getRecipesByCategory(selectedCategoryId!),
-
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -260,7 +284,6 @@ class _RecipeViewState extends State<RecipeView> {
 
               return Card(
                 margin: const EdgeInsets.all(8),
-
                 child: ListTile(
                   onTap: () {
                     Navigator.push(
@@ -271,54 +294,33 @@ class _RecipeViewState extends State<RecipeView> {
                       ),
                     );
                   },
-
                   leading: recipe.imageUrl != null
-                      ? Image.network(recipe.imageUrl!, width: 50, fit: BoxFit.cover)
+                      ? Image.network(recipe.imageUrl!,
+                      width: 50, fit: BoxFit.cover)
                       : const Icon(Icons.fastfood),
 
                   title: Text(
                     recipe.title,
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
 
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-
-                      Text(
-                        "${recipe.ingredients.length} ingredients",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-
-                      const SizedBox(height: 2),
-
-                      Text(
-                        _catName(context, recipe.categoryId),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
+                  subtitle: Text(
+                      "${recipe.ingredients.length} ingredients • ${_catName(context, recipe.categoryId)}"),
 
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () {},
+                        onPressed: () =>
+                            _showRecipeDialog(recipe: recipe),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteRecipe(recipe.id!),
+                        icon:
+                        const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () =>
+                            _deleteRecipe(recipe.id!),
                       ),
                     ],
                   ),

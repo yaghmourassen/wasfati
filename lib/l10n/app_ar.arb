@@ -54,6 +54,12 @@
 
   "selectCategory": "اختر الفئة",
   "categories": "التصنيفات",
-   "ingredients": "المكونات",
-    "howToPrepare": "طريقة التحضير"
+
+  "howToPrepare": "طريقة التحضير",
+
+
+  "restaurantsTitle": "المطاعم",
+  "exploreRestaurants": "استكشف أفضل المطاعم",
+  "restaurantDescription": "وجبات سريعة ومطاعم فاخرة وشارك اقتراحاتك",
+  "comingSoon": "قريباً"
 }

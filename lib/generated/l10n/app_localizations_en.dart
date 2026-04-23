@@ -155,4 +155,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get howToPrepare => 'How to prepare';
+
+  @override
+  String get restaurantsTitle => 'Restaurants';
+
+  @override
+  String get exploreRestaurants => 'Explore the best restaurants';
+
+  @override
+  String get restaurantDescription =>
+      'Fast food and premium restaurants and recommend your dishes';
+
+  @override
+  String get comingSoon => 'COMING SOON';
 }

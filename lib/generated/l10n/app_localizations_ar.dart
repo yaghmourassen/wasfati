@@ -154,4 +154,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get howToPrepare => 'طريقة التحضير';
+
+  @override
+  String get restaurantsTitle => 'المطاعم';
+
+  @override
+  String get exploreRestaurants => 'استكشف أفضل المطاعم';
+
+  @override
+  String get restaurantDescription =>
+      'وجبات سريعة ومطاعم فاخرة وشارك اقتراحاتك';
+
+  @override
+  String get comingSoon => 'قريباً';
 }

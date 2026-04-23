@@ -5,7 +5,7 @@ import '../generated/l10n/app_localizations.dart';
 import 'auth_view.dart';
 import 'category_view.dart'; // ✅ IMPORT OK
 import 'setting_view.dart';
-
+import 'restaurent_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -35,6 +35,22 @@ class _HomeViewState extends State<HomeView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
 
+                  IconButton(
+                    icon: const Icon(
+                      Icons.storefront_rounded,
+                      size: 30,
+                      color: Color(0xFF2E7D32),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RestaurantView(),
+                        ),
+                      );
+                    },
+                  ),
+
                   // 🍲 CATEGORY BUTTON
                   IconButton(
                     icon: const Icon(
@@ -51,7 +67,6 @@ class _HomeViewState extends State<HomeView> {
                       );
                     },
                   ),
-
                   // ⚙️ SETTINGS
                   IconButton(
                     icon: const Icon(
@@ -201,3 +216,4 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
+

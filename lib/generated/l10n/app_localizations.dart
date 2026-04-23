@@ -391,6 +391,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How to prepare'**
   String get howToPrepare;
+
+  /// No description provided for @restaurantsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants'**
+  String get restaurantsTitle;
+
+  /// No description provided for @exploreRestaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the best restaurants'**
+  String get exploreRestaurants;
+
+  /// No description provided for @restaurantDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast food and premium restaurants and recommend your dishes'**
+  String get restaurantDescription;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'COMING SOON'**
+  String get comingSoon;
 }
 
 class _AppLocalizationsDelegate
