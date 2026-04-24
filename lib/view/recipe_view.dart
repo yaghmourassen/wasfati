@@ -21,12 +21,7 @@ class _RecipeViewState extends State<RecipeView> {
   final RecipeController controller = RecipeController();
 
   String searchText = "";
-  String sortBy = "date";
-
-  Future<File?> pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    return picked != null ? File(picked.path) : null;
-  }
+  String sortBy = "date"; // ✅ RESTORED
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +29,13 @@ class _RecipeViewState extends State<RecipeView> {
     final isAdmin = UserSession.isAdmin;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.appTitle)),
+      appBar: AppBar(
+        title: Text(t.appTitle),
+      ),
 
       floatingActionButton: isAdmin
           ? FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => _showAddRecipeDialog(context, t),
         child: const Icon(Icons.add),
       )
           : null,
@@ -46,7 +43,7 @@ class _RecipeViewState extends State<RecipeView> {
       body: Column(
         children: [
 
-          // ================= SEARCH =================
+          // ================= SEARCH + FILTER (RESTORED) =================
           if (!isAdmin)
             SafeArea(
               child: Container(
@@ -62,7 +59,7 @@ class _RecipeViewState extends State<RecipeView> {
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: t.searchRecipes, // ✅ L10N
+                          hintText: t.searchRecipes,
                           border: InputBorder.none,
                           prefixIcon: const Icon(Icons.search),
                         ),
@@ -84,15 +81,15 @@ class _RecipeViewState extends State<RecipeView> {
                       itemBuilder: (context) => [
                         PopupMenuItem(
                           value: "date",
-                          child: Text(t.newest), // ✅ L10N
+                          child: Text(t.newest),
                         ),
                         PopupMenuItem(
                           value: "rating",
-                          child: Text(t.topRated), // ✅ L10N
+                          child: Text(t.topRated),
                         ),
                         PopupMenuItem(
                           value: "views",
-                          child: Text(t.mostViewed), // ✅ L10N
+                          child: Text(t.mostViewed),
                         ),
                       ],
                     ),
@@ -112,13 +109,14 @@ class _RecipeViewState extends State<RecipeView> {
 
                 List<RecipeModel> recipes = snapshot.data!;
 
-                // SEARCH
-                if (!isAdmin) {
-                  recipes = recipes
-                      .where((r) =>
-                      r.title.toLowerCase().contains(searchText))
-                      .toList();
+                // ================= SEARCH (RESTORED) =================
+                recipes = recipes
+                    .where((r) =>
+                    r.title.toLowerCase().contains(searchText))
+                    .toList();
 
+                // ================= SORT (RESTORED) =================
+                if (!isAdmin) {
                   if (sortBy == "rating") {
                     recipes.sort((a, b) => b.rating.compareTo(a.rating));
                   } else if (sortBy == "views") {
@@ -145,56 +143,65 @@ class _RecipeViewState extends State<RecipeView> {
                         },
 
                         leading: recipe.imageUrl != null
-                            ? Image.network(recipe.imageUrl!,
-                            width: 50, fit: BoxFit.cover)
+                            ? Image.network(
+                          recipe.imageUrl!,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        )
                             : const Icon(Icons.fastfood),
 
                         title: Text(recipe.title),
 
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("${recipe.ingredients.length} ${t.ingredients}"), // ✅ L10N
-
-                            const SizedBox(height: 5),
-
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.star,
-                                    size: 16, color: Colors.amber),
-                                const SizedBox(width: 4),
-                                Text(
-                                  recipe.rating.toStringAsFixed(1),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ],
+                        subtitle: Text(
+                          "${recipe.ingredients.length} ${t.ingredients}",
                         ),
 
+                        // ================= ADMIN / USER FIX =================
                         trailing: isAdmin
-                            ? const SizedBox()
-                            : SizedBox(
-                          width: 110,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: List.generate(5, (i) {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.rateRecipe(
-                                    recipeId: recipe.id!,
-                                    rating: (i + 1).toDouble(),
-                                  );
-                                },
-                                child: const Icon(
-                                  Icons.star,
-                                  size: 18,
-                                  color: Colors.amber,
-                                ),
-                              );
-                            }),
-                          ),
+                            ? PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == "edit") {
+                              _showEditRecipeDialog(context, t, recipe);
+                            }
+
+                            if (value == "delete") {
+                              controller.deleteRecipe(recipe.id!);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: "edit",
+                              child: Text(t.editRecipe),
+                            ),
+                            PopupMenuItem(
+                              value: "delete",
+                              child: Text(t.delete),
+                            ),
+                          ],
+                        )
+                            : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(5, (i) {
+                            return GestureDetector(
+                              onTap: () async {
+                                await controller.rateRecipe(
+                                  recipeId: recipe.id!,
+                                  rating: (i + 1).toDouble(),
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(t.rateRecipe)),
+                                );
+
+                                setState(() {});
+                              },
+                              child: const Icon(
+                                Icons.star,
+                                size: 18,
+                                color: Colors.amber,
+                              ),
+                            );
+                          }),
                         ),
                       ),
                     );
@@ -204,6 +211,237 @@ class _RecipeViewState extends State<RecipeView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ================= ADD (UNCHANGED) =================
+  void _showAddRecipeDialog(BuildContext context, AppLocalizations t) {
+    final titleCtrl = TextEditingController();
+    final stepCtrl = TextEditingController();
+
+    List<String> ingredients = [];
+    File? image;
+
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(t.addRecipe),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+
+                  TextField(
+                    controller: titleCtrl,
+                    decoration: InputDecoration(labelText: t.title),
+                  ),
+
+                  TextField(
+                    controller: stepCtrl,
+                    maxLines: 5,
+                    decoration: InputDecoration(labelText: t.howToPrepare),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Wrap(
+                    spacing: 6,
+                    children: ingredients
+                        .map((e) => Chip(
+                      label: Text(e),
+                      onDeleted: () {
+                        setState(() {
+                          ingredients.remove(e);
+                        });
+                      },
+                    ))
+                        .toList(),
+                  ),
+
+                  TextField(
+                    onSubmitted: (value) {
+                      setState(() {
+                        ingredients.add(value.trim());
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: t.ingredients,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  if (image != null)
+                    Image.file(image!, height: 100),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      final picked = await ImagePicker().pickImage(
+                        source: ImageSource.gallery,
+                      );
+
+                      if (picked != null) {
+                        setState(() {
+                          image = File(picked.path);
+                        });
+                      }
+                    },
+                    child: Text(t.pickImage),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String? imageUrl;
+
+                  if (image != null) {
+                    imageUrl =
+                    await controller.uploadToCloudinary(image!);
+                  }
+
+                  await controller.addRecipe(
+                    title: titleCtrl.text.trim(),
+                    description: stepCtrl.text.trim(),
+                    categoryId: widget.categoryId ?? "",
+                    ingredients: ingredients,
+                    imageUrl: imageUrl,
+                  );
+
+                  Navigator.pop(context);
+                },
+                child: Text(t.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ================= EDIT (UNCHANGED) =================
+  void _showEditRecipeDialog(
+      BuildContext context,
+      AppLocalizations t,
+      RecipeModel recipe,
+      ) {
+    final titleCtrl = TextEditingController(text: recipe.title);
+    final stepCtrl =
+    TextEditingController(text: recipe.description);
+
+    List<String> ingredients =
+    List.from(recipe.ingredients);
+
+    File? image;
+    String? imageUrl = recipe.imageUrl;
+
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(t.editRecipe),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+
+                  TextField(
+                    controller: titleCtrl,
+                    decoration: InputDecoration(labelText: t.title),
+                  ),
+
+                  TextField(
+                    controller: stepCtrl,
+                    maxLines: 5,
+                    decoration: InputDecoration(labelText: t.howToPrepare),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Wrap(
+                    spacing: 6,
+                    children: ingredients
+                        .map((e) => Chip(
+                      label: Text(e),
+                      onDeleted: () {
+                        setState(() {
+                          ingredients.remove(e);
+                        });
+                      },
+                    ))
+                        .toList(),
+                  ),
+
+                  TextField(
+                    onSubmitted: (value) {
+                      setState(() {
+                        ingredients.add(value.trim());
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: t.ingredients,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  if (image != null)
+                    Image.file(image!, height: 100)
+                  else if (imageUrl != null)
+                    Image.network(imageUrl!, height: 100),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      final picked = await ImagePicker().pickImage(
+                        source: ImageSource.gallery,
+                      );
+
+                      if (picked != null) {
+                        setState(() {
+                          image = File(picked.path);
+                        });
+                      }
+                    },
+                    child: Text(t.pickImage),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (image != null) {
+                    imageUrl =
+                    await controller.uploadToCloudinary(image!);
+                  }
+
+                  await controller.updateRecipe(
+                    id: recipe.id!,
+                    title: titleCtrl.text.trim(),
+                    description: stepCtrl.text.trim(),
+                    categoryId: recipe.categoryId,
+                    ingredients: ingredients,
+                    imageUrl: imageUrl,
+                  );
+
+                  Navigator.pop(context);
+                },
+                child: Text(t.update),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
