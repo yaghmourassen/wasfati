@@ -178,31 +178,53 @@ class _RecipeViewState extends State<RecipeView> {
                               child: Text(t.delete),
                             ),
                           ],
-                        )
-                            : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(5, (i) {
-                            return GestureDetector(
-                              onTap: () async {
-                                await controller.rateRecipe(
-                                  recipeId: recipe.id!,
-                                  rating: (i + 1).toDouble(),
-                                );
+                        ):
+                        StatefulBuilder(
+                          builder: (context, setStateLocal) {
+                            int hoveredRating = 0;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(t.rateRecipe)),
-                                );
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ...List.generate(5, (i) {
+                                  final isFilled = i < recipe.rating.round();
 
-                                setState(() {});
-                              },
-                              child: const Icon(
-                                Icons.star,
-                                size: 18,
-                                color: Colors.amber,
-                              ),
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      await controller.rateRecipe(
+                                        recipeId: recipe.id!,
+                                        rating: (i + 1).toDouble(),
+                                      );
+
+                                      setState(() {}); // refresh StreamBuilder
+                                    },
+                                    child: Icon(
+                                      Icons.star,
+                                      size: 20,
+                                      color: isFilled
+                                          ? Colors.amber
+                                          : Colors.grey.shade400,
+                                    ),
+                                  );
+                                }),
+
+                                const SizedBox(width: 6),
+
+                                Text(
+                                  recipe.rating.toStringAsFixed(1),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+
+                                const SizedBox(width: 4),
+
+                                Text(
+                                  "(${recipe.ratingCount})",
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
                             );
-                          }),
-                        ),
+                          },
+                        )
                       ),
                     );
                   },
