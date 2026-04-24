@@ -22,7 +22,38 @@ class _RecipeViewState extends State<RecipeView> {
 
   String searchText = "";
   String sortBy = "date"; // ✅ RESTORED
-
+  final List<Map<String, String>> categories = const [
+    {"id": "breakfast"},
+    {"id": "lunch"},
+    {"id": "dinner"},
+    {"id": "dessert"},
+    {"id": "healthy"},
+    {"id": "fastfood"},
+    {"id": "traditional"},
+    {"id": "drinks"},
+  ];
+  String getCategoryName(String id, AppLocalizations t) {
+    switch (id) {
+      case "breakfast":
+        return t.breakfast;
+      case "lunch":
+        return t.lunch;
+      case "dinner":
+        return t.dinner;
+      case "dessert":
+        return t.dessert;
+      case "healthy":
+        return t.healthy;
+      case "fastfood":
+        return t.fastfood;
+      case "traditional":
+        return t.traditional;
+      case "drinks":
+        return t.drinks;
+      default:
+        return id;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -108,7 +139,11 @@ class _RecipeViewState extends State<RecipeView> {
                 }
 
                 List<RecipeModel> recipes = snapshot.data!;
-
+                if (widget.categoryId != null && widget.categoryId!.isNotEmpty) {
+                  recipes = recipes
+                      .where((r) => r.categoryId == widget.categoryId)
+                      .toList();
+                }
                 // ================= SEARCH (RESTORED) =================
                 recipes = recipes
                     .where((r) =>
@@ -238,9 +273,13 @@ class _RecipeViewState extends State<RecipeView> {
   }
 
   // ================= ADD (UNCHANGED) =================
+  // ================= ADD (UPDATED ONLY THIS PART) =================
   void _showAddRecipeDialog(BuildContext context, AppLocalizations t) {
     final titleCtrl = TextEditingController();
     final stepCtrl = TextEditingController();
+
+    // ✅ FIX: initialize with incoming category
+    String? selectedCategoryId = widget.categoryId;
 
     List<String> ingredients = [];
     File? image;
@@ -264,6 +303,26 @@ class _RecipeViewState extends State<RecipeView> {
                     controller: stepCtrl,
                     maxLines: 5,
                     decoration: InputDecoration(labelText: t.howToPrepare),
+                  ),
+
+                  // 🔥 NEW: CATEGORY DROPDOWN
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategoryId,
+                    hint: const Text("Select Category"),
+                    items: categories.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat["id"],
+                        child: Text(
+                          getCategoryName(cat["id"]!, t),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategoryId = value;
+                      });
+                    },
                   ),
 
                   const SizedBox(height: 10),
@@ -329,10 +388,11 @@ class _RecipeViewState extends State<RecipeView> {
                     await controller.uploadToCloudinary(image!);
                   }
 
+                  // ✅ FIX: use selectedCategoryId
                   await controller.addRecipe(
                     title: titleCtrl.text.trim(),
                     description: stepCtrl.text.trim(),
-                    categoryId: widget.categoryId ?? "",
+                    categoryId: selectedCategoryId ?? "",
                     ingredients: ingredients,
                     imageUrl: imageUrl,
                   );
@@ -347,7 +407,6 @@ class _RecipeViewState extends State<RecipeView> {
       ),
     );
   }
-
   // ================= EDIT (UNCHANGED) =================
   void _showEditRecipeDialog(
       BuildContext context,
@@ -357,6 +416,9 @@ class _RecipeViewState extends State<RecipeView> {
     final titleCtrl = TextEditingController(text: recipe.title);
     final stepCtrl =
     TextEditingController(text: recipe.description);
+
+    // ✅ FIX: allow editing category
+    String? selectedCategoryId = recipe.categoryId;
 
     List<String> ingredients =
     List.from(recipe.ingredients);
@@ -383,6 +445,25 @@ class _RecipeViewState extends State<RecipeView> {
                     controller: stepCtrl,
                     maxLines: 5,
                     decoration: InputDecoration(labelText: t.howToPrepare),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // 🔥 CATEGORY DROPDOWN (NEW)
+                  DropdownButtonFormField<String>(
+                    value: selectedCategoryId,
+                    hint: const Text("Select Category"),
+                    items: categories.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat["id"],
+                        child: Text(getCategoryName(cat["id"]!, t)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategoryId = value;
+                      });
+                    },
                   ),
 
                   const SizedBox(height: 10),
@@ -441,6 +522,7 @@ class _RecipeViewState extends State<RecipeView> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(t.cancel),
               ),
+
               ElevatedButton(
                 onPressed: () async {
                   if (image != null) {
@@ -448,11 +530,12 @@ class _RecipeViewState extends State<RecipeView> {
                     await controller.uploadToCloudinary(image!);
                   }
 
+                  // ✅ FIX: use selectedCategoryId instead of recipe.categoryId
                   await controller.updateRecipe(
                     id: recipe.id!,
                     title: titleCtrl.text.trim(),
                     description: stepCtrl.text.trim(),
-                    categoryId: recipe.categoryId,
+                    categoryId: selectedCategoryId ?? "",
                     ingredients: ingredients,
                     imageUrl: imageUrl,
                   );
