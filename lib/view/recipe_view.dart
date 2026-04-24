@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../core/user_session.dart'; // ✅ ADDED
 import 'recipe_detail_view.dart';
 
 class RecipeView extends StatefulWidget {
@@ -199,8 +201,7 @@ class _RecipeViewState extends State<RecipeView> {
                     String? imageUrl = recipe?.imageUrl;
 
                     if (image != null) {
-                      imageUrl =
-                      await controller.uploadToCloudinary(image!);
+                      imageUrl = await controller.uploadToCloudinary(image!);
                     }
 
                     String? error;
@@ -257,10 +258,13 @@ class _RecipeViewState extends State<RecipeView> {
     return Scaffold(
       appBar: AppBar(title: Text(t.appTitle)),
 
-      floatingActionButton: FloatingActionButton(
+      // 🔐 ADMIN ONLY ADD BUTTON
+      floatingActionButton: UserSession.isAdmin
+          ? FloatingActionButton(
         onPressed: () => _showRecipeDialog(),
         child: const Icon(Icons.add),
-      ),
+      )
+          : null,
 
       body: StreamBuilder<List<RecipeModel>>(
         stream: selectedCategoryId == null
@@ -289,8 +293,7 @@ class _RecipeViewState extends State<RecipeView> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            RecipeDetailView(recipe: recipe),
+                        builder: (_) => RecipeDetailView(recipe: recipe),
                       ),
                     );
                   },
@@ -306,9 +309,12 @@ class _RecipeViewState extends State<RecipeView> {
                   ),
 
                   subtitle: Text(
-                      "${recipe.ingredients.length} ingredients • ${_catName(context, recipe.categoryId)}"),
+                    "${recipe.ingredients.length} ingredients • ${_catName(context, recipe.categoryId)}",
+                  ),
 
-                  trailing: Row(
+                  // 🔐 ADMIN ONLY EDIT/DELETE
+                  trailing: UserSession.isAdmin
+                      ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
@@ -317,13 +323,14 @@ class _RecipeViewState extends State<RecipeView> {
                             _showRecipeDialog(recipe: recipe),
                       ),
                       IconButton(
-                        icon:
-                        const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete,
+                            color: Colors.red),
                         onPressed: () =>
                             _deleteRecipe(recipe.id!),
                       ),
                     ],
-                  ),
+                  )
+                      : null,
                 ),
               );
             },

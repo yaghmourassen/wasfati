@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/recipe_model.dart';
+import '../core/user_session.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -9,6 +10,11 @@ class RecipeController {
 
   CollectionReference get _recipesCollection =>
       _firestore.collection('recipes');
+
+  // ================= ADMIN CHECK =================
+  bool _isAdmin() {
+    return UserSession.isAdmin;
+  }
 
   // ================= CLOUDINARY =================
   Future<String?> uploadToCloudinary(File file) async {
@@ -47,6 +53,11 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
+      // 🔐 ADMIN ONLY
+      if (!_isAdmin()) {
+        throw Exception("Unauthorized: Admin only");
+      }
+
       if (title.trim().isEmpty || description.trim().isEmpty) {
         return "Title and description are required";
       }
@@ -114,6 +125,11 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
+      // 🔐 ADMIN ONLY
+      if (!_isAdmin()) {
+        throw Exception("Unauthorized: Admin only");
+      }
+
       if (id.isEmpty) return "Invalid recipe ID";
 
       if (title.trim().isEmpty || description.trim().isEmpty) {
@@ -130,7 +146,7 @@ class RecipeController {
         "categoryId": categoryId,
         "ingredients": ingredients,
         "imageUrl": imageUrl,
-        "updatedAt": FieldValue.serverTimestamp(), // ✅ professional touch
+        "updatedAt": FieldValue.serverTimestamp(),
       });
 
       return null;
@@ -142,9 +158,15 @@ class RecipeController {
   // ================= DELETE =================
   Future<String?> deleteRecipe(String id) async {
     try {
+      // 🔐 ADMIN ONLY
+      if (!_isAdmin()) {
+        throw Exception("Unauthorized: Admin only");
+      }
+
       if (id.isEmpty) return "Invalid recipe ID";
 
       await _recipesCollection.doc(id).delete();
+
       return null;
     } catch (e) {
       return e.toString();

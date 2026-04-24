@@ -1,22 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../model/user_model.dart';
+import '../core/user_session.dart';
 
 class AuthController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Stream that listens to FirebaseAuth and maps it to your UserModel
+  // ================= STREAM USER =================
   Stream<UserModel?> get userStream {
     return _auth.authStateChanges().asyncMap((user) async {
       if (user == null) return null;
+
       final doc = await _firestore.collection('users').doc(user.uid).get();
+
       if (!doc.exists) return null;
-      return UserModel.fromMap(doc.data()!, doc.id);
+
+      final data = doc.data()!;
+
+      // 🔥 sync role globally
+      final role = data['role'] ?? "user";
+      UserSession.role = role;
+      UserSession.isAdmin = role == "admin";
+
+      return UserModel.fromMap(data, doc.id);
     });
   }
 
-  // Login user with email & password
+  // ================= LOGIN =================
   Future<UserModel?> login(String email, String password) async {
     try {
       UserCredential credential = await _auth.signInWithEmailAndPassword(
@@ -27,19 +39,35 @@ class AuthController {
       final userId = credential.user!.uid;
       final doc = await _firestore.collection('users').doc(userId).get();
 
+      // 🔥 if user doesn't exist in Firestore
       if (!doc.exists) {
-        // Create Firestore user doc if missing (for safety)
         final newUser = UserModel(
           id: userId,
           name: credential.user!.displayName ?? "User",
           email: credential.user!.email ?? email,
           profileImageUrl: credential.user!.photoURL,
         );
-        await _firestore.collection('users').doc(userId).set(newUser.toMap());
+
+        await _firestore.collection('users').doc(userId).set({
+          ...newUser.toMap(),
+          "role": "user", // default role
+        });
+
+        // 🔥 sync session
+        UserSession.role = "user";
+        UserSession.isAdmin = false;
+
         return newUser;
       }
 
-      return UserModel.fromMap(doc.data()!, doc.id);
+      final data = doc.data()!;
+
+      // 🔥 sync role globally
+      final role = data['role'] ?? "user";
+      UserSession.role = role;
+      UserSession.isAdmin = role == "admin";
+
+      return UserModel.fromMap(data, doc.id);
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleFirebaseError(e));
     } catch (e) {
@@ -47,7 +75,7 @@ class AuthController {
     }
   }
 
-  // Register new user and create a Firestore profile
+  // ================= REGISTER =================
   Future<UserModel?> register({
     required String name,
     required String email,
@@ -61,7 +89,6 @@ class AuthController {
 
       final userId = credential.user!.uid;
 
-      // Create new user model
       UserModel newUser = UserModel(
         id: userId,
         name: name,
@@ -69,11 +96,17 @@ class AuthController {
         profileImageUrl: null,
       );
 
-      // Save to Firestore
-      await _firestore.collection('users').doc(userId).set(newUser.toMap());
+      // 🔥 save user with default role
+      await _firestore.collection('users').doc(userId).set({
+        ...newUser.toMap(),
+        "role": "user",
+      });
 
-      // Optionally update FirebaseAuth display name
       await credential.user!.updateDisplayName(name);
+
+      // 🔥 sync session
+      UserSession.role = "user";
+      UserSession.isAdmin = false;
 
       return newUser;
     } on FirebaseAuthException catch (e) {
@@ -83,12 +116,16 @@ class AuthController {
     }
   }
 
-  // Logout user
+  // ================= LOGOUT =================
   Future<void> logout() async {
     await _auth.signOut();
+
+    // 🔥 reset session
+    UserSession.role = "user";
+    UserSession.isAdmin = false;
   }
 
-  // Error handler for friendly messages
+  // ================= ERROR HANDLER =================
   String _handleFirebaseError(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
