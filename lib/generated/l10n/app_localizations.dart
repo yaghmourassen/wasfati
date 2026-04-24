@@ -415,6 +415,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'COMING SOON'**
   String get comingSoon;
+
+  /// No description provided for @searchRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search recipes'**
+  String get searchRecipes;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get sortBy;
+
+  /// No description provided for @newest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get newest;
+
+  /// No description provided for @topRated.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated'**
+  String get topRated;
+
+  /// No description provided for @mostViewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Viewed'**
+  String get mostViewed;
+
+  /// No description provided for @rateRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Recipe'**
+  String get rateRecipe;
+
+  /// No description provided for @yourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Rating'**
+  String get yourRating;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @stars.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars'**
+  String get stars;
+
+  /// No description provided for @views.
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get views;
+
+  /// No description provided for @viewRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'View Recipe'**
+  String get viewRecipe;
+
+  /// No description provided for @noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResults;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate

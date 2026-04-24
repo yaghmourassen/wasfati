@@ -22,6 +22,8 @@ class RecipeDetailView extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
+            iconTheme: const IconThemeData(color: Colors.black), // 👈 FIX
+
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 recipe.title,
@@ -46,7 +48,7 @@ class RecipeDetailView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  // 🍽 TITLE (small secondary title)
+                  // 🍽 TITLE
                   Text(
                     recipe.title,
                     style: const TextStyle(
@@ -74,7 +76,10 @@ class RecipeDetailView extends StatelessWidget {
                     children: recipe.ingredients.map((item) {
                       return Chip(
                         label: Text(item),
-                        backgroundColor: Colors.green.shade50,
+                        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       );
                     }).toList(),
                   ),
@@ -92,7 +97,7 @@ class RecipeDetailView extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  _buildSteps(recipe.description),
+                  _buildSteps(context, recipe.description),
 
                   const SizedBox(height: 30),
                 ],
@@ -105,8 +110,7 @@ class RecipeDetailView extends StatelessWidget {
   }
 
   // ================= STEPS PARSER =================
-  Widget _buildSteps(String text) {
-    // نحاول نفصل الخطوات حسب الأرقام أو السطور
+  Widget _buildSteps(BuildContext context, String text) {
     final steps = text
         .split(RegExp(r'\n|\d+\.\s'))
         .where((e) => e.trim().isNotEmpty)
@@ -118,7 +122,7 @@ class RecipeDetailView extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -126,13 +130,24 @@ class RecipeDetailView extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 12,
-                child: Text("${index + 1}"),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Text(
+                  "${index + 1}",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 12,
+                  ),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   steps[index].trim(),
-                  style: const TextStyle(fontSize: 16, height: 1.4),
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.4,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ],

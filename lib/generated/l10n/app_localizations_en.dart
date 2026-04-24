@@ -168,4 +168,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoon => 'COMING SOON';
+
+  @override
+  String get searchRecipes => 'Search recipes';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get newest => 'Newest';
+
+  @override
+  String get topRated => 'Top Rated';
+
+  @override
+  String get mostViewed => 'Most Viewed';
+
+  @override
+  String get rateRecipe => 'Rate Recipe';
+
+  @override
+  String get yourRating => 'Your Rating';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get stars => 'Stars';
+
+  @override
+  String get views => 'Views';
+
+  @override
+  String get viewRecipe => 'View Recipe';
+
+  @override
+  String get noResults => 'No results found';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get loading => 'Loading...';
 }

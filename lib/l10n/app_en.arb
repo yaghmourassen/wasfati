@@ -57,9 +57,28 @@
 
   "howToPrepare": "How to prepare",
 
-
   "restaurantsTitle": "Restaurants",
   "exploreRestaurants": "Explore the best restaurants",
   "restaurantDescription": "Fast food and premium restaurants and recommend your dishes",
-  "comingSoon": "COMING SOON"
+  "comingSoon": "COMING SOON",
+
+
+  "searchRecipes": "Search recipes",
+  "filter": "Filter",
+  "sortBy": "Sort by",
+  "newest": "Newest",
+  "topRated": "Top Rated",
+  "mostViewed": "Most Viewed",
+
+  "rateRecipe": "Rate Recipe",
+  "yourRating": "Your Rating",
+  "rating": "Rating",
+  "stars": "Stars",
+
+  "views": "Views",
+  "viewRecipe": "View Recipe",
+
+  "noResults": "No results found",
+  "tryAgain": "Try again",
+  "loading": "Loading..."
 }

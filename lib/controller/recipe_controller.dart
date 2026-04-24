@@ -53,17 +53,8 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
-      // 🔐 ADMIN ONLY
       if (!_isAdmin()) {
         throw Exception("Unauthorized: Admin only");
-      }
-
-      if (title.trim().isEmpty || description.trim().isEmpty) {
-        return "Title and description are required";
-      }
-
-      if (categoryId.trim().isEmpty) {
-        return "Category is required";
       }
 
       final recipe = RecipeModel(
@@ -75,7 +66,13 @@ class RecipeController {
       );
 
       final data = recipe.toMap();
+
       data['createdAt'] = FieldValue.serverTimestamp();
+
+      // ⭐ INITIAL VALUES
+      data['rating'] = 0.0;
+      data['ratingCount'] = 0;
+      data['views'] = 0;
 
       await _recipesCollection.add(data);
 
@@ -85,7 +82,7 @@ class RecipeController {
     }
   }
 
-  // ================= READ ALL =================
+  // ================= READ =================
   Stream<List<RecipeModel>> getRecipesStream() {
     return _recipesCollection
         .orderBy('createdAt', descending: true)
@@ -100,7 +97,6 @@ class RecipeController {
     });
   }
 
-  // ================= READ BY CATEGORY =================
   Stream<List<RecipeModel>> getRecipesByCategory(String categoryId) {
     return _recipesCollection
         .where('categoryId', isEqualTo: categoryId)
@@ -125,19 +121,8 @@ class RecipeController {
     String? imageUrl,
   }) async {
     try {
-      // 🔐 ADMIN ONLY
       if (!_isAdmin()) {
         throw Exception("Unauthorized: Admin only");
-      }
-
-      if (id.isEmpty) return "Invalid recipe ID";
-
-      if (title.trim().isEmpty || description.trim().isEmpty) {
-        return "Title and description are required";
-      }
-
-      if (categoryId.trim().isEmpty) {
-        return "Category is required";
       }
 
       await _recipesCollection.doc(id).update({
@@ -158,18 +143,46 @@ class RecipeController {
   // ================= DELETE =================
   Future<String?> deleteRecipe(String id) async {
     try {
-      // 🔐 ADMIN ONLY
       if (!_isAdmin()) {
         throw Exception("Unauthorized: Admin only");
       }
 
-      if (id.isEmpty) return "Invalid recipe ID";
-
       await _recipesCollection.doc(id).delete();
-
       return null;
     } catch (e) {
       return e.toString();
     }
+  }
+
+  // ================= ⭐ RATE RECIPE =================
+  Future<void> rateRecipe({
+    required String recipeId,
+    required double rating,
+  }) async {
+    final doc = _recipesCollection.doc(recipeId);
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(doc);
+
+      final data = snapshot.data() as Map<String, dynamic>;
+
+      double oldRating = (data['rating'] ?? 0).toDouble();
+      int count = data['ratingCount'] ?? 0;
+
+      double newRating =
+          ((oldRating * count) + rating) / (count + 1);
+
+      transaction.update(doc, {
+        'rating': newRating,
+        'ratingCount': count + 1,
+      });
+    });
+  }
+
+  // ================= 👁 INCREASE VIEWS =================
+  Future<void> increaseViews(String recipeId) async {
+    await _recipesCollection.doc(recipeId).update({
+      'views': FieldValue.increment(1),
+    });
   }
 }

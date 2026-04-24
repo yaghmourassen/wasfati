@@ -167,4 +167,49 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get comingSoon => 'قريباً';
+
+  @override
+  String get searchRecipes => 'ابحث عن وصفة';
+
+  @override
+  String get filter => 'تصفية';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get newest => 'الأحدث';
+
+  @override
+  String get topRated => 'الأعلى تقييماً';
+
+  @override
+  String get mostViewed => 'الأكثر مشاهدة';
+
+  @override
+  String get rateRecipe => 'قيّم الوصفة';
+
+  @override
+  String get yourRating => 'تقييمك';
+
+  @override
+  String get rating => 'التقييم';
+
+  @override
+  String get stars => 'نجوم';
+
+  @override
+  String get views => 'المشاهدات';
+
+  @override
+  String get viewRecipe => 'عرض الوصفة';
+
+  @override
+  String get noResults => 'لا توجد نتائج';
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get loading => 'جارٍ التحميل...';
 }

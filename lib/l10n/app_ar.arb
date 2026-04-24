@@ -57,9 +57,27 @@
 
   "howToPrepare": "طريقة التحضير",
 
-
   "restaurantsTitle": "المطاعم",
   "exploreRestaurants": "استكشف أفضل المطاعم",
   "restaurantDescription": "وجبات سريعة ومطاعم فاخرة وشارك اقتراحاتك",
-  "comingSoon": "قريباً"
+  "comingSoon": "قريباً",
+
+  "searchRecipes": "ابحث عن وصفة",
+  "filter": "تصفية",
+  "sortBy": "ترتيب حسب",
+  "newest": "الأحدث",
+  "topRated": "الأعلى تقييماً",
+  "mostViewed": "الأكثر مشاهدة",
+
+  "rateRecipe": "قيّم الوصفة",
+  "yourRating": "تقييمك",
+  "rating": "التقييم",
+  "stars": "نجوم",
+
+  "views": "المشاهدات",
+  "viewRecipe": "عرض الوصفة",
+
+  "noResults": "لا توجد نتائج",
+  "tryAgain": "حاول مرة أخرى",
+  "loading": "جارٍ التحميل..."
 }
