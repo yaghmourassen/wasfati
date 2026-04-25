@@ -13,13 +13,15 @@ class AuthController {
     return _auth.authStateChanges().asyncMap((user) async {
       if (user == null) return null;
 
+      // ✅ FIX: set session userId
+      UserSession.userId = user.uid;
+
       final doc = await _firestore.collection('users').doc(user.uid).get();
 
       if (!doc.exists) return null;
 
       final data = doc.data()!;
 
-      // 🔥 sync role globally
       final role = data['role'] ?? "user";
       UserSession.role = role;
       UserSession.isAdmin = role == "admin";
@@ -37,9 +39,12 @@ class AuthController {
       );
 
       final userId = credential.user!.uid;
+
+      // ✅ FIX: set session userId
+      UserSession.userId = userId;
+
       final doc = await _firestore.collection('users').doc(userId).get();
 
-      // 🔥 if user doesn't exist in Firestore
       if (!doc.exists) {
         final newUser = UserModel(
           id: userId,
@@ -50,10 +55,9 @@ class AuthController {
 
         await _firestore.collection('users').doc(userId).set({
           ...newUser.toMap(),
-          "role": "user", // default role
+          "role": "user",
         });
 
-        // 🔥 sync session
         UserSession.role = "user";
         UserSession.isAdmin = false;
 
@@ -62,7 +66,6 @@ class AuthController {
 
       final data = doc.data()!;
 
-      // 🔥 sync role globally
       final role = data['role'] ?? "user";
       UserSession.role = role;
       UserSession.isAdmin = role == "admin";
@@ -89,6 +92,9 @@ class AuthController {
 
       final userId = credential.user!.uid;
 
+      // ✅ FIX: set session userId
+      UserSession.userId = userId;
+
       UserModel newUser = UserModel(
         id: userId,
         name: name,
@@ -96,7 +102,6 @@ class AuthController {
         profileImageUrl: null,
       );
 
-      // 🔥 save user with default role
       await _firestore.collection('users').doc(userId).set({
         ...newUser.toMap(),
         "role": "user",
@@ -104,7 +109,6 @@ class AuthController {
 
       await credential.user!.updateDisplayName(name);
 
-      // 🔥 sync session
       UserSession.role = "user";
       UserSession.isAdmin = false;
 

@@ -225,16 +225,34 @@ class _RecipeViewState extends State<RecipeView> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ...List.generate(5, (i) {
-                                  final isFilled = i < recipe.rating.round();
+                                  final userId = UserSession.userId;
+                                  final userRating = recipe.userRatings[userId] ?? 0;
+
+                                  final isFilled = i < userRating.round();
 
                                   return GestureDetector(
                                     onTap: () async {
+                                      if (userId.isEmpty) return;
+
+                                      final alreadyRated =
+                                      recipe.userRatings.containsKey(userId);
+
+                                      if (alreadyRated) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("You already rated this recipe"),
+                                          ),
+                                        );
+                                        return;
+                                      }
+
                                       await controller.rateRecipe(
                                         recipeId: recipe.id!,
                                         rating: (i + 1).toDouble(),
+                                        userId: userId,
                                       );
 
-                                      setState(() {}); // refresh StreamBuilder
+                                      setState(() {});
                                     },
                                     child: Icon(
                                       Icons.star,

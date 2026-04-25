@@ -158,23 +158,33 @@ class RecipeController {
   Future<void> rateRecipe({
     required String recipeId,
     required double rating,
+    required String userId,
   }) async {
-    final doc = _recipesCollection.doc(recipeId);
+    final doc = FirebaseFirestore.instance.collection('recipes').doc(recipeId);
 
-    await _firestore.runTransaction((transaction) async {
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
       final snapshot = await transaction.get(doc);
 
       final data = snapshot.data() as Map<String, dynamic>;
 
-      double oldRating = (data['rating'] ?? 0).toDouble();
-      int count = data['ratingCount'] ?? 0;
+      Map<String, dynamic> userRatings =
+      Map<String, dynamic>.from(data['userRatings'] ?? {});
 
-      double newRating =
-          ((oldRating * count) + rating) / (count + 1);
+      // 🔥 store or overwrite user rating
+      userRatings[userId] = rating;
+
+      // 🔥 recalculate average
+      double total = 0;
+      userRatings.forEach((key, value) {
+        total += (value as num).toDouble();
+      });
+
+      double avg = userRatings.isEmpty ? 0 : total / userRatings.length;
 
       transaction.update(doc, {
-        'rating': newRating,
-        'ratingCount': count + 1,
+        'userRatings': userRatings,
+        'rating': avg,
+        'ratingCount': userRatings.length,
       });
     });
   }

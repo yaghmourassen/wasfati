@@ -10,6 +10,9 @@ class RecipeModel {
   final int ratingCount;
   final int views;
 
+  // 🔥 NEW: per-user ratings (IMPORTANT)
+  final Map<String, double> userRatings;
+
   RecipeModel({
     this.id,
     required this.title,
@@ -21,6 +24,9 @@ class RecipeModel {
     this.rating = 0.0,
     this.ratingCount = 0,
     this.views = 0,
+
+    // 🔥 NEW
+    this.userRatings = const {},
   });
 
   /// Convert RecipeModel to Map for Firestore
@@ -35,6 +41,9 @@ class RecipeModel {
       'rating': rating,
       'ratingCount': ratingCount,
       'views': views,
+
+      // 🔥 NEW
+      'userRatings': userRatings,
     };
   }
 
@@ -51,6 +60,11 @@ class RecipeModel {
       rating: (map['rating'] ?? 0).toDouble(),
       ratingCount: map['ratingCount'] ?? 0,
       views: map['views'] ?? 0,
+
+      // 🔥 NEW SAFE CONVERSION
+      userRatings: Map<String, double>.from(
+        (map['userRatings'] ?? {}),
+      ),
     );
   }
 }
