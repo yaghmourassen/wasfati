@@ -84,15 +84,12 @@ class RecipeController {
 
   // ================= READ =================
   Stream<List<RecipeModel>> getRecipesStream() {
-    return _recipesCollection
-        .orderBy('createdAt', descending: true)
+    return FirebaseFirestore.instance
+        .collection('recipes')
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return RecipeModel.fromMap(
-          doc.id,
-          doc.data() as Map<String, dynamic>,
-        );
+        return RecipeModel.fromMap(doc.id, doc.data());
       }).toList();
     });
   }
@@ -160,28 +157,32 @@ class RecipeController {
     required double rating,
     required String userId,
   }) async {
-    final doc = FirebaseFirestore.instance.collection('recipes').doc(recipeId);
+    final docRef =
+    FirebaseFirestore.instance.collection('recipes').doc(recipeId);
 
     await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(doc);
+      final snapshot = await transaction.get(docRef);
 
       final data = snapshot.data() as Map<String, dynamic>;
 
       Map<String, dynamic> userRatings =
       Map<String, dynamic>.from(data['userRatings'] ?? {});
 
-      // 🔥 store or overwrite user rating
+      // save/update user rating
       userRatings[userId] = rating;
 
-      // 🔥 recalculate average
+      // calculate average
       double total = 0;
+
       userRatings.forEach((key, value) {
         total += (value as num).toDouble();
       });
 
-      double avg = userRatings.isEmpty ? 0 : total / userRatings.length;
+      double avg = userRatings.isNotEmpty
+          ? total / userRatings.length
+          : 0.0;
 
-      transaction.update(doc, {
+      transaction.update(docRef, {
         'userRatings': userRatings,
         'rating': avg,
         'ratingCount': userRatings.length,

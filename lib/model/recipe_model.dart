@@ -10,7 +10,7 @@ class RecipeModel {
   final int ratingCount;
   final int views;
 
-  // 🔥 NEW: per-user ratings (IMPORTANT)
+  // ⭐ ADD THIS
   final Map<String, double> userRatings;
 
   RecipeModel({
@@ -20,16 +20,14 @@ class RecipeModel {
     required this.categoryId,
     required this.ingredients,
     this.imageUrl,
-
     this.rating = 0.0,
     this.ratingCount = 0,
     this.views = 0,
 
-    // 🔥 NEW
+    // ⭐ ADD THIS
     this.userRatings = const {},
   });
 
-  /// Convert RecipeModel to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -37,17 +35,15 @@ class RecipeModel {
       'categoryId': categoryId,
       'ingredients': ingredients,
       'imageUrl': imageUrl,
-
       'rating': rating,
       'ratingCount': ratingCount,
       'views': views,
 
-      // 🔥 NEW
+      // ⭐ ADD THIS
       'userRatings': userRatings,
     };
   }
 
-  /// Create RecipeModel from Firestore document
   factory RecipeModel.fromMap(String id, Map<String, dynamic> map) {
     return RecipeModel(
       id: id,
@@ -56,15 +52,18 @@ class RecipeModel {
       categoryId: map['categoryId'] ?? '',
       ingredients: List<String>.from(map['ingredients'] ?? []),
       imageUrl: map['imageUrl'],
-
       rating: (map['rating'] ?? 0).toDouble(),
       ratingCount: map['ratingCount'] ?? 0,
       views: map['views'] ?? 0,
 
-      // 🔥 NEW SAFE CONVERSION
-      userRatings: Map<String, double>.from(
-        (map['userRatings'] ?? {}),
-      ),
+      // ⭐ SAFE CAST FIX
+      userRatings: (map['userRatings'] != null)
+          ? Map<String, double>.from(
+        (map['userRatings'] as Map).map(
+              (k, v) => MapEntry(k, (v as num).toDouble()),
+        ),
+      )
+          : {},
     );
   }
 }
