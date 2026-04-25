@@ -187,9 +187,12 @@ class _RecipeViewState extends State<RecipeView> {
 
                         title: Text(recipe.title),
 
-                        subtitle: Text(
-                          "${recipe.ingredients.length} ${t.ingredients}",
-                        ),
+                          subtitle: Text(
+                            "${recipe.ingredients.length} ${t.ingredients}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                          ),
 
                         // ================= ADMIN / USER FIX =================
                         trailing: isAdmin
