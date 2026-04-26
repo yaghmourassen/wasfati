@@ -18,6 +18,42 @@ class RecipeView extends StatefulWidget {
 }
 
 class _RecipeViewState extends State<RecipeView> {
+  String _getLang(BuildContext context) {
+    return Localizations.localeOf(context).languageCode;
+  }
+
+  String _getTitle(BuildContext context, RecipeModel recipe) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.titleAr != null &&
+        recipe.titleAr!.isNotEmpty) {
+      return recipe.titleAr!;
+    }
+
+    if (recipe.titleEn != null && recipe.titleEn!.isNotEmpty) {
+      return recipe.titleEn!;
+    }
+
+    return recipe.title;
+  }
+
+  List<String> _getIngredients(BuildContext context, RecipeModel recipe) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.ingredientsAr != null &&
+        recipe.ingredientsAr!.isNotEmpty) {
+      return recipe.ingredientsAr!;
+    }
+
+    if (recipe.ingredientsEn != null &&
+        recipe.ingredientsEn!.isNotEmpty) {
+      return recipe.ingredientsEn!;
+    }
+
+    return recipe.ingredients;
+  }
   final RecipeController controller = RecipeController();
 
   String searchText = "";
@@ -185,10 +221,10 @@ class _RecipeViewState extends State<RecipeView> {
                         )
                             : const Icon(Icons.fastfood),
 
-                        title: Text(recipe.title),
+                          title: Text(_getTitle(context, recipe)),
 
                           subtitle: Text(
-                            "${recipe.ingredients.length} ${t.ingredients}",
+                            "${_getIngredients(context, recipe).length} ${t.ingredients}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             softWrap: false,
