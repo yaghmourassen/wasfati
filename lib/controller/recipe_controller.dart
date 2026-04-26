@@ -89,7 +89,10 @@ class RecipeController {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return RecipeModel.fromMap(doc.id, doc.data());
+        return RecipeModel.fromMap(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
       }).toList();
     });
   }

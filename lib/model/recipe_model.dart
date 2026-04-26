@@ -10,7 +10,6 @@ class RecipeModel {
   final int ratingCount;
   final int views;
 
-  // ⭐ ADD THIS
   final Map<String, double> userRatings;
 
   RecipeModel({
@@ -23,8 +22,6 @@ class RecipeModel {
     this.rating = 0.0,
     this.ratingCount = 0,
     this.views = 0,
-
-    // ⭐ ADD THIS
     this.userRatings = const {},
   });
 
@@ -38,8 +35,6 @@ class RecipeModel {
       'rating': rating,
       'ratingCount': ratingCount,
       'views': views,
-
-      // ⭐ ADD THIS
       'userRatings': userRatings,
     };
   }
@@ -47,22 +42,42 @@ class RecipeModel {
   factory RecipeModel.fromMap(String id, Map<String, dynamic> map) {
     return RecipeModel(
       id: id,
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      categoryId: map['categoryId'] ?? '',
-      ingredients: List<String>.from(map['ingredients'] ?? []),
-      imageUrl: map['imageUrl'],
-      rating: (map['rating'] ?? 0).toDouble(),
-      ratingCount: map['ratingCount'] ?? 0,
-      views: map['views'] ?? 0,
 
-      // ⭐ SAFE CAST FIX
-      userRatings: (map['userRatings'] != null)
-          ? Map<String, double>.from(
-        (map['userRatings'] as Map).map(
-              (k, v) => MapEntry(k, (v as num).toDouble()),
-        ),
-      )
+      // 🔥 SAFE STRING CONVERSION (very important)
+      title: map['title']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      categoryId: map['categoryId']?.toString() ?? '',
+
+      // 🔥 SAFE LIST CONVERSION
+      ingredients: (map['ingredients'] is List)
+          ? (map['ingredients'] as List)
+          .map((e) => e.toString())
+          .toList()
+          : [],
+
+      imageUrl: map['imageUrl']?.toString(),
+
+      // 🔥 SAFE NUMBERS
+      rating: (map['rating'] is num)
+          ? (map['rating'] as num).toDouble()
+          : 0.0,
+
+      ratingCount: (map['ratingCount'] is num)
+          ? (map['ratingCount'] as num).toInt()
+          : 0,
+
+      views: (map['views'] is num)
+          ? (map['views'] as num).toInt()
+          : 0,
+
+      // 🔥 SAFE MAP CONVERSION (FIX FOR YOUR ERROR)
+      userRatings: (map['userRatings'] is Map)
+          ? (map['userRatings'] as Map).map<String, double>((k, v) {
+        return MapEntry(
+          k.toString(),
+          (v is num) ? v.toDouble() : 0.0,
+        );
+      })
           : {},
     );
   }
