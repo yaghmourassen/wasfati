@@ -10,9 +10,66 @@ class RecipeDetailView extends StatelessWidget {
     required this.recipe,
   });
 
+  // 🌍 SIMPLE L18N RESOLVER (uses existing system)
+  String _getLang(BuildContext context) {
+    return Localizations.localeOf(context).languageCode;
+  }
+
+  String _getTitle(BuildContext context) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' && recipe.titleAr != null && recipe.titleAr!.isNotEmpty) {
+      return recipe.titleAr!;
+    }
+
+    if (recipe.titleEn != null && recipe.titleEn!.isNotEmpty) {
+      return recipe.titleEn!;
+    }
+
+    return recipe.title;
+  }
+
+  String _getDescription(BuildContext context) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.descriptionAr != null &&
+        recipe.descriptionAr!.isNotEmpty) {
+      return recipe.descriptionAr!;
+    }
+
+    if (recipe.descriptionEn != null &&
+        recipe.descriptionEn!.isNotEmpty) {
+      return recipe.descriptionEn!;
+    }
+
+    return recipe.description;
+  }
+
+  List<String> _getIngredients(BuildContext context) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.ingredientsAr != null &&
+        recipe.ingredientsAr!.isNotEmpty) {
+      return recipe.ingredientsAr!;
+    }
+
+    if (recipe.ingredientsEn != null &&
+        recipe.ingredientsEn!.isNotEmpty) {
+      return recipe.ingredientsEn!;
+    }
+
+    return recipe.ingredients;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+
+    final title = _getTitle(context);
+    final description = _getDescription(context);
+    final ingredients = _getIngredients(context);
 
     return Scaffold(
       body: CustomScrollView(
@@ -22,11 +79,11 @@ class RecipeDetailView extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
-            iconTheme: const IconThemeData(color: Colors.black), // 👈 FIX
+            iconTheme: const IconThemeData(color: Colors.black),
 
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                recipe.title,
+                title,
                 style: const TextStyle(
                   shadows: [Shadow(blurRadius: 10, color: Colors.black)],
                 ),
@@ -50,7 +107,7 @@ class RecipeDetailView extends StatelessWidget {
 
                   // 🍽 TITLE
                   Text(
-                    recipe.title,
+                    title,
                     style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -73,12 +130,14 @@ class RecipeDetailView extends StatelessWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: recipe.ingredients.map((item) {
+                    children: ingredients.map((item) {
                       return Chip(
                         label: Text(item),
-                        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceVariant,
                         labelStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color:
+                          Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       );
                     }).toList(),
@@ -97,7 +156,7 @@ class RecipeDetailView extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  _buildSteps(context, recipe.description),
+                  _buildSteps(context, description),
 
                   const SizedBox(height: 30),
                 ],

@@ -51,6 +51,14 @@ class RecipeController {
     required String categoryId,
     required List<String> ingredients,
     String? imageUrl,
+
+    // 🌍 NEW (L18N INPUTS)
+    String? titleEn,
+    String? titleAr,
+    String? descriptionEn,
+    String? descriptionAr,
+    List<String>? ingredientsEn,
+    List<String>? ingredientsAr,
   }) async {
     try {
       if (!_isAdmin()) {
@@ -63,6 +71,14 @@ class RecipeController {
         categoryId: categoryId,
         ingredients: ingredients,
         imageUrl: imageUrl,
+
+        // NEW (optional future use)
+        titleEn: titleEn,
+        titleAr: titleAr,
+        descriptionEn: descriptionEn,
+        descriptionAr: descriptionAr,
+        ingredientsEn: ingredientsEn,
+        ingredientsAr: ingredientsAr,
       );
 
       final data = recipe.toMap();
