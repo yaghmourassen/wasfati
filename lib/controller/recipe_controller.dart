@@ -133,21 +133,33 @@ class RecipeController {
     required String title,
     required String description,
     required String categoryId,
+    required String? imageUrl,
+    required String titleEn,
+    required String titleAr,
+    required String descriptionEn,
+    required String descriptionAr,
     required List<String> ingredients,
-    String? imageUrl,
+    required List<String> ingredientsEn,
+    required List<String> ingredientsAr,
   }) async {
     try {
-      if (!_isAdmin()) {
-        throw Exception("Unauthorized: Admin only");
-      }
-
-      await _recipesCollection.doc(id).update({
+      await FirebaseFirestore.instance
+          .collection('recipes')
+          .doc(id) // ✅ MUST be real ID
+          .update({
         "title": title,
         "description": description,
         "categoryId": categoryId,
-        "ingredients": ingredients,
         "imageUrl": imageUrl,
-        "updatedAt": FieldValue.serverTimestamp(),
+
+        "titleEn": titleEn,
+        "titleAr": titleAr,
+        "descriptionEn": descriptionEn,
+        "descriptionAr": descriptionAr,
+
+        "ingredients": ingredients,
+        "ingredientsEn": ingredientsEn,
+        "ingredientsAr": ingredientsAr,
       });
 
       return null;
@@ -155,7 +167,6 @@ class RecipeController {
       return e.toString();
     }
   }
-
   // ================= DELETE =================
   Future<String?> deleteRecipe(String id) async {
     try {

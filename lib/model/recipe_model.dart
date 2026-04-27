@@ -73,19 +73,18 @@ class RecipeModel {
     return RecipeModel(
       id: id,
 
-      // ORIGINAL (KEEP WORKING)
+      // ================= BASIC FIELDS =================
       title: map['title']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
       categoryId: map['categoryId']?.toString() ?? '',
 
       ingredients: (map['ingredients'] is List)
-          ? (map['ingredients'] as List)
-          .map((e) => e.toString())
-          .toList()
+          ? (map['ingredients'] as List).map((e) => e.toString()).toList()
           : [],
 
       imageUrl: map['imageUrl']?.toString(),
 
+      // ================= STATS =================
       rating: (map['rating'] is num)
           ? (map['rating'] as num).toDouble()
           : 0.0,
@@ -107,19 +106,19 @@ class RecipeModel {
       })
           : {},
 
-      // NEW (OPTIONAL FIELDS)
-      titleEn: map['title_en']?.toString(),
-      titleAr: map['title_ar']?.toString(),
-      descriptionEn: map['description_en']?.toString(),
-      descriptionAr: map['description_ar']?.toString(),
+      // ================= MULTILANGUAGE (FIXED) =================
+      titleEn: map['titleEn']?.toString() ?? '',
+      titleAr: map['titleAr']?.toString() ?? '',
+      descriptionEn: map['descriptionEn']?.toString() ?? '',
+      descriptionAr: map['descriptionAr']?.toString() ?? '',
 
-      ingredientsEn: (map['ingredients_en'] is List)
-          ? List<String>.from(map['ingredients_en'])
-          : null,
+      ingredientsEn: (map['ingredientsEn'] is List)
+          ? List<String>.from(map['ingredientsEn'])
+          : [],
 
-      ingredientsAr: (map['ingredients_ar'] is List)
-          ? List<String>.from(map['ingredients_ar'])
-          : null,
+      ingredientsAr: (map['ingredientsAr'] is List)
+          ? List<String>.from(map['ingredientsAr'])
+          : [],
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
@@ -555,16 +554,32 @@ class _RecipeViewState extends State<RecipeView> {
       AppLocalizations t,
       RecipeModel recipe,
       ) {
-    final titleCtrl = TextEditingController(text: recipe.title);
-    final stepCtrl =
-    TextEditingController(text: recipe.description);
+    // 🌍 EN / AR controllers (LIKE ADD METHOD)
+    final titleEnCtrl =
+    TextEditingController(text: recipe.titleEn ?? "");
 
-    // ✅ FIX: allow editing category
+    final titleArCtrl =
+    TextEditingController(text: recipe.titleAr ?? "");
+
+    final stepEnCtrl =
+    TextEditingController(text: recipe.descriptionEn ?? "");
+
+    final stepArCtrl =
+    TextEditingController(text: recipe.descriptionAr ?? "");
+
+    // 📂 CATEGORY
     String? selectedCategoryId = recipe.categoryId;
 
-    List<String> ingredients =
-    List.from(recipe.ingredients);
+    // 🥗 INGREDIENTS (L18N)
+    List<String> ingredientsEn =
+    List.from(recipe.ingredientsEn ?? []);
 
+    List<String> ingredientsAr =
+    List.from(recipe.ingredientsAr ?? []);
+
+    bool isArabicIngredient = false;
+
+    // 🖼 IMAGE
     File? image;
     String? imageUrl = recipe.imageUrl;
 
@@ -574,24 +589,50 @@ class _RecipeViewState extends State<RecipeView> {
         builder: (context, setState) {
           return AlertDialog(
             title: Text(t.editRecipe),
+
             content: SingleChildScrollView(
               child: Column(
                 children: [
 
+                  // ================= TITLE EN =================
                   TextField(
-                    controller: titleCtrl,
-                    decoration: InputDecoration(labelText: t.title),
+                    controller: titleEnCtrl,
+                    decoration: const InputDecoration(
+                      labelText: "Title (EN)",
+                    ),
                   ),
 
+                  // ================= TITLE AR =================
                   TextField(
-                    controller: stepCtrl,
-                    maxLines: 5,
-                    decoration: InputDecoration(labelText: t.howToPrepare),
+                    controller: titleArCtrl,
+                    decoration: const InputDecoration(
+                      labelText: "Title (AR)",
+                    ),
                   ),
 
                   const SizedBox(height: 10),
 
-                  // 🔥 CATEGORY DROPDOWN (NEW)
+                  // ================= DESC EN =================
+                  TextField(
+                    controller: stepEnCtrl,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: "Description (EN)",
+                    ),
+                  ),
+
+                  // ================= DESC AR =================
+                  TextField(
+                    controller: stepArCtrl,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: "Description (AR)",
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // ================= CATEGORY =================
                   DropdownButtonFormField<String>(
                     value: selectedCategoryId,
                     hint: const Text("Select Category"),
@@ -610,24 +651,60 @@ class _RecipeViewState extends State<RecipeView> {
 
                   const SizedBox(height: 10),
 
-                  Wrap(
-                    spacing: 6,
-                    children: ingredients
-                        .map((e) => Chip(
-                      label: Text(e),
-                      onDeleted: () {
-                        setState(() {
-                          ingredients.remove(e);
-                        });
-                      },
-                    ))
-                        .toList(),
+                  // ================= INGREDIENT TOGGLE =================
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(isArabicIngredient ? "AR" : "EN"),
+                      Switch(
+                        value: isArabicIngredient,
+                        onChanged: (value) {
+                          setState(() {
+                            isArabicIngredient = value;
+                          });
+                        },
+                      ),
+                    ],
                   ),
 
+                  const SizedBox(height: 10),
+
+                  // ================= INGREDIENT CHIPS =================
+                  Wrap(
+                    spacing: 6,
+                    children: [
+                      ...ingredientsEn.map((e) => Chip(
+                        label: Text(e),
+                        onDeleted: () {
+                          setState(() {
+                            ingredientsEn.remove(e);
+                          });
+                        },
+                      )),
+
+                      ...ingredientsAr.map((e) => Chip(
+                        label: Text(e),
+                        onDeleted: () {
+                          setState(() {
+                            ingredientsAr.remove(e);
+                          });
+                        },
+                      )),
+                    ],
+                  ),
+
+                  // ================= INGREDIENT INPUT =================
                   TextField(
                     onSubmitted: (value) {
                       setState(() {
-                        ingredients.add(value.trim());
+                        final text = value.trim();
+                        if (text.isEmpty) return;
+
+                        if (isArabicIngredient) {
+                          ingredientsAr.add(text);
+                        } else {
+                          ingredientsEn.add(text);
+                        }
                       });
                     },
                     decoration: InputDecoration(
@@ -637,6 +714,7 @@ class _RecipeViewState extends State<RecipeView> {
 
                   const SizedBox(height: 10),
 
+                  // ================= IMAGE =================
                   if (image != null)
                     Image.file(image!, height: 100)
                   else if (imageUrl != null)
@@ -659,6 +737,8 @@ class _RecipeViewState extends State<RecipeView> {
                 ],
               ),
             ),
+
+            // ================= ACTIONS =================
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -667,22 +747,50 @@ class _RecipeViewState extends State<RecipeView> {
 
               ElevatedButton(
                 onPressed: () async {
-                  if (image != null) {
-                    imageUrl =
-                    await controller.uploadToCloudinary(image!);
+                  try {
+                    String? newImageUrl = imageUrl;
+
+                    // 📤 upload image if changed
+                    if (image != null) {
+                      newImageUrl =
+                      await controller.uploadToCloudinary(image!);
+                    }
+
+                    // 🚀 UPDATE RECIPE (FULL L18N)
+                    final result = await controller.updateRecipe(
+                      id: recipe.id!,
+
+                      // base fields (fallback)
+                      title: titleEnCtrl.text.trim(),
+                      description: stepEnCtrl.text.trim(),
+                      categoryId: selectedCategoryId ?? "",
+
+                      // multilingual fields
+                      titleEn: titleEnCtrl.text.trim(),
+                      titleAr: titleArCtrl.text.trim(),
+
+                      descriptionEn: stepEnCtrl.text.trim(),
+                      descriptionAr: stepArCtrl.text.trim(),
+
+                      ingredients: ingredientsEn,
+                      ingredientsEn: ingredientsEn,
+                      ingredientsAr: ingredientsAr,
+
+                      imageUrl: newImageUrl,
+                    );
+
+                    if (result != null) {
+                      print("❌ UPDATE FAILED: $result");
+                      return;
+                    }
+
+                    print("✅ UPDATE SUCCESS");
+
+                    Navigator.pop(context);
+                    setState(() {});
+                  } catch (e) {
+                    print("🔥 UPDATE ERROR: $e");
                   }
-
-                  // ✅ FIX: use selectedCategoryId instead of recipe.categoryId
-                  await controller.updateRecipe(
-                    id: recipe.id!,
-                    title: titleCtrl.text.trim(),
-                    description: stepCtrl.text.trim(),
-                    categoryId: selectedCategoryId ?? "",
-                    ingredients: ingredients,
-                    imageUrl: imageUrl,
-                  );
-
-                  Navigator.pop(context);
                 },
                 child: Text(t.update),
               ),
