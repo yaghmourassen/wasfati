@@ -213,4 +213,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading...';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get favoritesTitle => 'Your Favorites';
+
+  @override
+  String get favoritesDesc => 'All your saved recipes in one place';
+
+  @override
+  String get viewFavorites => 'View Favorites';
 }

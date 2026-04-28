@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/setting_controller.dart';
 import '../generated/l10n/app_localizations.dart';
-
+import '../view/favorites_view .dart';
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
@@ -86,9 +86,34 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 15),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFA5D6A7)),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.favorite, color: Colors.red),
+                title: Text(t.favorites ?? "Favorites"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FavoritesView(),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
+
   }
+
 }

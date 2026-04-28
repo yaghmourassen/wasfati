@@ -505,6 +505,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading...'**
   String get loading;
+
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'All your saved recipes in one place'**
+  String get favoritesDesc;
+
+  /// No description provided for @viewFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'View Favorites'**
+  String get viewFavorites;
 }
 
 class _AppLocalizationsDelegate

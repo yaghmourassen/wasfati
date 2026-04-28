@@ -4,6 +4,7 @@ import '../controller/auth_controller.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'auth_view.dart';
 import 'category_view.dart'; // ✅ IMPORT OK
+import 'favorites_view .dart';
 import 'setting_view.dart';
 import 'restaurent_view.dart';
 class HomeView extends StatefulWidget {
@@ -99,6 +100,7 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: 25),
 
               // ================= MAIN CARD =================
+
               ClipRRect(
                 borderRadius: BorderRadius.circular(26),
                 child: BackdropFilter(
@@ -182,6 +184,111 @@ class _HomeViewState extends State<HomeView> {
               ),
 
               const SizedBox(height: 25),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FavoritesView(),
+                    ),
+                  );
+                },
+
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(26),
+
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.3),
+                        ),
+                      ),
+
+                      child: Column(
+                        children: [
+
+                          // ❤️ BIG ICON (RED)
+                          const Icon(
+                            Icons.favorite,
+                            size: 60,
+                            color: Colors.red,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // TITLE (L10N)
+                          Text(
+                            t.favoritesTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // DESCRIPTION (L10N)
+                          Text(
+                            t.favoritesDesc,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // BUTTON (THEMED + SMALL HEART)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => FavoritesView(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+
+                              icon: const Icon(
+                                Icons.favorite,
+                                size: 18,
+                                color: Colors.red,
+                              ),
+
+                              label: Text(
+                                t.viewFavorites,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
               // ================= LOGOUT =================
               SizedBox(

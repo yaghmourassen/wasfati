@@ -212,4 +212,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loading => 'جارٍ التحميل...';
+
+  @override
+  String get favorites => 'المفضلة';
+
+  @override
+  String get favoritesTitle => 'المفضلة';
+
+  @override
+  String get favoritesDesc => 'كل الوصفات المحفوظة في مكان واحد';
+
+  @override
+  String get viewFavorites => 'عرض المفضلة';
 }

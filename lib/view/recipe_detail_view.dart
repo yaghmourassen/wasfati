@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../controller/recipe_controller.dart';
+import '../core/user_session.dart';
 import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
 
@@ -79,21 +81,84 @@ class RecipeDetailView extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
-            iconTheme: const IconThemeData(color: Colors.black),
+            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Colors.black,
+
+            actions: [
+              StreamBuilder<bool>(
+                stream: RecipeController()
+                    .isFavorite(UserSession.userId, recipe.id!),
+                builder: (context, snapshot) {
+                  final isFav = snapshot.data ?? false;
+
+                  return IconButton(
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, anim) =>
+                          ScaleTransition(scale: anim, child: child),
+                      child: Icon(
+                        isFav ? Icons.favorite : Icons.favorite_border,
+                        key: ValueKey(isFav),
+                        color: isFav ? Colors.red : Colors.white,
+                        size: 26,
+                      ),
+                    ),
+                    onPressed: () async {
+                      if (UserSession.userId.isEmpty) return;
+
+                      await RecipeController().toggleFavorite(
+                        userId: UserSession.userId,
+                        recipeId: recipe.id!,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
 
             flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
               title: Text(
                 title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(color: Colors.black, blurRadius: 8),
+                  ],
                 ),
               ),
-              background: recipe.imageUrl != null
-                  ? Image.network(
-                recipe.imageUrl!,
-                fit: BoxFit.cover,
-              )
-                  : Container(color: Colors.grey),
+
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // 🖼 Image
+                  recipe.imageUrl != null
+                      ? Image.network(
+                    recipe.imageUrl!,
+                    fit: BoxFit.cover,
+                  )
+                      : Container(color: Colors.grey),
+
+                  // 🌑 Gradient overlay (احترافي)
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black54,
+                          Colors.black87,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 

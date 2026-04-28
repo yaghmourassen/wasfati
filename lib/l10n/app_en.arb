@@ -80,5 +80,9 @@
 
   "noResults": "No results found",
   "tryAgain": "Try again",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "favorites": "Favorites",
+  "favoritesTitle": "Your Favorites",
+  "favoritesDesc": "All your saved recipes in one place",
+  "viewFavorites": "View Favorites"
 }

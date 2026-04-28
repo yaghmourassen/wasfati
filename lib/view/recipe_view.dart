@@ -261,9 +261,8 @@ class _RecipeViewState extends State<RecipeView> {
                               children: [
                                 ...List.generate(5, (i) {
                                   final userId = UserSession.userId;
-                                  final userRating = recipe.userRatings[userId] ?? 0;
-
-                                  final isFilled = i < userRating.round();
+                                  final avgRating = recipe.rating;
+                                  final isFilled = i < avgRating.round();
 
                                   return GestureDetector(
                                     onTap: () async {

@@ -79,5 +79,9 @@
 
   "noResults": "لا توجد نتائج",
   "tryAgain": "حاول مرة أخرى",
-  "loading": "جارٍ التحميل..."
+  "loading": "جارٍ التحميل...",
+  "favorites": "المفضلة",
+  "favoritesTitle": "المفضلة",
+  "favoritesDesc": "كل الوصفات المحفوظة في مكان واحد",
+  "viewFavorites": "عرض المفضلة"
 }

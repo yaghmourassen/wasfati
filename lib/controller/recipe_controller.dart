@@ -226,4 +226,59 @@ class RecipeController {
       'views': FieldValue.increment(1),
     });
   }
+
+  Future<void> toggleFavorite({
+    required String userId,
+    required String recipeId,
+  }) async {
+    final ref = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .doc(recipeId);
+
+    final doc = await ref.get();
+
+    if (doc.exists) {
+      // ❌ remove favorite
+      await ref.delete();
+    } else {
+      // ❤️ add favorite
+      await ref.set({
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+  Stream<bool> isFavorite(String userId, String recipeId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .doc(recipeId)
+        .snapshots()
+        .map((doc) => doc.exists);
+  }
+  Stream<List<String>> getFavoriteIds(String userId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('favorites')
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => doc.id).toList());
+  }
+  Stream<List<RecipeModel>> getFavoriteRecipes(String userId) {
+    return getFavoriteIds(userId).asyncMap((ids) async {
+      if (ids.isEmpty) return [];
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('recipes')
+          .where(FieldPath.documentId, whereIn: ids)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => RecipeModel.fromMap(doc.id, doc.data()))
+          .toList();
+    });
+  }
 }
