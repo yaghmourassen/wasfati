@@ -224,4 +224,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewFavorites => 'عرض المفضلة';
+
+  @override
+  String get myFavorites => 'المفضلة';
+
+  @override
+  String get noFavorites => 'لا توجد مفضلات بعد';
+
+  @override
+  String get somethingWrong => 'حدث خطأ ما';
 }

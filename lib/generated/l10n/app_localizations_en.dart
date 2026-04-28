@@ -225,4 +225,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewFavorites => 'View Favorites';
+
+  @override
+  String get myFavorites => 'My Favorites';
+
+  @override
+  String get noFavorites => 'No favorites yet';
+
+  @override
+  String get somethingWrong => 'Something went wrong';
 }

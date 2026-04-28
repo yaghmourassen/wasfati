@@ -83,5 +83,8 @@
   "favorites": "المفضلة",
   "favoritesTitle": "المفضلة",
   "favoritesDesc": "كل الوصفات المحفوظة في مكان واحد",
-  "viewFavorites": "عرض المفضلة"
+  "viewFavorites": "عرض المفضلة",
+  "myFavorites": "المفضلة",
+  "noFavorites": "لا توجد مفضلات بعد",
+  "somethingWrong": "حدث خطأ ما"
 }

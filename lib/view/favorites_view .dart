@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controller/recipe_controller.dart';
 import '../model/recipe_model.dart';
 import '../core/user_session.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'recipe_detail_view.dart';
 
 class FavoritesView extends StatelessWidget {
@@ -13,10 +14,11 @@ class FavoritesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userId = UserSession.userId;
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Favorites ❤️"),
+        title: Text(t.myFavorites),
         centerTitle: true,
       ),
 
@@ -24,54 +26,59 @@ class FavoritesView extends StatelessWidget {
         stream: controller.getFavoriteRecipes(userId),
 
         builder: (context, snapshot) {
-          // 🔵 loading
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          // 🔴 error
           if (snapshot.hasError) {
-            return const Center(
-              child: Text("Something went wrong ❌"),
+            return Center(
+              child: Text(t.somethingWrong),
             );
           }
 
           final recipes = snapshot.data ?? [];
 
-          // ⚪ empty state
           if (recipes.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.favorite_border,
-                      size: 60, color: Colors.grey),
-                  SizedBox(height: 10),
+
+                  Icon(
+                    Icons.favorite_border,
+                    size: 60,
+                    color: Theme.of(context).disabledColor,
+                  ),
+
+                  const SizedBox(height: 10),
+
                   Text(
-                    "No favorites yet ❤️",
-                    style: TextStyle(fontSize: 16),
+                    t.noFavorites,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
             );
           }
 
-          // 🟢 list
           return ListView.builder(
             itemCount: recipes.length,
             itemBuilder: (context, index) {
               final recipe = recipes[index];
 
               return Card(
-                margin:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
 
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(10),
 
-                  // 🖼 image
+                  // IMAGE
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: recipe.imageUrl != null
@@ -89,7 +96,7 @@ class FavoritesView extends StatelessWidget {
                     ),
                   ),
 
-                  // 📝 title
+                  // TITLE
                   title: Text(
                     recipe.title,
                     maxLines: 1,
@@ -97,14 +104,14 @@ class FavoritesView extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
 
-                  // 📄 subtitle
+                  // DESCRIPTION
                   subtitle: Text(
                     recipe.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  // 🔥 open details
+                  // DETAILS
                   onTap: () {
                     Navigator.push(
                       context,

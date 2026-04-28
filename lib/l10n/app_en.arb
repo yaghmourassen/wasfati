@@ -84,5 +84,8 @@
   "favorites": "Favorites",
   "favoritesTitle": "Your Favorites",
   "favoritesDesc": "All your saved recipes in one place",
-  "viewFavorites": "View Favorites"
+  "viewFavorites": "View Favorites",
+  "myFavorites": "My Favorites",
+  "noFavorites": "No favorites yet",
+  "somethingWrong": "Something went wrong"
 }
