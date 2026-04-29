@@ -87,5 +87,10 @@
   "viewFavorites": "View Favorites",
   "myFavorites": "My Favorites",
   "noFavorites": "No favorites yet",
-  "somethingWrong": "Something went wrong"
+  "somethingWrong": "Something went wrong",
+    "about": "About",
+    "visitWebsite": "Visit Website",
+    "upgradePro": "Upgrade to Pro",
+    "comingSoon": "Coming soon",
+    "logout": "Logout"
 }

@@ -167,7 +167,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fast food and premium restaurants and recommend your dishes';
 
   @override
-  String get comingSoon => 'COMING SOON';
+  String get comingSoon => 'Coming soon';
 
   @override
   String get searchRecipes => 'Search recipes';
@@ -234,4 +234,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get somethingWrong => 'Something went wrong';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get visitWebsite => 'Visit Website';
+
+  @override
+  String get upgradePro => 'Upgrade to Pro';
 }

@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @comingSoon.
   ///
   /// In en, this message translates to:
-  /// **'COMING SOON'**
+  /// **'Coming soon'**
   String get comingSoon;
 
   /// No description provided for @searchRecipes.
@@ -547,6 +547,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get somethingWrong;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @visitWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit Website'**
+  String get visitWebsite;
+
+  /// No description provided for @upgradePro.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Pro'**
+  String get upgradePro;
 }
 
 class _AppLocalizationsDelegate

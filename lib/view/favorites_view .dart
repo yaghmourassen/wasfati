@@ -11,6 +11,45 @@ class FavoritesView extends StatelessWidget {
 
   final RecipeController controller = RecipeController();
 
+  // ================= L18N HELPERS (DYNAMIC CONTENT) =================
+  String _getLang(BuildContext context) {
+    return Localizations.localeOf(context).languageCode;
+  }
+
+  String _getTitle(BuildContext context, RecipeModel recipe) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.titleAr != null &&
+        recipe.titleAr!.isNotEmpty) {
+      return recipe.titleAr!;
+    }
+
+    if (recipe.titleEn != null && recipe.titleEn!.isNotEmpty) {
+      return recipe.titleEn!;
+    }
+
+    return recipe.title;
+  }
+
+  String _getDescription(BuildContext context, RecipeModel recipe) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' &&
+        recipe.descriptionAr != null &&
+        recipe.descriptionAr!.isNotEmpty) {
+      return recipe.descriptionAr!;
+    }
+
+    if (recipe.descriptionEn != null &&
+        recipe.descriptionEn!.isNotEmpty) {
+      return recipe.descriptionEn!;
+    }
+
+    return recipe.description;
+  }
+
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     final userId = UserSession.userId;
@@ -96,22 +135,22 @@ class FavoritesView extends StatelessWidget {
                     ),
                   ),
 
-                  // TITLE
+                  // ✅ FIXED TITLE (L18N)
                   title: Text(
-                    recipe.title,
+                    _getTitle(context, recipe),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
 
-                  // DESCRIPTION
+                  // ✅ FIXED DESCRIPTION (L18N)
                   subtitle: Text(
-                    recipe.description,
+                    _getDescription(context, recipe),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  // DETAILS
+                  // NAVIGATION
                   onTap: () {
                     Navigator.push(
                       context,

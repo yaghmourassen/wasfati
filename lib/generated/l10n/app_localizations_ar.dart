@@ -233,4 +233,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get somethingWrong => 'حدث خطأ ما';
+
+  @override
+  String get about => 'حول التطبيق';
+
+  @override
+  String get visitWebsite => 'زيارة الموقع';
+
+  @override
+  String get upgradePro => 'الترقية إلى النسخة الاحترافية';
 }
