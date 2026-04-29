@@ -565,6 +565,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upgrade to Pro'**
   String get upgradePro;
+
+  /// No description provided for @shoppingPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking Plan'**
+  String get shoppingPlan;
+
+  /// No description provided for @shoppingPlanDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan your meals and shopping list'**
+  String get shoppingPlanDesc;
+
+  /// No description provided for @addIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get addIngredient;
+
+  /// No description provided for @noItems.
+  ///
+  /// In en, this message translates to:
+  /// **'No items added yet'**
+  String get noItems;
+
+  /// No description provided for @emptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'Your list is empty'**
+  String get emptyList;
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@ import 'category_view.dart'; // ✅ IMPORT OK
 import 'favorites_view .dart';
 import 'setting_view.dart';
 import 'restaurent_view.dart';
+import 'shopping_plan_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -289,8 +290,106 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
               ),
+              const SizedBox(height: 25),
 
+
+
+// ================= SHOPPING PLAN =================
+            GestureDetector(
+            onTap: () {
+      Navigator.push(
+      context,
+      MaterialPageRoute(
+      builder: (_) => const ShoppingPlanView(),
+      ),
+      );
+      },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(26),
+
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.3),
+                ),
+              ),
+
+              child: Column(
+                children: [
+
+                  const Icon(
+                    Icons.shopping_cart_rounded,
+                    size: 60,
+                    color: Color(0xFF2E7D32),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    t.shoppingPlan,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    t.shoppingPlanDesc,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ShoppingPlanView(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2E7D32),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      icon: const Icon(Icons.shopping_bag),
+                      label: Text(
+                        t.shoppingPlan,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
               // ================= LOGOUT =================
+              const SizedBox(height: 25),
+
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(

@@ -91,5 +91,10 @@
     "visitWebsite": "زيارة الموقع",
     "upgradePro": "الترقية إلى النسخة الاحترافية",
     "comingSoon": "قريباً",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "shoppingPlan": "خطة الطبخ",
+    "shoppingPlanDesc": "خطط وجباتك وقائمة التسوق",
+    "addIngredient": "إضافة عنصر",
+    "noItems": "لا توجد عناصر بعد",
+    "emptyList": "القائمة فارغة"
 }

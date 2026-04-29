@@ -243,4 +243,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get upgradePro => 'Upgrade to Pro';
+
+  @override
+  String get shoppingPlan => 'Cooking Plan';
+
+  @override
+  String get shoppingPlanDesc => 'Plan your meals and shopping list';
+
+  @override
+  String get addIngredient => 'Add item';
+
+  @override
+  String get noItems => 'No items added yet';
+
+  @override
+  String get emptyList => 'Your list is empty';
 }

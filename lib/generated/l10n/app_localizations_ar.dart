@@ -242,4 +242,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get upgradePro => 'الترقية إلى النسخة الاحترافية';
+
+  @override
+  String get shoppingPlan => 'خطة الطبخ';
+
+  @override
+  String get shoppingPlanDesc => 'خطط وجباتك وقائمة التسوق';
+
+  @override
+  String get addIngredient => 'إضافة عنصر';
+
+  @override
+  String get noItems => 'لا توجد عناصر بعد';
+
+  @override
+  String get emptyList => 'القائمة فارغة';
 }

@@ -92,5 +92,10 @@
     "visitWebsite": "Visit Website",
     "upgradePro": "Upgrade to Pro",
     "comingSoon": "Coming soon",
-    "logout": "Logout"
+    "logout": "Logout",
+    "shoppingPlan": "Cooking Plan",
+    "shoppingPlanDesc": "Plan your meals and shopping list",
+    "addIngredient": "Add item",
+    "noItems": "No items added yet",
+    "emptyList": "Your list is empty"
 }

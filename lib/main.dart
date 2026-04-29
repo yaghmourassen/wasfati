@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wasfati_fb/generated/l10n/app_localizations.dart';
 
 import 'controller/setting_controller.dart';
+import 'controller/shopping_plan_controller.dart';
 import 'view/auth_view.dart';
 
 import 'services/user_role_service.dart';
@@ -22,8 +23,18 @@ void main() async {
   print("IS ADMIN = ${UserSession.isAdmin}");
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => SettingsController(),
+    MultiProvider(
+      providers: [
+
+        ChangeNotifierProvider(
+          create: (_) => SettingsController(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => ShoppingPlanController(),
+        ),
+      ],
+
       child: const WasfatyApp(),
     ),
   );

@@ -8,7 +8,7 @@ import '../view/favorites_view .dart';
 import '../core/user_session.dart';
 import 'auth_view.dart';
 import 'favorites_view .dart';
-
+import 'shopping_plan_view.dart';
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
@@ -110,7 +110,34 @@ class SettingsView extends StatelessWidget {
 
             const SizedBox(height: 15),
 
+
+// ================= SHOPPING PLAN =================
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFA5D6A7)),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.shopping_cart, color: Colors.green),
+                title: Text(t.shoppingPlan),
+
+                trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShoppingPlanView(),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+
             // ================= PRO =================
+            const SizedBox(height: 15),
             Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
@@ -150,9 +177,11 @@ class SettingsView extends StatelessWidget {
             const SizedBox(height: 15),
 
             // ================= PUSH LOGOUT TO BOTTOM =================
+
             const Spacer(),
 
             Container(
+
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(18),
