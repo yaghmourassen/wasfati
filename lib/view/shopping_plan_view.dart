@@ -15,7 +15,7 @@ class _ShoppingPlanViewState extends State<ShoppingPlanView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<ShoppingPlanController>(context);
+    final controller = Provider.of<ShoppingPlanController>(context); // ✅ HERE
     final t = AppLocalizations.of(context)!;
 
     return Scaffold(

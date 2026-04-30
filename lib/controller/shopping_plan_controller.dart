@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/user_session.dart';
 import '../model/shopping_plan_model.dart';
 
 class ShoppingPlanController extends ChangeNotifier {
   final List<ShoppingItem> _items = [];
 
-  List<ShoppingItem> get items => _items; // ✅ REQUIRED (missing in your code)
+  // ✅ only current user items
+  List<ShoppingItem> get items =>
+      _items.where((i) => i.userId == UserSession.userId).toList();
 
+  // ================= ADD ITEM =================
   void addItem(String name) {
     if (name.trim().isEmpty) return;
 
     _items.add(
       ShoppingItem(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: UserSession.userId!, // ✅ IMPORTANT FIX
         name: name.trim(),
         isDone: false,
       ),
@@ -22,34 +25,32 @@ class ShoppingPlanController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ================= DELETE ITEM =================
   void deleteItem(String id) {
     _items.removeWhere((item) => item.id == id);
     notifyListeners();
   }
 
+  // ================= TOGGLE ITEM =================
   void toggleItem(String id) {
     final index = _items.indexWhere((item) => item.id == id);
 
     if (index != -1) {
-      _items[index].isDone = !_items[index].isDone;
+      final oldItem = _items[index];
+
+      _items[index] = oldItem.copyWith(
+        isDone: !oldItem.isDone,
+      );
+
       notifyListeners();
     }
   }
 
+  // ================= CLEAR ALL (ONLY USER DATA) =================
   void clearAll() {
-    _items.clear();
+    _items.removeWhere(
+          (item) => item.userId == UserSession.userId,
+    );
     notifyListeners();
   }
-}
-
-class ShoppingItem {
-  final String id;
-  final String name;
-  bool isDone;
-
-  ShoppingItem({
-    required this.id,
-    required this.name,
-    this.isDone = false,
-  });
 }
