@@ -96,5 +96,10 @@
     "shoppingPlanDesc": "خطط وجباتك وقائمة التسوق",
     "addIngredient": "إضافة عنصر",
     "noItems": "لا توجد عناصر بعد",
-    "emptyList": "القائمة فارغة"
+    "emptyList": "القائمة فارغة",
+      "deleteAccount": "حذف الحساب",
+      "deleteAccountDesc": "حذف الحساب وجميع البيانات نهائياً",
+      "deleteAccountWarning": "سيتم حذف جميع بياناتك بشكل نهائي ولا يمكن التراجع عن ذلك",
+      "cancel": "إلغاء",
+      "delete": "حذف"
 }

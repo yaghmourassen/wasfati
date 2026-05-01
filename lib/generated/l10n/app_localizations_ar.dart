@@ -257,4 +257,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get emptyList => 'القائمة فارغة';
+
+  @override
+  String get deleteAccount => 'حذف الحساب';
+
+  @override
+  String get deleteAccountDesc => 'حذف الحساب وجميع البيانات نهائياً';
+
+  @override
+  String get deleteAccountWarning =>
+      'سيتم حذف جميع بياناتك بشكل نهائي ولا يمكن التراجع عن ذلك';
 }

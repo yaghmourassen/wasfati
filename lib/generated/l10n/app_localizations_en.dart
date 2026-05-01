@@ -258,4 +258,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyList => 'Your list is empty';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountDesc =>
+      'Permanently remove your account and all data';
+
+  @override
+  String get deleteAccountWarning =>
+      'This will delete all your data permanently. This action cannot be undone.';
 }

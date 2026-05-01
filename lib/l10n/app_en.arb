@@ -97,5 +97,10 @@
     "shoppingPlanDesc": "Plan your meals and shopping list",
     "addIngredient": "Add item",
     "noItems": "No items added yet",
-    "emptyList": "Your list is empty"
+    "emptyList": "Your list is empty",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDesc": "Permanently remove your account and all data",
+      "deleteAccountWarning": "This will delete all your data permanently. This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
 }

@@ -595,6 +595,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your list is empty'**
   String get emptyList;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently remove your account and all data'**
+  String get deleteAccountDesc;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all your data permanently. This action cannot be undone.'**
+  String get deleteAccountWarning;
 }
 
 class _AppLocalizationsDelegate
