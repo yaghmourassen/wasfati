@@ -176,20 +176,20 @@ class SettingsView extends StatelessWidget {
               const SizedBox(height: 15),
 
               // ================= DELETE ACCOUNT =================
+              // ================= DELETE ACCOUNT =================
               Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.red.withOpacity(0.4)),
+                  border: Border.all(color: const Color(0xFFA5D6A7)), // same as others
                 ),
                 child: ListTile(
-                  leading:
-                  const Icon(Icons.delete_forever, color: Colors.red),
+                  leading: const Icon(Icons.delete_forever, color: Colors.red),
                   title: Text(
                     t.deleteAccount,
-                    style: const TextStyle(color: Colors.red),
+
                   ),
-                  subtitle: Text(t.deleteAccountDesc),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 18),
 
                   onTap: () async {
                     final confirm = await showDialog(
@@ -222,8 +222,7 @@ class SettingsView extends StatelessWidget {
 
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                              builder: (_) => const AuthView()),
+                          MaterialPageRoute(builder: (_) => const AuthView()),
                               (route) => false,
                         );
                       } catch (e) {
