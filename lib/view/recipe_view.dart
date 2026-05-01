@@ -202,15 +202,16 @@ class _RecipeViewState extends State<RecipeView> {
                     return Card(
                       margin: const EdgeInsets.all(8),
                       child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  RecipeDetailView(recipe: recipe),
-                            ),
-                          );
-                        },
+                          onTap: () async {
+                            await controller.increaseViews(recipe.id!);
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RecipeDetailView(recipe: recipe),
+                              ),
+                            );
+                          },
 
                         leading: recipe.imageUrl != null
                             ? Image.network(
@@ -308,7 +309,7 @@ class _RecipeViewState extends State<RecipeView> {
                                 const SizedBox(width: 4),
 
                                 Text(
-                                  "(${recipe.ratingCount})",
+                                  "(${recipe.views})",
                                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                               ],
