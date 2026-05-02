@@ -6,7 +6,7 @@ import '../model/recipe_model.dart';
 import '../generated/l10n/app_localizations.dart';
 import '../core/user_session.dart';
 import 'recipe_detail_view.dart';
-
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 class RecipeView extends StatefulWidget {
   final String? categoryId;
 
@@ -17,10 +17,33 @@ class RecipeView extends StatefulWidget {
 }
 
 class _RecipeViewState extends State<RecipeView> {
+  @override
+  void initState() {
+    super.initState();
+
+    bannerAd = BannerAd(
+      adUnitId: "ca-app-pub-3185716051823285/7834634897",
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+
+    bannerAd!.load();
+  }
   String _getLang(BuildContext context) {
     return Localizations.localeOf(context).languageCode;
   }
-
+  BannerAd? bannerAd;
+  bool isAdLoaded = false;
   String _getTitle(BuildContext context, RecipeModel recipe) {
     final lang = _getLang(context);
 
@@ -108,7 +131,13 @@ class _RecipeViewState extends State<RecipeView> {
 
       body: Column(
         children: [
-
+          if (isAdLoaded && bannerAd != null)
+            Container(
+              alignment: Alignment.center,
+              width: bannerAd!.size.width.toDouble(),
+              height: bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: bannerAd!),
+            ),
           // ================= SEARCH + FILTER (RESTORED) =================
           if (!isAdmin)
             SafeArea(
