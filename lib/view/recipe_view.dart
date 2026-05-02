@@ -180,10 +180,22 @@ class _RecipeViewState extends State<RecipeView> {
                       .toList();
                 }
                 // ================= SEARCH (RESTORED) =================
-                recipes = recipes
-                    .where((r) =>
-                    r.title.toLowerCase().contains(searchText))
-                    .toList();
+                recipes = recipes.where((r) {
+                  final query = searchText.toLowerCase();
+
+                  final title = r.title.toLowerCase();
+                  final titleEn = r.titleEn?.toLowerCase() ?? "";
+                  final titleAr = r.titleAr?.toLowerCase() ?? "";
+
+                  final ingredientsEn = r.ingredientsEn ?? [];
+                  final ingredientsAr = r.ingredientsAr ?? [];
+
+                  return title.contains(query) ||
+                      titleEn.contains(query) ||
+                      titleAr.contains(query) ||
+                      ingredientsEn.any((i) => i.toLowerCase().contains(query)) ||
+                      ingredientsAr.any((i) => i.toLowerCase().contains(query));
+                }).toList();
 
                 // ================= SORT (RESTORED) =================
                 if (!isAdmin) {
