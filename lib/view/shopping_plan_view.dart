@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../generated/l10n/app_localizations.dart';
-import 'package:wasfati_fb/controller/shopping_plan_controller.dart';
-import 'package:wasfati_fb/services/account_service.dart';
+import 'package:wasfati/controller/shopping_plan_controller.dart';
+import 'package:wasfati/services/account_service.dart';
 class ShoppingPlanView extends StatefulWidget {
   const ShoppingPlanView({super.key});
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:wasfati_fb/generated/l10n/app_localizations.dart';
+import 'package:wasfati/generated/l10n/app_localizations.dart';
 
 import 'controller/setting_controller.dart';
 import 'controller/shopping_plan_controller.dart';

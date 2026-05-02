@@ -1,4 +1,4 @@
-package com.example.wasfati_fb
+package com.example.wasfati
 
 import io.flutter.embedding.android.FlutterActivity
 

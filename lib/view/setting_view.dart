@@ -7,7 +7,7 @@ import '../generated/l10n/app_localizations.dart';
 import '../view/favorites_view .dart';
 import 'auth_view.dart';
 import 'shopping_plan_view.dart';
-import 'package:wasfati_fb/services/account_service.dart';
+import 'package:wasfati/services/account_service.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});

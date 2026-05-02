@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wasfati_fb"
+    namespace = "com.example.wasfati"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         // ✅ Le même ID que dans Firebase Console
-        applicationId = "com.example.wasfati_fb"
+        applicationId = "com.example.wasfati"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
