@@ -18,8 +18,46 @@ class RecipeView extends StatefulWidget {
 
 class _RecipeViewState extends State<RecipeView> {
   @override
+  void dispose() {
+    bannerAd?.dispose();
+    interstitialAd?.dispose();
+    super.dispose();
+  }
+
+
+  void loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: "ca-app-pub-3185716051823285/5008108652",
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          interstitialAd = ad;
+
+          interstitialAd!.fullScreenContentCallback =
+              FullScreenContentCallback(
+                onAdDismissedFullScreenContent: (ad) {
+                  ad.dispose();
+                  loadInterstitialAd();
+                },
+                onAdFailedToShowFullScreenContent: (ad, error) {
+                  ad.dispose();
+                  loadInterstitialAd();
+                },
+              );
+        },
+        onAdFailedToLoad: (error) {
+          interstitialAd = null;
+        },
+      ),
+    );
+  }
+
+  @override
+  @override
   void initState() {
     super.initState();
+
+    loadInterstitialAd();
 
     bannerAd = BannerAd(
       adUnitId: "ca-app-pub-3185716051823285/7834634897",
@@ -33,6 +71,7 @@ class _RecipeViewState extends State<RecipeView> {
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
+          debugPrint("Banner failed: $error");
         },
       ),
     );
@@ -44,6 +83,8 @@ class _RecipeViewState extends State<RecipeView> {
   }
   BannerAd? bannerAd;
   bool isAdLoaded = false;
+  InterstitialAd? interstitialAd;
+  int openCount = 0;
   String _getTitle(BuildContext context, RecipeModel recipe) {
     final lang = _getLang(context);
 
@@ -131,13 +172,7 @@ class _RecipeViewState extends State<RecipeView> {
 
       body: Column(
         children: [
-          if (isAdLoaded && bannerAd != null)
-            Container(
-              alignment: Alignment.center,
-              width: bannerAd!.size.width.toDouble(),
-              height: bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: bannerAd!),
-            ),
+
           // ================= SEARCH + FILTER (RESTORED) =================
           if (!isAdmin)
             SafeArea(
@@ -244,7 +279,44 @@ class _RecipeViewState extends State<RecipeView> {
                       margin: const EdgeInsets.all(8),
                       child: ListTile(
                           onTap: () async {
+
+                            openCount++;
+
                             await controller.increaseViews(recipe.id!);
+
+                            if (openCount % 3 == 0 && interstitialAd != null) {
+
+                              interstitialAd!.fullScreenContentCallback =
+                                  FullScreenContentCallback(
+                                    onAdDismissedFullScreenContent: (ad) {
+                                      ad.dispose();
+                                      loadInterstitialAd();
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => RecipeDetailView(recipe: recipe),
+                                        ),
+                                      );
+                                    },
+                                    onAdFailedToShowFullScreenContent: (ad, error) {
+                                      ad.dispose();
+                                      loadInterstitialAd();
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => RecipeDetailView(recipe: recipe),
+                                        ),
+                                      );
+                                    },
+                                  );
+
+                              interstitialAd!.show();
+                              interstitialAd = null;
+
+                              return;
+                            }
 
                             Navigator.push(
                               context,
@@ -254,13 +326,13 @@ class _RecipeViewState extends State<RecipeView> {
                             );
                           },
 
-                        leading: recipe.imageUrl != null
-                            ? Image.network(
-                          recipe.imageUrl!,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        )
-                            : const Icon(Icons.fastfood),
+                          leading: recipe.imageUrl != null
+                              ? Image.network(
+                            recipe.imageUrl!,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          )
+                              : const Icon(Icons.fastfood),
 
                           title: Text(_getTitle(context, recipe)),
 
@@ -271,92 +343,92 @@ class _RecipeViewState extends State<RecipeView> {
                             softWrap: false,
                           ),
 
-                        // ================= ADMIN / USER FIX =================
-                        trailing: isAdmin
-                            ? PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == "edit") {
-                              _showEditRecipeDialog(context, t, recipe);
-                            }
+                          // ================= ADMIN / USER FIX =================
+                          trailing: isAdmin
+                              ? PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == "edit") {
+                                _showEditRecipeDialog(context, t, recipe);
+                              }
 
-                            if (value == "delete") {
-                              controller.deleteRecipe(recipe.id!);
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: "edit",
-                              child: Text(t.editRecipe),
-                            ),
-                            PopupMenuItem(
-                              value: "delete",
-                              child: Text(t.delete),
-                            ),
-                          ],
-                        ):
-                        StatefulBuilder(
-                          builder: (context, setStateLocal) {
-                            int hoveredRating = 0;
+                              if (value == "delete") {
+                                controller.deleteRecipe(recipe.id!);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: "edit",
+                                child: Text(t.editRecipe),
+                              ),
+                              PopupMenuItem(
+                                value: "delete",
+                                child: Text(t.delete),
+                              ),
+                            ],
+                          ):
+                          StatefulBuilder(
+                            builder: (context, setStateLocal) {
+                              int hoveredRating = 0;
 
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ...List.generate(5, (i) {
-                                  final userId = UserSession.userId;
-                                  final avgRating = recipe.rating;
-                                  final isFilled = i < avgRating.round();
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...List.generate(5, (i) {
+                                    final userId = UserSession.userId;
+                                    final avgRating = recipe.rating;
+                                    final isFilled = i < avgRating.round();
 
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      if (userId.isEmpty) return;
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        if (userId.isEmpty) return;
 
-                                      final alreadyRated =
-                                      recipe.userRatings.containsKey(userId);
+                                        final alreadyRated =
+                                        recipe.userRatings.containsKey(userId);
 
-                                      if (alreadyRated) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("You already rated this recipe"),
-                                          ),
+                                        if (alreadyRated) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text("You already rated this recipe"),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        await controller.rateRecipe(
+                                          recipeId: recipe.id!,
+                                          rating: (i + 1).toDouble(),
+                                          userId: userId,
                                         );
-                                        return;
-                                      }
 
-                                      await controller.rateRecipe(
-                                        recipeId: recipe.id!,
-                                        rating: (i + 1).toDouble(),
-                                        userId: userId,
-                                      );
+                                        setState(() {});
+                                      },
+                                      child: Icon(
+                                        Icons.star,
+                                        size: 20,
+                                        color: isFilled
+                                            ? Colors.amber
+                                            : Colors.grey.shade400,
+                                      ),
+                                    );
+                                  }),
 
-                                      setState(() {});
-                                    },
-                                    child: Icon(
-                                      Icons.star,
-                                      size: 20,
-                                      color: isFilled
-                                          ? Colors.amber
-                                          : Colors.grey.shade400,
-                                    ),
-                                  );
-                                }),
+                                  const SizedBox(width: 6),
 
-                                const SizedBox(width: 6),
+                                  Text(
+                                    recipe.rating.toStringAsFixed(1),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
 
-                                Text(
-                                  recipe.rating.toStringAsFixed(1),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
+                                  const SizedBox(width: 4),
 
-                                const SizedBox(width: 4),
-
-                                Text(
-                                  "(${recipe.views})",
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                              ],
-                            );
-                          },
-                        )
+                                  Text(
+                                    "(${recipe.views})",
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  ),
+                                ],
+                              );
+                            },
+                          )
                       ),
                     );
                   },
@@ -365,7 +437,15 @@ class _RecipeViewState extends State<RecipeView> {
             ),
           ),
         ],
+
       ),
+      bottomNavigationBar: isAdLoaded && bannerAd != null
+          ? SizedBox(
+        width: bannerAd!.size.width.toDouble(),
+        height: bannerAd!.size.height.toDouble(),
+        child: AdWidget(ad: bannerAd!),
+      )
+          : null,
     );
   }
 
