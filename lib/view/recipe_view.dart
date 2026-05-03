@@ -27,7 +27,7 @@ class _RecipeViewState extends State<RecipeView> {
 
   void loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: "ca-app-pub-3185716051823285/5008108652",
+      adUnitId: "ca-app-pub-3940256099942544/1033173712",
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -37,16 +37,19 @@ class _RecipeViewState extends State<RecipeView> {
               FullScreenContentCallback(
                 onAdDismissedFullScreenContent: (ad) {
                   ad.dispose();
+                  interstitialAd = null;
                   loadInterstitialAd();
                 },
                 onAdFailedToShowFullScreenContent: (ad, error) {
                   ad.dispose();
+                  interstitialAd = null;
                   loadInterstitialAd();
                 },
               );
         },
         onAdFailedToLoad: (error) {
           interstitialAd = null;
+          Future.delayed(const Duration(seconds: 3), loadInterstitialAd);
         },
       ),
     );
@@ -60,7 +63,7 @@ class _RecipeViewState extends State<RecipeView> {
     loadInterstitialAd();
 
     bannerAd = BannerAd(
-      adUnitId: "ca-app-pub-3185716051823285/7834634897",
+      adUnitId: "ca-app-pub-3940256099942544/6300978111",
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -285,36 +288,35 @@ class _RecipeViewState extends State<RecipeView> {
                             await controller.increaseViews(recipe.id!);
 
                             if (openCount % 3 == 0 && interstitialAd != null) {
-
-                              interstitialAd!.fullScreenContentCallback =
-                                  FullScreenContentCallback(
-                                    onAdDismissedFullScreenContent: (ad) {
-                                      ad.dispose();
-                                      loadInterstitialAd();
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => RecipeDetailView(recipe: recipe),
-                                        ),
-                                      );
-                                    },
-                                    onAdFailedToShowFullScreenContent: (ad, error) {
-                                      ad.dispose();
-                                      loadInterstitialAd();
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => RecipeDetailView(recipe: recipe),
-                                        ),
-                                      );
-                                    },
-                                  );
-
-                              interstitialAd!.show();
+                              final ad = interstitialAd;
                               interstitialAd = null;
 
+                              ad!.fullScreenContentCallback = FullScreenContentCallback(
+                                onAdDismissedFullScreenContent: (ad) {
+                                  ad.dispose();
+                                  loadInterstitialAd();
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => RecipeDetailView(recipe: recipe),
+                                    ),
+                                  );
+                                },
+                                onAdFailedToShowFullScreenContent: (ad, error) {
+                                  ad.dispose();
+                                  loadInterstitialAd();
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => RecipeDetailView(recipe: recipe),
+                                    ),
+                                  );
+                                },
+                              );
+
+                              ad.show();
                               return;
                             }
 
