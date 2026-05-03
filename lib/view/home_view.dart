@@ -7,6 +7,7 @@ import 'category_view.dart'; // ✅ IMPORT OK
 import 'favorites_view .dart';
 import 'setting_view.dart';
 import 'restaurent_view.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'shopping_plan_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -16,8 +17,34 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final authController = AuthController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // TEST ID
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          print("🔥 BANNER LOADED SUCCESSFULLY");
+          setState(() {
+            _isBannerReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print("Banner failed: $error");
+        },
+      ),
+    );
+
+    _bannerAd.load();
+  }
+  late BannerAd _bannerAd;
+  bool _isBannerReady = false;
+  final authController = AuthController();
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -295,98 +322,98 @@ class _HomeViewState extends State<HomeView> {
 
 
 // ================= SHOPPING PLAN =================
-            GestureDetector(
-            onTap: () {
-      Navigator.push(
-      context,
-      MaterialPageRoute(
-      builder: (_) => const ShoppingPlanView(),
-      ),
-      );
-      },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(26),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShoppingPlanView(),
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(26),
 
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
 
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(26),
-                border: Border.all(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withOpacity(0.3),
-                ),
-              ),
-
-              child: Column(
-                children: [
-
-                  const Icon(
-                    Icons.shopping_cart_rounded,
-                    size: 60,
-                    color: Color(0xFF2E7D32),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    t.shoppingPlan,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    t.shoppingPlanDesc,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ShoppingPlanView(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E7D32),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.3),
                         ),
                       ),
-                      icon: const Icon(Icons.shopping_bag),
-                      label: Text(
-                        t.shoppingPlan,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+
+                      child: Column(
+                        children: [
+
+                          const Icon(
+                            Icons.shopping_cart_rounded,
+                            size: 60,
+                            color: Color(0xFF2E7D32),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Text(
+                            t.shoppingPlan,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            t.shoppingPlanDesc,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ShoppingPlanView(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2E7D32),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              icon: const Icon(Icons.shopping_bag),
+                              label: Text(
+                                t.shoppingPlan,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        ],
                       ),
                     ),
                   ),
-
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
               // ================= LOGOUT =================
               const SizedBox(height: 25),
 
@@ -415,6 +442,16 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              if (_isBannerReady)
+                Center(
+                  child: SizedBox(
+                    width: _bannerAd.size.width.toDouble(),
+                    height: _bannerAd.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd),
+                  ),
+                ),
             ],
           ),
         ),
