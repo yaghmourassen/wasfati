@@ -7,6 +7,7 @@ import 'category_view.dart'; // ✅ IMPORT OK
 import 'favorites_view .dart';
 import 'setting_view.dart';
 import 'restaurent_view.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'shopping_plan_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -16,8 +17,34 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final authController = AuthController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    _bannerAd = BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // TEST ID
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          print("🔥 BANNER LOADED SUCCESSFULLY");
+          setState(() {
+            _isBannerReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print("Banner failed: $error");
+        },
+      ),
+    );
+
+    _bannerAd.load();
+  }
+  late BannerAd _bannerAd;
+  bool _isBannerReady = false;
+  final authController = AuthController();
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -415,6 +442,16 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              if (_isBannerReady)
+                Center(
+                  child: SizedBox(
+                    width: _bannerAd.size.width.toDouble(),
+                    height: _bannerAd.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd),
+                  ),
+                ),
             ],
           ),
         ),
