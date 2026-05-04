@@ -23,7 +23,8 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
 
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // TEST ID
+      adUnitId: 'ca-app-pub-3185716051823285/7834634897', // TEST ID
+
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

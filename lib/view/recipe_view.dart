@@ -27,7 +27,7 @@ class _RecipeViewState extends State<RecipeView> {
 
   void loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: "ca-app-pub-3940256099942544/1033173712",
+      adUnitId: "ca-app-pub-3185716051823285/5008108652",
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -63,7 +63,7 @@ class _RecipeViewState extends State<RecipeView> {
     loadInterstitialAd();
 
     bannerAd = BannerAd(
-      adUnitId: "ca-app-pub-3940256099942544/6300978111",
+      adUnitId: "ca-app-pub-3185716051823285/7834634897",
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
