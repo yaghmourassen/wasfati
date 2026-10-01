@@ -267,4 +267,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteAccountWarning =>
       'سيتم حذف جميع بياناتك بشكل نهائي ولا يمكن التراجع عن ذلك';
+
+  @override
+  String get comments => 'التعليقات';
+
+  @override
+  String get writeComment => 'اكتب تعليقاً...';
+
+  @override
+  String get noComments => 'لا توجد تعليقات بعد';
 }

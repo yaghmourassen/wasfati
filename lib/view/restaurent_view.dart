@@ -24,6 +24,7 @@ class RestaurantView extends StatelessWidget {
         ),
       ),
 
+
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),

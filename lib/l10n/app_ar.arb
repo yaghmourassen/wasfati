@@ -101,5 +101,8 @@
       "deleteAccountDesc": "حذف الحساب وجميع البيانات نهائياً",
       "deleteAccountWarning": "سيتم حذف جميع بياناتك بشكل نهائي ولا يمكن التراجع عن ذلك",
       "cancel": "إلغاء",
-      "delete": "حذف"
+      "delete": "حذف",
+      "comments": "التعليقات",
+        "writeComment": "اكتب تعليقاً...",
+        "noComments": "لا توجد تعليقات بعد"
 }

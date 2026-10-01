@@ -23,6 +23,7 @@ class _AuthViewState extends State<AuthView>
   bool _obscurePassword = true;
   String? _errorMessage;
 
+
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 

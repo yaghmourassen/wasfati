@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../model/comment_model.dart';
 import '../model/recipe_model.dart';
 import '../core/user_session.dart';
 import 'dart:io';
@@ -280,5 +281,89 @@ class RecipeController {
           .map((doc) => RecipeModel.fromMap(doc.id, doc.data()))
           .toList();
     });
+  }
+  // ================= 💬 ADD COMMENT =================
+  Future<void> addComment({
+    required String recipeId,
+    required String userId,
+    required String text,
+  }) async {
+    // Optional: Fetch the current user's name if you want to display it properly
+    // For now, we can fetch from a users collection or use a fallback name
+    String userName = "Chef";
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        userName = userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
+      }
+    } catch (_) {}
+
+    await _recipesCollection
+        .doc(recipeId)
+        .collection('comments')
+        .add({
+      'userId': userId,
+      'userName': userName,
+      'text': text,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // ================= 💬 GET COMMENTS STREAM =================
+  Stream<List<CommentModel>> getCommentsStream(String recipeId) {
+    return _recipesCollection
+        .doc(recipeId)
+        .collection('comments')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        // Convert Firebase Timestamp to ISO string if needed for parsing
+        if (data['timestamp'] is Timestamp) {
+          data['timestamp'] = (data['timestamp'] as Timestamp).toDate().toIso8601String();
+        }
+        return CommentModel.fromMap(doc.id, data);
+      }).toList();
+    });
+  }
+
+  // ================= 💬 SAVE OR UPDATE COMMENT (1 per user) =================
+  Future<void> saveOrUpdateComment({
+    required String recipeId,
+    required String userId,
+    required String text,
+  }) async {
+    String userName = "Chef";
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        userName = userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
+      }
+    } catch (_) {}
+
+    // Using userId as doc ID guarantees 1 comment per user & prevents permission clashes
+    await _recipesCollection
+        .doc(recipeId)
+        .collection('comments')
+        .doc(userId)
+        .set({
+      'userId': userId,
+      'userName': userName,
+      'text': text,
+      'timestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  // ================= 💬 DELETE COMMENT =================
+  Future<void> deleteComment({
+    required String recipeId,
+    required String userId,
+  }) async {
+    await _recipesCollection
+        .doc(recipeId)
+        .collection('comments')
+        .doc(userId)
+        .delete();
   }
 }

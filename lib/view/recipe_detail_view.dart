@@ -2,15 +2,30 @@ import 'package:flutter/material.dart';
 import '../controller/recipe_controller.dart';
 import '../core/user_session.dart';
 import '../model/recipe_model.dart';
+import '../model/comment_model.dart';
 import '../generated/l10n/app_localizations.dart';
 
-class RecipeDetailView extends StatelessWidget {
+class RecipeDetailView extends StatefulWidget {
   final RecipeModel recipe;
 
   const RecipeDetailView({
     super.key,
     required this.recipe,
   });
+
+  @override
+  State<RecipeDetailView> createState() => _RecipeDetailViewState();
+}
+
+class _RecipeDetailViewState extends State<RecipeDetailView> {
+  final TextEditingController _commentController = TextEditingController();
+  final RecipeController _recipeController = RecipeController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
 
   // 🌍 SIMPLE L18N RESOLVER (uses existing system)
   String _getLang(BuildContext context) {
@@ -20,49 +35,49 @@ class RecipeDetailView extends StatelessWidget {
   String _getTitle(BuildContext context) {
     final lang = _getLang(context);
 
-    if (lang == 'ar' && recipe.titleAr != null && recipe.titleAr!.isNotEmpty) {
-      return recipe.titleAr!;
+    if (lang == 'ar' && widget.recipe.titleAr != null && widget.recipe.titleAr!.isNotEmpty) {
+      return widget.recipe.titleAr!;
     }
 
-    if (recipe.titleEn != null && recipe.titleEn!.isNotEmpty) {
-      return recipe.titleEn!;
+    if (widget.recipe.titleEn != null && widget.recipe.titleEn!.isNotEmpty) {
+      return widget.recipe.titleEn!;
     }
 
-    return recipe.title;
+    return widget.recipe.title;
   }
 
   String _getDescription(BuildContext context) {
     final lang = _getLang(context);
 
     if (lang == 'ar' &&
-        recipe.descriptionAr != null &&
-        recipe.descriptionAr!.isNotEmpty) {
-      return recipe.descriptionAr!;
+        widget.recipe.descriptionAr != null &&
+        widget.recipe.descriptionAr!.isNotEmpty) {
+      return widget.recipe.descriptionAr!;
     }
 
-    if (recipe.descriptionEn != null &&
-        recipe.descriptionEn!.isNotEmpty) {
-      return recipe.descriptionEn!;
+    if (widget.recipe.descriptionEn != null &&
+        widget.recipe.descriptionEn!.isNotEmpty) {
+      return widget.recipe.descriptionEn!;
     }
 
-    return recipe.description;
+    return widget.recipe.description;
   }
 
   List<String> _getIngredients(BuildContext context) {
     final lang = _getLang(context);
 
     if (lang == 'ar' &&
-        recipe.ingredientsAr != null &&
-        recipe.ingredientsAr!.isNotEmpty) {
-      return recipe.ingredientsAr!;
+        widget.recipe.ingredientsAr != null &&
+        widget.recipe.ingredientsAr!.isNotEmpty) {
+      return widget.recipe.ingredientsAr!;
     }
 
-    if (recipe.ingredientsEn != null &&
-        recipe.ingredientsEn!.isNotEmpty) {
-      return recipe.ingredientsEn!;
+    if (widget.recipe.ingredientsEn != null &&
+        widget.recipe.ingredientsEn!.isNotEmpty) {
+      return widget.recipe.ingredientsEn!;
     }
 
-    return recipe.ingredients;
+    return widget.recipe.ingredients;
   }
 
   @override
@@ -86,8 +101,8 @@ class RecipeDetailView extends StatelessWidget {
 
             actions: [
               StreamBuilder<bool>(
-                stream: RecipeController()
-                    .isFavorite(UserSession.userId, recipe.id!),
+                stream: _recipeController
+                    .isFavorite(UserSession.userId, widget.recipe.id!),
                 builder: (context, snapshot) {
                   final isFav = snapshot.data ?? false;
 
@@ -106,9 +121,9 @@ class RecipeDetailView extends StatelessWidget {
                     onPressed: () async {
                       if (UserSession.userId.isEmpty) return;
 
-                      await RecipeController().toggleFavorite(
+                      await _recipeController.toggleFavorite(
                         userId: UserSession.userId,
-                        recipeId: recipe.id!,
+                        recipeId: widget.recipe.id!,
                       );
                     },
                   );
@@ -136,14 +151,14 @@ class RecipeDetailView extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   // 🖼 Image
-                  recipe.imageUrl != null
+                  widget.recipe.imageUrl != null
                       ? Image.network(
-                    recipe.imageUrl!,
+                    widget.recipe.imageUrl!,
                     fit: BoxFit.cover,
                   )
                       : Container(color: Colors.grey),
 
-                  // 🌑 Gradient overlay (احترافي)
+                  // 🌑 Gradient overlay
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -222,6 +237,136 @@ class RecipeDetailView extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   _buildSteps(context, description),
+
+                  const SizedBox(height: 30),
+
+                  // ================= COMMENTS SECTION =================
+                  Text(
+                    t.comments,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // 💬 Dynamic Comments List StreamBuilder
+                  StreamBuilder<List<CommentModel>>(
+                    stream: _recipeController.getCommentsStream(widget.recipe.id!),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final comments = snapshot.data!;
+                      final currentUserId = UserSession.userId;
+
+                      // Check if current user already commented
+                      CommentModel? myComment;
+                      try {
+                        myComment = comments.firstWhere((c) => c.userId == currentUserId);
+                      } catch (_) {
+                        myComment = null;
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 📝 Add / Update Comment Input Field
+                          if (currentUserId.isNotEmpty) ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _commentController,
+                                    decoration: InputDecoration(
+                                      hintText: myComment == null ? t.writeComment : "Update your comment...",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  onPressed: () async {
+                                    final text = _commentController.text.trim();
+                                    if (text.isEmpty || widget.recipe.id == null) return;
+
+                                    // 🚀 Uses saveOrUpdateComment to enforce 1 comment per user
+                                    await _recipeController.saveOrUpdateComment(
+                                      recipeId: widget.recipe.id!,
+                                      userId: currentUserId,
+                                      text: text,
+                                    );
+
+                                    _commentController.clear();
+                                    FocusScope.of(context).unfocus();
+                                    setState(() {});
+                                  },
+                                  icon: Icon(myComment == null ? Icons.send : Icons.check),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          if (comments.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                t.noComments,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            )
+                          else
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: comments.length,
+                              itemBuilder: (context, index) {
+                                final comment = comments[index];
+                                final isMe = comment.userId == currentUserId;
+
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                                  title: Text(comment.userName),
+                                  subtitle: Text(comment.text),
+                                  // 🛠 Edit & Delete options visible ONLY for the comment owner
+                                  trailing: isMe
+                                      ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+                                        onPressed: () {
+                                          _commentController.text = comment.text;
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                                        onPressed: () async {
+                                          await _recipeController.deleteComment(
+                                            recipeId: widget.recipe.id!,
+                                            userId: currentUserId,
+                                          );
+                                          setState(() {});
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                      : null,
+                                );
+                              },
+                            ),
+                        ],
+                      );
+                    },
+                  ),
 
                   const SizedBox(height: 30),
                 ],

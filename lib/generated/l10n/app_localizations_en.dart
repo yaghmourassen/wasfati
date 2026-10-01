@@ -269,4 +269,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountWarning =>
       'This will delete all your data permanently. This action cannot be undone.';
+
+  @override
+  String get comments => 'Comments';
+
+  @override
+  String get writeComment => 'Write a comment...';
+
+  @override
+  String get noComments => 'No comments yet';
 }

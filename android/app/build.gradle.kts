@@ -1,11 +1,11 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 
     // The Flutter Gradle Plugin must be applied before Google services.
     id("dev.flutter.flutter-gradle-plugin")
 
-    // ✅ Nécessaire pour Firebase (doit venir après Flutter)
+    // Firebase
     id("com.google.gms.google-services")
 }
 
@@ -24,7 +24,6 @@ android {
     }
 
     defaultConfig {
-        // ✅ Le même ID que dans Firebase Console
         applicationId = "com.example.wasfati"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -34,7 +33,6 @@ android {
 
     buildTypes {
         release {
-            // 🔐 À remplacer par une vraie clé de signature plus tard
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -45,10 +43,8 @@ flutter {
 }
 
 dependencies {
-    // ✅ Firebase BoM gère les versions automatiquement
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 
-    // 🔥 Modules Firebase à activer selon ton usage :
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")

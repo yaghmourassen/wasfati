@@ -102,5 +102,8 @@
       "deleteAccountDesc": "Permanently remove your account and all data",
       "deleteAccountWarning": "This will delete all your data permanently. This action cannot be undone.",
       "cancel": "Cancel",
-      "delete": "Delete"
+      "delete": "Delete",
+      "comments": "Comments",
+        "writeComment": "Write a comment...",
+        "noComments": "No comments yet"
 }

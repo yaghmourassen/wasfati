@@ -336,7 +336,11 @@ class _RecipeViewState extends State<RecipeView> {
                           )
                               : const Icon(Icons.fastfood),
 
-                          title: Text(_getTitle(context, recipe)),
+                          title: Text(
+                            _getTitle(context, recipe),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
 
                           subtitle: Text(
                             "${_getIngredients(context, recipe).length} ${t.ingredients}",
