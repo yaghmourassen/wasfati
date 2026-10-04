@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controller/recipe_controller.dart';
 import '../core/user_session.dart';
-import '../model/recipe_model.dart';
+
 import '../model/comment_model.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../model/recipe_model.dart';
 
 class RecipeDetailView extends StatefulWidget {
   final RecipeModel recipe;
@@ -79,6 +80,26 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
     }
 
     return widget.recipe.ingredients;
+  }
+
+  // 🛠️ دالة جلب الخطوات باللغة المناسبة (تدعم الخرائط النصية مع الصور)
+  List<dynamic> _getStepsList(BuildContext context) {
+    final lang = _getLang(context);
+
+    if (lang == 'ar' && widget.recipe.stepsAr != null && widget.recipe.stepsAr!.isNotEmpty) {
+      return widget.recipe.stepsAr!;
+    }
+
+    if (widget.recipe.stepsEn != null && widget.recipe.stepsEn!.isNotEmpty) {
+      return widget.recipe.stepsEn!;
+    }
+
+    if (widget.recipe.steps != null && widget.recipe.steps!.isNotEmpty) {
+      return widget.recipe.steps!;
+    }
+
+    // Fallback في حال كانت مخزنة كنص قديم
+    return [];
   }
 
   @override
@@ -241,7 +262,7 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
 
                   const SizedBox(height: 20),
 
-                  // ================= WATCH VIDEO SECTION (UPDATED WITH L10N) =================
+                  // ================= WATCH VIDEO SECTION =================
                   if (widget.recipe.videoUrl != null && widget.recipe.videoUrl!.isNotEmpty) ...[
                     SizedBox(
                       width: double.infinity,
@@ -258,7 +279,7 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                         },
                         icon: const Icon(Icons.play_circle_fill, color: Colors.white),
                         label: Text(
-                          t.watchVideo, // 👈 Utilisation de la traduction dynamique
+                          t.watchVideo,
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -295,7 +316,6 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                       final comments = snapshot.data!;
                       final currentUserId = UserSession.userId;
 
-                      // Check if current user already commented
                       CommentModel? myComment;
                       try {
                         myComment = comments.firstWhere((c) => c.userId == currentUserId);
@@ -306,7 +326,6 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 📝 Add / Update Comment Input Field
                           if (currentUserId.isNotEmpty) ...[
                             Row(
                               children: [
@@ -328,7 +347,6 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                                     final text = _commentController.text.trim();
                                     if (text.isEmpty || widget.recipe.id == null) return;
 
-                                    // 🚀 Uses saveOrUpdateComment to enforce 1 comment per user
                                     await _recipeController.saveOrUpdateComment(
                                       recipeId: widget.recipe.id!,
                                       userId: currentUserId,
@@ -369,7 +387,6 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                                   leading: const CircleAvatar(child: Icon(Icons.person)),
                                   title: Text(comment.userName),
                                   subtitle: Text(comment.text),
-                                  // 🛠 Edit & Delete options visible ONLY for the comment owner
                                   trailing: isMe
                                       ? Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -411,47 +428,118 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
     );
   }
 
-  // ================= STEPS PARSER =================
-  Widget _buildSteps(BuildContext context, String text) {
-    final steps = text
-        .split(RegExp(r'\n|\d+\.\s'))
-        .where((e) => e.trim().isNotEmpty)
-        .toList();
+  // ================= STEPS RENDERER (Updated with Image Support) =================
+  Widget _buildSteps(BuildContext context, String fallbackDescription) {
+    final stepsList = _getStepsList(context);
 
+    // إذا لم تكن الخطوات مخزنة كقريطة حديثة، نقوم بتحليل الوصف القديم كبديل
+    if (stepsList.isEmpty) {
+      final steps = fallbackDescription
+          .split(RegExp(r'\n|\d+\.\s'))
+          .where((e) => e.trim().isNotEmpty)
+          .toList();
+
+      if (steps.isEmpty) {
+        return Text(fallbackDescription, style: const TextStyle(fontSize: 16, height: 1.4));
+      }
+
+      return Column(
+        children: List.generate(steps.length, (index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 12,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: Text(
+                    "${index + 1}",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    steps[index].trim(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.4,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      );
+    }
+
+    // العرض الحديث للخطوات (نص + صورة اختيارية لكل خطوة)
     return Column(
-      children: List.generate(steps.length, (index) {
+      children: List.generate(stepsList.length, (index) {
+        final stepItem = stepsList[index];
+        final String stepText = stepItem['text'] ?? '';
+        final String? stepImage = stepItem['imageUrl'];
+
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                child: Text(
-                  "${index + 1}",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 12,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: Text(
+                      "${index + 1}",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      stepText,
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.4,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (stepImage != null && stepImage.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    stepImage,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  steps[index].trim(),
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.4,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
+              ],
             ],
           ),
         );

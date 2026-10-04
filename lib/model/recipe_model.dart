@@ -1,13 +1,17 @@
 class RecipeModel {
   final String? id;
 
-  // الحالي (يبقى كما هو)
   final String title;
   final String description;
   final String categoryId;
   final List<String> ingredients;
   final String? imageUrl;
-  final String? videoUrl; // 👈 1. أضفنا حقل رابط الفيديو هنا
+  final String? videoUrl;
+
+  // 🛠️ حقول الخطوات الجديدة مع صورها الاختيارية
+  final List<Map<String, dynamic>>? steps;
+  final List<Map<String, dynamic>>? stepsAr;
+  final List<Map<String, dynamic>>? stepsEn;
 
   final double rating;
   final int ratingCount;
@@ -15,10 +19,9 @@ class RecipeModel {
 
   final Map<String, double> userRatings;
 
-  // 🌍 NEW (L18N ONLY - ADDITION)
+  // 🌍 L18N
   final String? titleEn;
   final String? titleAr;
-
   final String? descriptionEn;
   final String? descriptionAr;
 
@@ -27,21 +30,19 @@ class RecipeModel {
 
   RecipeModel({
     this.id,
-
     required this.title,
     required this.description,
     required this.categoryId,
     required this.ingredients,
-
     this.imageUrl,
-    this.videoUrl, // 👈 2. أضفه في المُنشئ
-
+    this.videoUrl,
+    this.steps,
+    this.stepsAr,
+    this.stepsEn,
     this.rating = 0.0,
     this.ratingCount = 0,
     this.views = 0,
     this.userRatings = const {},
-
-    // NEW
     this.titleEn,
     this.titleAr,
     this.descriptionEn,
@@ -57,52 +58,62 @@ class RecipeModel {
       'categoryId': categoryId,
       'ingredients': ingredients,
       'imageUrl': imageUrl,
-      'videoUrl': videoUrl, // 👈 3. حفظه في قاعدة البيانات
-
+      'videoUrl': videoUrl,
+      'steps': steps,
+      'stepsAr': stepsAr,
+      'stepsEn': stepsEn,
       'rating': rating,
       'ratingCount': ratingCount,
       'views': views,
       'userRatings': userRatings,
 
-      // NEW
-      'title_en': titleEn,
-      'title_ar': titleAr,
-      'description_en': descriptionEn,
-      'description_ar': descriptionAr,
-      'ingredients_en': ingredientsEn,
-      'ingredients_ar': ingredientsAr,
+      // 🛠️ تم توحيد الأسماء هنا لتطابق fromMap تماماً (بدون شرطة سفلية)
+      'titleEn': titleEn,
+      'titleAr': titleAr,
+      'descriptionEn': descriptionEn,
+      'descriptionAr': descriptionAr,
+      'ingredientsEn': ingredientsEn,
+      'ingredientsAr': ingredientsAr,
     };
   }
 
   factory RecipeModel.fromMap(String id, Map<String, dynamic> map) {
+    List<Map<String, dynamic>> parseSteps(dynamic data) {
+      if (data is List) {
+        return data.map((e) {
+          if (e is Map) {
+            return {
+              'text': e['text']?.toString() ?? '',
+              'imageUrl': e['imageUrl']?.toString(),
+            };
+          } else {
+            return {'text': e.toString(), 'imageUrl': null};
+          }
+        }).toList();
+      }
+      return [];
+    }
+
     return RecipeModel(
       id: id,
-
-      // ================= BASIC FIELDS =================
       title: map['title']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
       categoryId: map['categoryId']?.toString() ?? '',
-
       ingredients: (map['ingredients'] is List)
           ? (map['ingredients'] as List).map((e) => e.toString()).toList()
           : [],
-
       imageUrl: map['imageUrl']?.toString(),
-      videoUrl: map['videoUrl']?.toString(), // 👈 4. قراءته من قاعدة البيانات
+      videoUrl: map['videoUrl']?.toString(),
 
-      // ================= STATS =================
-      rating: (map['rating'] is num)
-          ? (map['rating'] as num).toDouble()
-          : 0.0,
+      steps: parseSteps(map['steps']),
+      stepsAr: parseSteps(map['stepsAr']),
+      stepsEn: parseSteps(map['stepsEn']),
 
+      rating: (map['rating'] is num) ? (map['rating'] as num).toDouble() : 0.0,
       ratingCount: (map['ratingCount'] is num)
           ? (map['ratingCount'] as num).toInt()
           : 0,
-
-      views: (map['views'] is num)
-          ? (map['views'] as num).toInt()
-          : 0,
-
+      views: (map['views'] is num) ? (map['views'] as num).toInt() : 0,
       userRatings: (map['userRatings'] is Map)
           ? (map['userRatings'] as Map).map<String, double>((k, v) {
         return MapEntry(
@@ -112,7 +123,6 @@ class RecipeModel {
       })
           : {},
 
-      // ================= MULTILANGUAGE (FIXED) =================
       titleEn: map['titleEn']?.toString() ?? '',
       titleAr: map['titleAr']?.toString() ?? '',
       descriptionEn: map['descriptionEn']?.toString() ?? '',
@@ -121,7 +131,6 @@ class RecipeModel {
       ingredientsEn: (map['ingredientsEn'] is List)
           ? List<String>.from(map['ingredientsEn'])
           : [],
-
       ingredientsAr: (map['ingredientsAr'] is List)
           ? List<String>.from(map['ingredientsAr'])
           : [],

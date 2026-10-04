@@ -61,7 +61,7 @@ class RecipeController {
     String? descriptionEn,
     String? descriptionAr,
     List<String>? ingredientsEn,
-    List<String>? ingredientsAr,
+    List<String>? ingredientsAr, required List<Map<String, dynamic>> stepsEn, required List<Map<String, dynamic>> stepsAr, required List<Map<String, dynamic>> steps,
   }) async {
     try {
       if (!_isAdmin()) {
@@ -146,7 +146,7 @@ class RecipeController {
     required String descriptionAr,
     required List<String> ingredients,
     required List<String> ingredientsEn,
-    required List<String> ingredientsAr,
+    required List<String> ingredientsAr, required List<Map<String, dynamic>> steps, required List<Map<String, dynamic>> stepsAr, required List<Map<String, dynamic>> stepsEn,
   }) async {
     try {
       await FirebaseFirestore.instance
