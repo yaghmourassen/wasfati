@@ -276,4 +276,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noComments => 'لا توجد تعليقات بعد';
+
+  @override
+  String get watchVideo => 'مشاهدة الفيديو';
+
+  @override
+  String get watchVideoDesc => 'شاهد فيديو التحضير خطوة بخطوة';
+
+  @override
+  String get videoUrlLabel => 'رابط الفيديو (يوتيوب / MP4)';
+
+  @override
+  String get videoUrlHint => 'ألصق رابط الفيديو هنا';
 }

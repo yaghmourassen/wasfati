@@ -46,12 +46,14 @@ class RecipeController {
   }
 
   // ================= CREATE =================
+// ================= CREATE =================
   Future<String?> addRecipe({
     required String title,
     required String description,
     required String categoryId,
     required List<String> ingredients,
     String? imageUrl,
+    String? videoUrl, // 👈 1. أضف هذا المعلم الجديد
 
     // 🌍 NEW (L18N INPUTS)
     String? titleEn,
@@ -72,8 +74,9 @@ class RecipeController {
         categoryId: categoryId,
         ingredients: ingredients,
         imageUrl: imageUrl,
+        videoUrl: videoUrl, // 👈 2. مرره هنا
 
-        // NEW (optional future use)
+        // NEW
         titleEn: titleEn,
         titleAr: titleAr,
         descriptionEn: descriptionEn,
@@ -129,12 +132,14 @@ class RecipeController {
   }
 
   // ================= UPDATE =================
+// ================= UPDATE =================
   Future<String?> updateRecipe({
     required String id,
     required String title,
     required String description,
     required String categoryId,
     required String? imageUrl,
+    required String? videoUrl, // 👈 1. أضف هذا المعلم الجديد
     required String titleEn,
     required String titleAr,
     required String descriptionEn,
@@ -146,12 +151,13 @@ class RecipeController {
     try {
       await FirebaseFirestore.instance
           .collection('recipes')
-          .doc(id) // ✅ MUST be real ID
+          .doc(id)
           .update({
         "title": title,
         "description": description,
         "categoryId": categoryId,
         "imageUrl": imageUrl,
+        "videoUrl": videoUrl, // 👈 2. تحديثه في قاعدة البيانات
 
         "titleEn": titleEn,
         "titleAr": titleAr,

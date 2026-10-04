@@ -56,7 +56,6 @@ class _RecipeViewState extends State<RecipeView> {
   }
 
   @override
-  @override
   void initState() {
     super.initState();
 
@@ -374,8 +373,6 @@ class _RecipeViewState extends State<RecipeView> {
                           ):
                           StatefulBuilder(
                             builder: (context, setStateLocal) {
-                              int hoveredRating = 0;
-
                               return Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -455,19 +452,19 @@ class _RecipeViewState extends State<RecipeView> {
     );
   }
 
-  // ================= ADD (UNCHANGED) =================
-  // ================= ADD (UPDATED ONLY THIS PART) =================
+  // ================= ADD RECIPE DIALOG =================
   void _showAddRecipeDialog(BuildContext context, AppLocalizations t) {
-    // 🌍 Controllers
     final titleEnCtrl = TextEditingController();
     final titleArCtrl = TextEditingController();
 
     final stepEnCtrl = TextEditingController();
     final stepArCtrl = TextEditingController();
 
+    // 🎥 Video URL Controller added here
+    final videoUrlCtrl = TextEditingController();
+
     String? selectedCategoryId = widget.categoryId;
 
-    // 🌍 Ingredients L18N
     List<String> ingredientsEn = [];
     List<String> ingredientsAr = [];
     bool isArabicIngredient = false;
@@ -484,46 +481,37 @@ class _RecipeViewState extends State<RecipeView> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-
-                  // 🔵 TITLE EN
                   TextField(
                     controller: titleEnCtrl,
-                    decoration: const InputDecoration(
-                      labelText: "Title (EN)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Title (EN)"),
                   ),
-
-                  // 🔵 TITLE AR
                   TextField(
                     controller: titleArCtrl,
-                    decoration: const InputDecoration(
-                      labelText: "Title (AR)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Title (AR)"),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // 🔵 DESCRIPTION EN
                   TextField(
                     controller: stepEnCtrl,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: "Description (EN)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Description (EN)"),
                   ),
-
-                  // 🔵 DESCRIPTION AR
                   TextField(
                     controller: stepArCtrl,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: "Description (AR)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Description (AR)"),
                   ),
-
                   const SizedBox(height: 10),
 
-                  // 🔥 CATEGORY
+                  // 🎥 Video URL Input Field
+                  TextField(
+                    controller: videoUrlCtrl,
+                    decoration: const InputDecoration(
+                      labelText: "Video URL (YouTube / MP4)",
+                      prefixIcon: Icon(Icons.video_library),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
                   DropdownButtonFormField<String>(
                     value: selectedCategoryId,
                     hint: const Text("Select Category"),
@@ -539,10 +527,7 @@ class _RecipeViewState extends State<RecipeView> {
                       });
                     },
                   ),
-
                   const SizedBox(height: 10),
-
-                  // 🔥 INGREDIENTS TOGGLE
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -557,37 +542,28 @@ class _RecipeViewState extends State<RecipeView> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 10),
-
-                  // 🔥 INGREDIENTS CHIPS
                   Wrap(
                     spacing: 6,
                     children: [
-                      ...ingredientsEn.map((e) {
-                        return Chip(
-                          label: Text(e),
-                          onDeleted: () {
-                            setState(() {
-                              ingredientsEn.remove(e);
-                            });
-                          },
-                        );
-                      }),
-                      ...ingredientsAr.map((e) {
-                        return Chip(
-                          label: Text(e),
-                          onDeleted: () {
-                            setState(() {
-                              ingredientsAr.remove(e);
-                            });
-                          },
-                        );
-                      }),
+                      ...ingredientsEn.map((e) => Chip(
+                        label: Text(e),
+                        onDeleted: () {
+                          setState(() {
+                            ingredientsEn.remove(e);
+                          });
+                        },
+                      )),
+                      ...ingredientsAr.map((e) => Chip(
+                        label: Text(e),
+                        onDeleted: () {
+                          setState(() {
+                            ingredientsAr.remove(e);
+                          });
+                        },
+                      )),
                     ],
                   ),
-
-                  // 🔥 INGREDIENT INPUT
                   TextField(
                     onSubmitted: (value) {
                       setState(() {
@@ -601,23 +577,15 @@ class _RecipeViewState extends State<RecipeView> {
                         }
                       });
                     },
-                    decoration: InputDecoration(
-                      hintText: t.ingredients,
-                    ),
+                    decoration: InputDecoration(hintText: t.ingredients),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // 🔥 IMAGE
-                  if (image != null)
-                    Image.file(image!, height: 100),
-
+                  if (image != null) Image.file(image!, height: 100),
                   ElevatedButton(
                     onPressed: () async {
                       final picked = await ImagePicker().pickImage(
                         source: ImageSource.gallery,
                       );
-
                       if (picked != null) {
                         setState(() {
                           image = File(picked.path);
@@ -629,30 +597,27 @@ class _RecipeViewState extends State<RecipeView> {
                 ],
               ),
             ),
-
-            // 🔥 ACTIONS
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(t.cancel),
               ),
-
               ElevatedButton(
                 onPressed: () async {
                   String? imageUrl;
-
                   if (image != null) {
                     imageUrl = await controller.uploadToCloudinary(image!);
                   }
 
-                  // 🚀 SAVE RECIPE (FULL L18N)
                   await controller.addRecipe(
                     title: titleEnCtrl.text.trim(),
                     description: stepEnCtrl.text.trim(),
                     categoryId: selectedCategoryId ?? "",
                     imageUrl: imageUrl,
+                    videoUrl: videoUrlCtrl.text.trim().isEmpty
+                        ? null
+                        : videoUrlCtrl.text.trim(), // 👈 Passed videoUrl here
 
-                    // 🌍 L18N
                     titleEn: titleEnCtrl.text.trim(),
                     titleAr: titleArCtrl.text.trim(),
                     descriptionEn: stepEnCtrl.text.trim(),
@@ -660,8 +625,6 @@ class _RecipeViewState extends State<RecipeView> {
 
                     ingredientsEn: ingredientsEn,
                     ingredientsAr: ingredientsAr,
-
-                    // ✅ FIX REQUIRED
                     ingredients: ingredientsEn,
                   );
 
@@ -675,38 +638,27 @@ class _RecipeViewState extends State<RecipeView> {
       ),
     );
   }
-  // ================= EDIT (UNCHANGED) =================
+
+  // ================= EDIT RECIPE DIALOG =================
   void _showEditRecipeDialog(
       BuildContext context,
       AppLocalizations t,
       RecipeModel recipe,
       ) {
-    // 🌍 EN / AR controllers (LIKE ADD METHOD)
-    final titleEnCtrl =
-    TextEditingController(text: recipe.titleEn ?? "");
+    final titleEnCtrl = TextEditingController(text: recipe.titleEn ?? "");
+    final titleArCtrl = TextEditingController(text: recipe.titleAr ?? "");
+    final stepEnCtrl = TextEditingController(text: recipe.descriptionEn ?? "");
+    final stepArCtrl = TextEditingController(text: recipe.descriptionAr ?? "");
 
-    final titleArCtrl =
-    TextEditingController(text: recipe.titleAr ?? "");
+    // 🎥 Video URL Controller initialized with existing recipe value
+    final videoUrlCtrl = TextEditingController(text: recipe.videoUrl ?? "");
 
-    final stepEnCtrl =
-    TextEditingController(text: recipe.descriptionEn ?? "");
-
-    final stepArCtrl =
-    TextEditingController(text: recipe.descriptionAr ?? "");
-
-    // 📂 CATEGORY
     String? selectedCategoryId = recipe.categoryId;
 
-    // 🥗 INGREDIENTS (L18N)
-    List<String> ingredientsEn =
-    List.from(recipe.ingredientsEn ?? []);
-
-    List<String> ingredientsAr =
-    List.from(recipe.ingredientsAr ?? []);
-
+    List<String> ingredientsEn = List.from(recipe.ingredientsEn ?? []);
+    List<String> ingredientsAr = List.from(recipe.ingredientsAr ?? []);
     bool isArabicIngredient = false;
 
-    // 🖼 IMAGE
     File? image;
     String? imageUrl = recipe.imageUrl;
 
@@ -720,46 +672,37 @@ class _RecipeViewState extends State<RecipeView> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-
-                  // ================= TITLE EN =================
                   TextField(
                     controller: titleEnCtrl,
-                    decoration: const InputDecoration(
-                      labelText: "Title (EN)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Title (EN)"),
                   ),
-
-                  // ================= TITLE AR =================
                   TextField(
                     controller: titleArCtrl,
-                    decoration: const InputDecoration(
-                      labelText: "Title (AR)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Title (AR)"),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // ================= DESC EN =================
                   TextField(
                     controller: stepEnCtrl,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: "Description (EN)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Description (EN)"),
                   ),
-
-                  // ================= DESC AR =================
                   TextField(
                     controller: stepArCtrl,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: "Description (AR)",
-                    ),
+                    decoration: const InputDecoration(labelText: "Description (AR)"),
                   ),
-
                   const SizedBox(height: 10),
 
-                  // ================= CATEGORY =================
+                  // 🎥 Video URL Input Field for Edit
+                  TextField(
+                    controller: videoUrlCtrl,
+                    decoration: const InputDecoration(
+                      labelText: "Video URL (YouTube / MP4)",
+                      prefixIcon: Icon(Icons.video_library),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
                   DropdownButtonFormField<String>(
                     value: selectedCategoryId,
                     hint: const Text("Select Category"),
@@ -775,10 +718,7 @@ class _RecipeViewState extends State<RecipeView> {
                       });
                     },
                   ),
-
                   const SizedBox(height: 10),
-
-                  // ================= INGREDIENT TOGGLE =================
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -793,10 +733,7 @@ class _RecipeViewState extends State<RecipeView> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 10),
-
-                  // ================= INGREDIENT CHIPS =================
                   Wrap(
                     spacing: 6,
                     children: [
@@ -808,7 +745,6 @@ class _RecipeViewState extends State<RecipeView> {
                           });
                         },
                       )),
-
                       ...ingredientsAr.map((e) => Chip(
                         label: Text(e),
                         onDeleted: () {
@@ -819,8 +755,6 @@ class _RecipeViewState extends State<RecipeView> {
                       )),
                     ],
                   ),
-
-                  // ================= INGREDIENT INPUT =================
                   TextField(
                     onSubmitted: (value) {
                       setState(() {
@@ -834,25 +768,18 @@ class _RecipeViewState extends State<RecipeView> {
                         }
                       });
                     },
-                    decoration: InputDecoration(
-                      hintText: t.ingredients,
-                    ),
+                    decoration: InputDecoration(hintText: t.ingredients),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // ================= IMAGE =================
                   if (image != null)
                     Image.file(image!, height: 100)
                   else if (imageUrl != null)
                     Image.network(imageUrl!, height: 100),
-
                   ElevatedButton(
                     onPressed: () async {
                       final picked = await ImagePicker().pickImage(
                         source: ImageSource.gallery,
                       );
-
                       if (picked != null) {
                         setState(() {
                           image = File(picked.path);
@@ -864,54 +791,41 @@ class _RecipeViewState extends State<RecipeView> {
                 ],
               ),
             ),
-
-            // ================= ACTIONS =================
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(t.cancel),
               ),
-
               ElevatedButton(
                 onPressed: () async {
                   try {
                     String? newImageUrl = imageUrl;
-
-                    // 📤 upload image if changed
                     if (image != null) {
-                      newImageUrl =
-                      await controller.uploadToCloudinary(image!);
+                      newImageUrl = await controller.uploadToCloudinary(image!);
                     }
 
-                    // 🚀 UPDATE RECIPE (FULL L18N)
                     final result = await controller.updateRecipe(
                       id: recipe.id!,
-
-                      // base fields (fallback)
                       title: titleEnCtrl.text.trim(),
                       description: stepEnCtrl.text.trim(),
                       categoryId: selectedCategoryId ?? "",
-
-                      // multilingual fields
                       titleEn: titleEnCtrl.text.trim(),
                       titleAr: titleArCtrl.text.trim(),
-
                       descriptionEn: stepEnCtrl.text.trim(),
                       descriptionAr: stepArCtrl.text.trim(),
-
                       ingredients: ingredientsEn,
                       ingredientsEn: ingredientsEn,
                       ingredientsAr: ingredientsAr,
-
                       imageUrl: newImageUrl,
+                      videoUrl: videoUrlCtrl.text.trim().isEmpty
+                          ? null
+                          : videoUrlCtrl.text.trim(), // 👈 Passed updated videoUrl here
                     );
 
                     if (result != null) {
                       print("❌ UPDATE FAILED: $result");
                       return;
                     }
-
-                    print("✅ UPDATE SUCCESS");
 
                     Navigator.pop(context);
                     setState(() {});

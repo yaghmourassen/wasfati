@@ -7,6 +7,7 @@ class RecipeModel {
   final String categoryId;
   final List<String> ingredients;
   final String? imageUrl;
+  final String? videoUrl; // 👈 1. أضفنا حقل رابط الفيديو هنا
 
   final double rating;
   final int ratingCount;
@@ -33,6 +34,8 @@ class RecipeModel {
     required this.ingredients,
 
     this.imageUrl,
+    this.videoUrl, // 👈 2. أضفه في المُنشئ
+
     this.rating = 0.0,
     this.ratingCount = 0,
     this.views = 0,
@@ -54,6 +57,8 @@ class RecipeModel {
       'categoryId': categoryId,
       'ingredients': ingredients,
       'imageUrl': imageUrl,
+      'videoUrl': videoUrl, // 👈 3. حفظه في قاعدة البيانات
+
       'rating': rating,
       'ratingCount': ratingCount,
       'views': views,
@@ -83,6 +88,7 @@ class RecipeModel {
           : [],
 
       imageUrl: map['imageUrl']?.toString(),
+      videoUrl: map['videoUrl']?.toString(), // 👈 4. قراءته من قاعدة البيانات
 
       // ================= STATS =================
       rating: (map['rating'] is num)

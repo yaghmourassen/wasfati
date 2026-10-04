@@ -631,6 +631,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No comments yet'**
   String get noComments;
+
+  /// No description provided for @watchVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Video'**
+  String get watchVideo;
+
+  /// No description provided for @watchVideoDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch step-by-step cooking video'**
+  String get watchVideoDesc;
+
+  /// No description provided for @videoUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Video URL (YouTube / MP4)'**
+  String get videoUrlLabel;
+
+  /// No description provided for @videoUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste video link here'**
+  String get videoUrlHint;
 }
 
 class _AppLocalizationsDelegate

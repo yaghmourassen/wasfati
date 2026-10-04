@@ -278,4 +278,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noComments => 'No comments yet';
+
+  @override
+  String get watchVideo => 'Watch Video';
+
+  @override
+  String get watchVideoDesc => 'Watch step-by-step cooking video';
+
+  @override
+  String get videoUrlLabel => 'Video URL (YouTube / MP4)';
+
+  @override
+  String get videoUrlHint => 'Paste video link here';
 }

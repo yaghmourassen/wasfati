@@ -105,5 +105,9 @@
       "delete": "Delete",
       "comments": "Comments",
         "writeComment": "Write a comment...",
-        "noComments": "No comments yet"
+        "noComments": "No comments yet",
+        "watchVideo": "Watch Video",
+        "watchVideoDesc": "Watch step-by-step cooking video",
+        "videoUrlLabel": "Video URL (YouTube / MP4)",
+        "videoUrlHint": "Paste video link here"
 }

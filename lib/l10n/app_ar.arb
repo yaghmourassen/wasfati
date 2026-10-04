@@ -104,5 +104,9 @@
       "delete": "حذف",
       "comments": "التعليقات",
         "writeComment": "اكتب تعليقاً...",
-        "noComments": "لا توجد تعليقات بعد"
+        "noComments": "لا توجد تعليقات بعد",
+        "watchVideo": "مشاهدة الفيديو",
+        "watchVideoDesc": "شاهد فيديو التحضير خطوة بخطوة",
+        "videoUrlLabel": "رابط الفيديو (يوتيوب / MP4)",
+        "videoUrlHint": "ألصق رابط الفيديو هنا"
 }

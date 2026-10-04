@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controller/recipe_controller.dart';
 import '../core/user_session.dart';
 import '../model/recipe_model.dart';
@@ -214,7 +215,7 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                       return Chip(
                         label: Text(item),
                         backgroundColor:
-                        Theme.of(context).colorScheme.surfaceVariant,
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                         labelStyle: TextStyle(
                           color:
                           Theme.of(context).colorScheme.onSurfaceVariant,
@@ -238,7 +239,39 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
 
                   _buildSteps(context, description),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+
+                  // ================= WATCH VIDEO SECTION (UPDATED WITH L10N) =================
+                  if (widget.recipe.videoUrl != null && widget.recipe.videoUrl!.isNotEmpty) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final Uri url = Uri.parse(widget.recipe.videoUrl!);
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(t.error)),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.play_circle_fill, color: Colors.white),
+                        label: Text(
+                          t.watchVideo, // 👈 Utilisation de la traduction dynamique
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                  ],
 
                   // ================= COMMENTS SECTION =================
                   Text(
