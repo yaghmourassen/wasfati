@@ -46,14 +46,13 @@ class RecipeController {
   }
 
   // ================= CREATE =================
-// ================= CREATE =================
   Future<String?> addRecipe({
     required String title,
     required String description,
     required String categoryId,
     required List<String> ingredients,
     String? imageUrl,
-    String? videoUrl, // 👈 1. أضف هذا المعلم الجديد
+    String? videoUrl,
 
     // 🌍 NEW (L18N INPUTS)
     String? titleEn,
@@ -61,7 +60,10 @@ class RecipeController {
     String? descriptionEn,
     String? descriptionAr,
     List<String>? ingredientsEn,
-    List<String>? ingredientsAr, required List<Map<String, dynamic>> stepsEn, required List<Map<String, dynamic>> stepsAr, required List<Map<String, dynamic>> steps,
+    List<String>? ingredientsAr,
+    required List<Map<String, dynamic>> stepsEn,
+    required List<Map<String, dynamic>> stepsAr,
+    required List<Map<String, dynamic>> steps,
   }) async {
     try {
       if (!_isAdmin()) {
@@ -74,7 +76,7 @@ class RecipeController {
         categoryId: categoryId,
         ingredients: ingredients,
         imageUrl: imageUrl,
-        videoUrl: videoUrl, // 👈 2. مرره هنا
+        videoUrl: videoUrl,
 
         // NEW
         titleEn: titleEn,
@@ -83,6 +85,11 @@ class RecipeController {
         descriptionAr: descriptionAr,
         ingredientsEn: ingredientsEn,
         ingredientsAr: ingredientsAr,
+
+        // STEP DATA
+        steps: steps,
+        stepsAr: stepsAr,
+        stepsEn: stepsEn,
       );
 
       final data = recipe.toMap();
@@ -132,21 +139,23 @@ class RecipeController {
   }
 
   // ================= UPDATE =================
-// ================= UPDATE =================
   Future<String?> updateRecipe({
     required String id,
     required String title,
     required String description,
     required String categoryId,
     required String? imageUrl,
-    required String? videoUrl, // 👈 1. أضف هذا المعلم الجديد
+    required String? videoUrl,
     required String titleEn,
     required String titleAr,
     required String descriptionEn,
     required String descriptionAr,
     required List<String> ingredients,
     required List<String> ingredientsEn,
-    required List<String> ingredientsAr, required List<Map<String, dynamic>> steps, required List<Map<String, dynamic>> stepsAr, required List<Map<String, dynamic>> stepsEn,
+    required List<String> ingredientsAr,
+    required List<Map<String, dynamic>> steps,
+    required List<Map<String, dynamic>> stepsAr,
+    required List<Map<String, dynamic>> stepsEn,
   }) async {
     try {
       await FirebaseFirestore.instance
@@ -157,7 +166,7 @@ class RecipeController {
         "description": description,
         "categoryId": categoryId,
         "imageUrl": imageUrl,
-        "videoUrl": videoUrl, // 👈 2. تحديثه في قاعدة البيانات
+        "videoUrl": videoUrl,
 
         "titleEn": titleEn,
         "titleAr": titleAr,
@@ -167,6 +176,11 @@ class RecipeController {
         "ingredients": ingredients,
         "ingredientsEn": ingredientsEn,
         "ingredientsAr": ingredientsAr,
+
+        // STEP DATA
+        "steps": steps,
+        "stepsAr": stepsAr,
+        "stepsEn": stepsEn,
       });
 
       return null;
@@ -174,6 +188,7 @@ class RecipeController {
       return e.toString();
     }
   }
+
   // ================= DELETE =================
   Future<String?> deleteRecipe(String id) async {
     try {
@@ -256,6 +271,7 @@ class RecipeController {
       });
     }
   }
+
   Stream<bool> isFavorite(String userId, String recipeId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -265,6 +281,7 @@ class RecipeController {
         .snapshots()
         .map((doc) => doc.exists);
   }
+
   Stream<List<String>> getFavoriteIds(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -274,6 +291,7 @@ class RecipeController {
         .map((snapshot) =>
         snapshot.docs.map((doc) => doc.id).toList());
   }
+
   Stream<List<RecipeModel>> getFavoriteRecipes(String userId) {
     return getFavoriteIds(userId).asyncMap((ids) async {
       if (ids.isEmpty) return [];
@@ -288,6 +306,7 @@ class RecipeController {
           .toList();
     });
   }
+
   // ================= 💬 ADD COMMENT =================
   Future<void> addComment({
     required String recipeId,
@@ -298,9 +317,14 @@ class RecipeController {
     // For now, we can fetch from a users collection or use a fallback name
     String userName = "Chef";
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
       if (userDoc.exists && userDoc.data() != null) {
-        userName = userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
+        userName =
+            userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
       }
     } catch (_) {}
 
@@ -325,10 +349,13 @@ class RecipeController {
         .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data();
+
         // Convert Firebase Timestamp to ISO string if needed for parsing
         if (data['timestamp'] is Timestamp) {
-          data['timestamp'] = (data['timestamp'] as Timestamp).toDate().toIso8601String();
+          data['timestamp'] =
+              (data['timestamp'] as Timestamp).toDate().toIso8601String();
         }
+
         return CommentModel.fromMap(doc.id, data);
       }).toList();
     });
@@ -342,9 +369,14 @@ class RecipeController {
   }) async {
     String userName = "Chef";
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
       if (userDoc.exists && userDoc.data() != null) {
-        userName = userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
+        userName =
+            userDoc.data()!['fullName'] ?? userDoc.data()!['name'] ?? "Chef";
       }
     } catch (_) {}
 
@@ -371,5 +403,6 @@ class RecipeController {
         .collection('comments')
         .doc(userId)
         .delete();
+
   }
 }
