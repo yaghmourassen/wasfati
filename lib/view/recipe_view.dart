@@ -878,13 +878,19 @@ class _RecipeViewState extends State<RecipeView> {
                     const SizedBox(height: 20),
 
                     // Steps Section with Images per step
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Steps Section Header (Stacked vertically)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Recipe Steps & Images", style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          "Recipe Steps & Images",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
-                            Text(isArabicStep ? "AR" : "EN"),
+                            Text(isArabicStep ? "Language: Arabic (AR)" : "Language: English (EN)"),
+                            const Spacer(),
                             Switch(
                               value: isArabicStep,
                               onChanged: (value) {
@@ -898,49 +904,92 @@ class _RecipeViewState extends State<RecipeView> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ...stepsEn.asMap().entries.map((entry) => ListTile(
-                      dense: true,
-                      leading: Text("EN ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      title: Text(entry.value['text'], maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                        onPressed: () => setState(() => stepsEn.removeAt(entry.key)),
+
+                    // Display current EN steps
+                    ...stepsEn.asMap().entries.map((entry) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Row(
+                        children: [
+                          Text("EN ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              entry.value['text'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(4),
+                            icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                            onPressed: () => setState(() => stepsEn.removeAt(entry.key)),
+                          ),
+                        ],
                       ),
                     )),
-                    ...stepsAr.asMap().entries.map((entry) => ListTile(
-                      dense: true,
-                      leading: Text("AR ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      title: Text(entry.value['text'], maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                        onPressed: () => setState(() => stepsAr.removeAt(entry.key)),
+
+                    // Display current AR steps
+                    ...stepsAr.asMap().entries.map((entry) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Row(
+                        children: [
+                          Text("AR ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              entry.value['text'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(4),
+                            icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                            onPressed: () => setState(() => stepsAr.removeAt(entry.key)),
+                          ),
+                        ],
                       ),
                     )),
+
+                    const SizedBox(height: 8),
                     TextField(
                       controller: stepTextCtrl,
                       decoration: InputDecoration(
                         labelText: isArabicStep ? "أضف خطوة (AR)" : "Add Step Instruction (EN)",
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
+                    const SizedBox(height: 12),
+
+                    // Stacked Step Image & Add Button Controls
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.camera_alt, size: 16),
-                          label: Text(currentStepImage == null ? "Step Image" : "Image Selected"),
-                          onPressed: () async {
-                            final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-                            if (picked != null) {
-                              setState(() => currentStepImage = File(picked.path));
-                            }
-                          },
+                        Row(
+                          children: [
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.camera_alt, size: 16),
+                              label: Text(currentStepImage == null ? "Step Image" : "Image Selected"),
+                              onPressed: () async {
+                                final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                if (picked != null) {
+                                  setState(() => currentStepImage = File(picked.path));
+                                }
+                              },
+                            ),
+                            if (currentStepImage != null) ...[
+                              const SizedBox(width: 8),
+                              IconButton(
+                                constraints: const BoxConstraints(),
+                                padding: const EdgeInsets.all(4),
+                                icon: const Icon(Icons.close, color: Colors.red, size: 18),
+                                onPressed: () => setState(() => currentStepImage = null),
+                              ),
+                            ],
+                          ],
                         ),
-                        if (currentStepImage != null)
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.red, size: 18),
-                            onPressed: () => setState(() => currentStepImage = null),
-                          ),
-                        const Spacer(),
+                        const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () async {
                             final text = stepTextCtrl.text.trim();
