@@ -588,23 +588,48 @@ class _RecipeViewState extends State<RecipeView> {
                     ),
                     const SizedBox(height: 8),
                     // Display current EN steps
-                    ...stepsEn.asMap().entries.map((entry) => ListTile(
-                      dense: true,
-                      leading: Text("EN ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      title: Text(entry.value['text'], maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                        onPressed: () => setState(() => stepsEn.removeAt(entry.key)),
+                    ...stepsEn.asMap().entries.map((entry) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Row(
+                        children: [
+                          Text("EN ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              entry.value['text'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(4),
+                            icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                            onPressed: () => setState(() => stepsEn.removeAt(entry.key)),
+                          ),
+                        ],
                       ),
                     )),
-                    // Display current AR steps
-                    ...stepsAr.asMap().entries.map((entry) => ListTile(
-                      dense: true,
-                      leading: Text("AR ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      title: Text(entry.value['text'], maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                        onPressed: () => setState(() => stepsAr.removeAt(entry.key)),
+                    ...stepsAr.asMap().entries.map((entry) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Row(
+                        children: [
+                          Text("AR ${entry.key + 1}.", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              entry.value['text'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(4),
+                            icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                            onPressed: () => setState(() => stepsAr.removeAt(entry.key)),
+                          ),
+                        ],
                       ),
                     )),
                     TextField(
@@ -808,6 +833,7 @@ class _RecipeViewState extends State<RecipeView> {
                                   isArabicIngredient = value;
                                 });
                               },
+
                             ),
                           ],
                         ),
