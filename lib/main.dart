@@ -123,6 +123,7 @@ class WasfatyApp extends StatelessWidget {
               ? ThemeMode.dark
               : ThemeMode.light,
 
+          themeAnimationDuration: Duration.zero,
           // 🚀 Start page
           home: const AuthView(),
         );

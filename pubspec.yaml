@@ -30,7 +30,7 @@ dependencies:
 
   flutter_map: ^8.3.2
   latlong2: ^0.9.1
-
+  geolocator: ^14.0.2
   intl: any
   cached_network_image: ^3.4.1
   google_mobile_ads: ^5.1.0   # ✅ هنا الصحيح
