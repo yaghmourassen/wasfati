@@ -157,7 +157,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToPrepare => 'How to prepare';
 
   @override
-  String get restaurantsTitle => 'Restaurants Near You';
+  String get restaurantsTitle => 'Restaurants';
 
   @override
   String get exploreRestaurants => 'Explore Restaurants';
@@ -294,4 +294,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get restaurantsDesc =>
       'Discover nearby restaurants and find places to enjoy your favorite meals.';
+
+  @override
+  String get findingYourLocation => 'Finding your location...';
+
+  @override
+  String get restaurantsNearYou => 'Restaurants near you';
+
+  @override
+  String get searchingNearbyPlaces => 'Searching nearby places';
+
+  @override
+  String get noRestaurantsFound => 'No restaurants found';
+
+  @override
+  String get noRestaurantsMessage =>
+      'No nearby places were returned. Refresh your location and try again.';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get refreshRestaurants => 'Refresh restaurants';
+
+  @override
+  String get errorOccurred => 'Unable to load restaurants';
 }

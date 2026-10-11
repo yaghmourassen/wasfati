@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @restaurantsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Restaurants Near You'**
+  /// **'Restaurants'**
   String get restaurantsTitle;
 
   /// No description provided for @exploreRestaurants.
@@ -661,6 +661,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discover nearby restaurants and find places to enjoy your favorite meals.'**
   String get restaurantsDesc;
+
+  /// No description provided for @findingYourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location...'**
+  String get findingYourLocation;
+
+  /// No description provided for @restaurantsNearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants near you'**
+  String get restaurantsNearYou;
+
+  /// No description provided for @searchingNearbyPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching nearby places'**
+  String get searchingNearbyPlaces;
+
+  /// No description provided for @noRestaurantsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No restaurants found'**
+  String get noRestaurantsFound;
+
+  /// No description provided for @noRestaurantsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No nearby places were returned. Refresh your location and try again.'**
+  String get noRestaurantsMessage;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @refreshRestaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh restaurants'**
+  String get refreshRestaurants;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load restaurants'**
+  String get errorOccurred;
 }
 
 class _AppLocalizationsDelegate

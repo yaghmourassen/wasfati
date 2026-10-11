@@ -111,5 +111,16 @@
         "videoUrlHint": "ألصق رابط الفيديو هنا",
           "restaurantsTitle": "المطاعم القريبة منك",
           "restaurantsDesc": "اكتشف المطاعم القريبة منك واختر أماكن للاستمتاع بوجباتك المفضلة.",
-          "exploreRestaurants": "اكتشف المطاعم"
+          "exploreRestaurants": "اكتشف المطاعم",
+          "restaurantsTitle": "المطاعم",
+            "exploreRestaurants": "استكشف المطاعم",
+            "findingYourLocation": "جاري تحديد موقعك...",
+            "restaurantsNearYou": "مطاعم بالقرب منك",
+            "searchingNearbyPlaces": "جاري البحث عن أماكن قريبة",
+            "noRestaurantsFound": "لم يتم العثور على مطاعم",
+            "noRestaurantsMessage": "لم يتم العثور على أسرار قريبة. قم بتحديث موقعك وحاول مرة أخرى.",
+            "tryAgain": "إعادة المحاولة",
+            "done": "تم",
+            "refreshRestaurants": "تحديث المطاعم",
+            "errorOccurred": "تعذر تحميل المطاعم"
 }

@@ -112,7 +112,18 @@
         "videoUrlHint": "Paste video link here",
         "restaurantsTitle": "Restaurants Near You",
           "restaurantsDesc": "Discover nearby restaurants and find places to enjoy your favorite meals.",
-          "exploreRestaurants": "Explore Restaurants"
+          "exploreRestaurants": "Explore Restaurants",
+          "restaurantsTitle": "Restaurants",
+            "exploreRestaurants": "Explore Restaurants",
+            "findingYourLocation": "Finding your location...",
+            "restaurantsNearYou": "Restaurants near you",
+            "searchingNearbyPlaces": "Searching nearby places",
+            "noRestaurantsFound": "No restaurants found",
+            "noRestaurantsMessage": "No nearby places were returned. Refresh your location and try again.",
+            "tryAgain": "Try again",
+            "done": "Done",
+            "refreshRestaurants": "Refresh restaurants",
+            "errorOccurred": "Unable to load restaurants"
 
 
 }

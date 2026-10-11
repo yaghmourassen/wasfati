@@ -156,10 +156,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get howToPrepare => 'طريقة التحضير';
 
   @override
-  String get restaurantsTitle => 'المطاعم القريبة منك';
+  String get restaurantsTitle => 'المطاعم';
 
   @override
-  String get exploreRestaurants => 'اكتشف المطاعم';
+  String get exploreRestaurants => 'استكشف المطاعم';
 
   @override
   String get restaurantDescription =>
@@ -208,7 +208,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noResults => 'لا توجد نتائج';
 
   @override
-  String get tryAgain => 'حاول مرة أخرى';
+  String get tryAgain => 'إعادة المحاولة';
 
   @override
   String get loading => 'جارٍ التحميل...';
@@ -292,4 +292,29 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get restaurantsDesc =>
       'اكتشف المطاعم القريبة منك واختر أماكن للاستمتاع بوجباتك المفضلة.';
+
+  @override
+  String get findingYourLocation => 'جاري تحديد موقعك...';
+
+  @override
+  String get restaurantsNearYou => 'مطاعم بالقرب منك';
+
+  @override
+  String get searchingNearbyPlaces => 'جاري البحث عن أماكن قريبة';
+
+  @override
+  String get noRestaurantsFound => 'لم يتم العثور على مطاعم';
+
+  @override
+  String get noRestaurantsMessage =>
+      'لم يتم العثور على أسرار قريبة. قم بتحديث موقعك وحاول مرة أخرى.';
+
+  @override
+  String get done => 'تم';
+
+  @override
+  String get refreshRestaurants => 'تحديث المطاعم';
+
+  @override
+  String get errorOccurred => 'تعذر تحميل المطاعم';
 }
