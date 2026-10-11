@@ -108,5 +108,8 @@
         "watchVideo": "مشاهدة الفيديو",
         "watchVideoDesc": "شاهد فيديو التحضير خطوة بخطوة",
         "videoUrlLabel": "رابط الفيديو (يوتيوب / MP4)",
-        "videoUrlHint": "ألصق رابط الفيديو هنا"
+        "videoUrlHint": "ألصق رابط الفيديو هنا",
+          "restaurantsTitle": "المطاعم القريبة منك",
+          "restaurantsDesc": "اكتشف المطاعم القريبة منك واختر أماكن للاستمتاع بوجباتك المفضلة.",
+          "exploreRestaurants": "اكتشف المطاعم"
 }

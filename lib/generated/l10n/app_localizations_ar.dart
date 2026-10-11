@@ -156,10 +156,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get howToPrepare => 'طريقة التحضير';
 
   @override
-  String get restaurantsTitle => 'المطاعم';
+  String get restaurantsTitle => 'المطاعم القريبة منك';
 
   @override
-  String get exploreRestaurants => 'استكشف أفضل المطاعم';
+  String get exploreRestaurants => 'اكتشف المطاعم';
 
   @override
   String get restaurantDescription =>
@@ -288,4 +288,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get videoUrlHint => 'ألصق رابط الفيديو هنا';
+
+  @override
+  String get restaurantsDesc =>
+      'اكتشف المطاعم القريبة منك واختر أماكن للاستمتاع بوجباتك المفضلة.';
 }

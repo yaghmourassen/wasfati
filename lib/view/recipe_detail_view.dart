@@ -827,14 +827,19 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Step ${index + 1}",
+                    Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'الخطوة ${index + 1}'
+                        : 'Step ${index + 1}',
+                    textDirection:
+                    Localizations.localeOf(context).languageCode == 'ar'
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.primary,
                     ),
                   ),
-
                   const SizedBox(height: 6),
 
                   Text(

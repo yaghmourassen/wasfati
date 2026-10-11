@@ -395,13 +395,13 @@ abstract class AppLocalizations {
   /// No description provided for @restaurantsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Restaurants'**
+  /// **'Restaurants Near You'**
   String get restaurantsTitle;
 
   /// No description provided for @exploreRestaurants.
   ///
   /// In en, this message translates to:
-  /// **'Explore the best restaurants'**
+  /// **'Explore Restaurants'**
   String get exploreRestaurants;
 
   /// No description provided for @restaurantDescription.
@@ -655,6 +655,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paste video link here'**
   String get videoUrlHint;
+
+  /// No description provided for @restaurantsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover nearby restaurants and find places to enjoy your favorite meals.'**
+  String get restaurantsDesc;
 }
 
 class _AppLocalizationsDelegate

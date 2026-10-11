@@ -157,10 +157,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToPrepare => 'How to prepare';
 
   @override
-  String get restaurantsTitle => 'Restaurants';
+  String get restaurantsTitle => 'Restaurants Near You';
 
   @override
-  String get exploreRestaurants => 'Explore the best restaurants';
+  String get exploreRestaurants => 'Explore Restaurants';
 
   @override
   String get restaurantDescription =>
@@ -290,4 +290,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get videoUrlHint => 'Paste video link here';
+
+  @override
+  String get restaurantsDesc =>
+      'Discover nearby restaurants and find places to enjoy your favorite meals.';
 }

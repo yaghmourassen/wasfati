@@ -1,14 +1,15 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
+import 'package:google_places_sdk_plus/google_places_sdk_plus.dart'
+as places;
 import 'package:latlong2/latlong.dart';
 
 import '../generated/l10n/app_localizations.dart';
 
 const Color primaryGreen = Color(0xFF2E7D32);
+const Color lightGreen = Color(0xFFE8F5E9);
 
 class RestaurantView extends StatefulWidget {
   const RestaurantView({super.key});
@@ -18,111 +19,71 @@ class RestaurantView extends StatefulWidget {
 }
 
 class _RestaurantViewState extends State<RestaurantView> {
-  // ============================================================
-  // GEOAPIFY
-  // ============================================================
+  // GOOGLE PLACES API
+  // Keep your existing API key here.
+  static const String _googlePlacesApiKey = 'AIzaSyAswcTw462l0DnxU2pOkm8fDTXdSGCESJQ';
 
-  // Put your NEW Geoapify Places API key here.
-  static const String _geoapifyApiKey =
-      '98be29a016f844178dd750df7b1f834d';
+  late final places.FlutterGooglePlacesSdk _placesClient =
+  places.FlutterGooglePlacesSdk(_googlePlacesApiKey);
 
-  static const String _geoapifyPlacesUrl =
-      'https://api.geoapify.com/v2/places';
-
-  // ============================================================
   // LOCATION
-  // ============================================================
-
-  // Used only to display the map if GPS is unavailable.
-  // Restaurants are NEVER searched using this fallback.
-  static const LatLng defaultLocation = LatLng(
-    36.7538,
-    3.0588,
-  );
+  static const LatLng defaultLocation = LatLng(36.7538, 3.0588);
 
   final MapController _mapController = MapController();
 
   List<_Restaurant> _restaurants = [];
-
   LatLng? _userLocation;
 
   bool _isLoading = true;
+  bool _mapReady = false;
 
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-
     _initializeLocation();
   }
 
-  // ============================================================
   // INITIALIZE LOCATION
-  // ============================================================
-
   Future<void> _initializeLocation() async {
-    debugPrint('🚀 RestaurantView: initializing location...');
+    if (!mounted) return;
 
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
-    }
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     try {
       final serviceEnabled =
       await Geolocator.isLocationServiceEnabled();
 
-      debugPrint(
-        '📍 Location service enabled: $serviceEnabled',
-      );
-
       if (!serviceEnabled) {
-        throw Exception(
-          'Location services are disabled.',
-        );
+        throw Exception('Location services are disabled.');
       }
 
       LocationPermission permission =
       await Geolocator.checkPermission();
 
-      debugPrint(
-        '📍 Current location permission: $permission',
-      );
-
       if (permission == LocationPermission.denied) {
-        permission =
-        await Geolocator.requestPermission();
-
-        debugPrint(
-          '📍 Requested location permission: $permission',
-        );
+        permission = await Geolocator.requestPermission();
       }
 
       if (permission == LocationPermission.denied) {
+        throw Exception('Location permission was denied.');
+      }
+
+      if (permission == LocationPermission.deniedForever) {
         throw Exception(
-          'Location permission was denied.',
+          'Location permission is permanently denied. '
+              'Enable it in your device settings.',
         );
       }
 
-      if (permission ==
-          LocationPermission.deniedForever) {
-        throw Exception(
-          'Location permission is permanently denied.',
-        );
-      }
-
-      debugPrint(
-        '📍 Getting current GPS position...',
-      );
-
-      final position =
-      await Geolocator.getCurrentPosition(
-        locationSettings:
-        const LocationSettings(
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
         ),
       );
 
@@ -132,8 +93,7 @@ class _RestaurantViewState extends State<RestaurantView> {
       );
 
       debugPrint(
-        '📍 GPS location: '
-            '${position.latitude}, ${position.longitude}',
+        'GPS location: ${position.latitude}, ${position.longitude}',
       );
 
       if (!mounted) return;
@@ -142,24 +102,16 @@ class _RestaurantViewState extends State<RestaurantView> {
         _userLocation = location;
       });
 
-      debugPrint(
-        '🍽️ Starting restaurant search...',
-      );
-
-      await _loadRestaurants(
-        location: location,
-      );
+      await _loadRestaurants(location: location);
 
       if (!mounted) return;
 
-      _mapController.move(
-        location,
-        14,
-      );
-    } catch (e) {
-      debugPrint(
-        '❌ Location error: $e',
-      );
+      if (_mapReady) {
+        _mapController.move(location, 14);
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Location initialization error: $e');
+      debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
 
@@ -172,27 +124,18 @@ class _RestaurantViewState extends State<RestaurantView> {
     }
   }
 
-  // ============================================================
-  // LOAD RESTAURANTS FROM GEOAPIFY
-  // ============================================================
-
+  // LOAD RESTAURANTS FROM GOOGLE PLACES
   Future<void> _loadRestaurants({
     LatLng? location,
   }) async {
-    final searchLocation =
-        location ?? _userLocation;
+    final searchLocation = location ?? _userLocation;
 
     if (searchLocation == null) {
-      debugPrint(
-        '❌ Restaurant search cancelled: no location.',
-      );
-
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
-        _errorMessage =
-        'Your current location is unavailable.';
+        _errorMessage = 'Your current location is unavailable.';
       });
 
       return;
@@ -206,279 +149,104 @@ class _RestaurantViewState extends State<RestaurantView> {
     }
 
     try {
-      final latitude =
-          searchLocation.latitude;
+      debugPrint(
+        'Searching Google Places near '
+            '${searchLocation.latitude}, ${searchLocation.longitude}',
+      );
 
-      final longitude =
-          searchLocation.longitude;
+      final response = await _placesClient.searchNearby(
+        locationRestriction: places.CircularBounds(
+          center: places.LatLng(
+            lat: searchLocation.latitude,
+            lng: searchLocation.longitude,
+          ),
+          radius: 10000,
+        ),
+        includedTypes: const [
+          'restaurant',
+          'cafe',
+          'fast_food_restaurant',
+          'food_court',
+        ],
+        maxResultCount: 20,
+        rankPreference: places.NearbySearchRankPreference.Distance,
+        fields: const [
+          places.PlaceField.Id,
+          places.PlaceField.DisplayName,
+          places.PlaceField.Location,
+          places.PlaceField.FormattedAddress,
+          places.PlaceField.NationalPhoneNumber,
+          places.PlaceField.WebsiteUri,
+        ],
+      ).timeout(const Duration(seconds: 30));
 
       debugPrint(
-        '📍 Searching restaurants around: '
-            '$latitude, $longitude',
+        'Google Places returned ${response.places.length} places.',
       );
 
-      const radius = 10000;
+      final restaurants = <_Restaurant>[];
+      final seenPlaceIds = <String>{};
+      const distanceCalculator = Distance();
 
-      // Geoapify syntax:
-      // circle:LONGITUDE,LATITUDE,RADIUS
-      final filter =
-          'circle:$longitude,$latitude,$radius';
-
-      final uri = Uri.parse(
-        _geoapifyPlacesUrl,
-      ).replace(
-        queryParameters: {
-          'categories':
-          'catering.restaurant,'
-              'catering.fast_food,'
-              'catering.cafe,'
-              'catering.food_court',
-          'filter': filter,
-          'bias':
-          'proximity:$longitude,$latitude',
-          'limit': '500',
-          'lang': 'en',
-          'apiKey': _geoapifyApiKey,
-        },
-      );
-
-      debugPrint(
-        '🌐 Geoapify request started...',
-      );
-
-      debugPrint(
-        '🌐 Search radius: ${radius}m',
-      );
-
-      final response = await http
-          .get(
-        uri,
-        headers: {
-          'Accept': 'application/json',
-        },
-      )
-          .timeout(
-        const Duration(seconds: 30),
-      );
-
-      debugPrint(
-        '🌐 Geoapify status: '
-            '${response.statusCode}',
-      );
-
-      if (response.statusCode != 200) {
-        debugPrint(
-          '❌ Geoapify response:',
-        );
-
-        debugPrint(
-          response.body,
-        );
-
-        throw Exception(
-          'Geoapify returned '
-              '${response.statusCode}',
-        );
-      }
-
-      if (response.body.isEmpty) {
-        throw Exception(
-          'Geoapify returned an empty response.',
-        );
-      }
-
-      final data =
-      jsonDecode(response.body);
-
-      final features =
-          data['features']
-          as List<dynamic>? ??
-              [];
-
-      debugPrint(
-        '🍽️ Geoapify returned '
-            '${features.length} places',
-      );
-
-      final restaurants =
-      <_Restaurant>[];
-
-      final seenPlaceIds =
-      <String>{};
-
-      for (final feature in features) {
+      for (final place in response.places) {
         try {
-          final properties =
-          Map<String, dynamic>.from(
-            feature['properties'] ??
-                {},
-          );
-
           final name =
-          properties['name']
-              ?.toString()
-              .trim();
+          (place.displayName?.text ?? place.name ?? '').trim();
 
-          if (name == null ||
-              name.isEmpty) {
-            debugPrint(
-              '⚠️ Skipping place without name',
-            );
+          final coordinates = place.latLng;
 
+          if (name.isEmpty || coordinates == null) {
             continue;
           }
 
-          final latitudeValue =
-          properties['lat'];
+          final placeId = place.id;
 
-          final longitudeValue =
-          properties['lon'];
-
-          if (latitudeValue == null ||
-              longitudeValue == null) {
-            debugPrint(
-              '⚠️ Skipping "$name": '
-                  'missing coordinates',
-            );
-
-            continue;
-          }
-
-          final restaurantLatitude =
-          (latitudeValue as num)
-              .toDouble();
-
-          final restaurantLongitude =
-          (longitudeValue as num)
-              .toDouble();
-
-          final placeId =
-          properties['place_id']
-              ?.toString();
-
-          // Prevent duplicates.
-          if (placeId != null &&
-              placeId.isNotEmpty) {
-            if (seenPlaceIds
-                .contains(placeId)) {
+          if (placeId != null && placeId.isNotEmpty) {
+            if (!seenPlaceIds.add(placeId)) {
               continue;
             }
-
-            seenPlaceIds.add(placeId);
           }
 
-          final formattedAddress =
-          properties['formatted']
-              ?.toString()
-              .trim();
+          final restaurantLocation = LatLng(
+            coordinates.lat,
+            coordinates.lng,
+          );
 
-          final addressLine1 =
-          properties['address_line1']
-              ?.toString()
-              .trim();
+          final distanceMeters = distanceCalculator.as(
+            LengthUnit.Meter,
+            searchLocation,
+            restaurantLocation,
+          );
 
-          final addressLine2 =
-          properties['address_line2']
-              ?.toString()
-              .trim();
-
-          String? address;
-
-          if (formattedAddress != null &&
-              formattedAddress.isNotEmpty) {
-            address = formattedAddress;
-          } else if (addressLine1 != null &&
-              addressLine1.isNotEmpty) {
-            if (addressLine2 != null &&
-                addressLine2.isNotEmpty) {
-              address =
-              '$addressLine1, $addressLine2';
-            } else {
-              address = addressLine1;
-            }
-          }
-
-          final datasource =
-          properties['datasource'];
-
-          final raw =
-          datasource is Map
-              ? datasource['raw']
-              : null;
-
-          final phone =
-          raw is Map
-              ? raw['phone']?.toString() ??
-              properties['phone']
-                  ?.toString()
-              : properties['phone']
-              ?.toString();
-
-          final website =
-          raw is Map
-              ? raw['website']?.toString() ??
-              properties['website']
-                  ?.toString()
-              : properties['website']
-              ?.toString();
-
-          final distanceValue =
-          properties['distance'];
-
-          final distanceMeters =
-          distanceValue is num
-              ? distanceValue.toDouble()
-              : null;
+          final rawAddress = place.address?.trim();
+          final rawPhone = place.phoneNumber?.trim();
+          final rawWebsite = place.websiteUri?.toString().trim();
 
           restaurants.add(
             _Restaurant(
               name: name,
-              location: LatLng(
-                restaurantLatitude,
-                restaurantLongitude,
-              ),
-              address: address,
-              phone: phone,
-              website: website,
-              distanceMeters:
-              distanceMeters,
+              location: restaurantLocation,
+              address: rawAddress == null || rawAddress.isEmpty
+                  ? null
+                  : rawAddress,
+              phone: rawPhone == null || rawPhone.isEmpty
+                  ? null
+                  : rawPhone,
+              website: rawWebsite == null || rawWebsite.isEmpty
+                  ? null
+                  : rawWebsite,
+              distanceMeters: distanceMeters,
             ),
           );
         } catch (e) {
-          debugPrint(
-            '⚠️ Failed to parse place: $e',
-          );
+          debugPrint('Unable to parse Google place: $e');
         }
       }
 
-      // Sort locally by real geographic distance.
-      const distance = Distance();
-
       restaurants.sort(
-            (a, b) {
-          final distanceA =
-          distance.as(
-            LengthUnit.Meter,
-            searchLocation,
-            a.location,
-          );
-
-          final distanceB =
-          distance.as(
-            LengthUnit.Meter,
-            searchLocation,
-            b.location,
-          );
-
-          return distanceA.compareTo(
-            distanceB,
-          );
-        },
-      );
-
-      debugPrint(
-        '✅ Restaurants after filtering: '
-            '${restaurants.length}',
+            (a, b) => (a.distanceMeters ?? double.infinity).compareTo(
+          b.distanceMeters ?? double.infinity,
+        ),
       );
 
       if (!mounted) return;
@@ -486,11 +254,13 @@ class _RestaurantViewState extends State<RestaurantView> {
       setState(() {
         _restaurants = restaurants;
         _isLoading = false;
+        _errorMessage = null;
       });
-    } catch (e) {
-      debugPrint(
-        '❌ Restaurant loading error: $e',
-      );
+
+      debugPrint('Restaurants after filtering: ${restaurants.length}');
+    } catch (e, stackTrace) {
+      debugPrint('Google Places search error: $e');
+      debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
 
@@ -499,366 +269,285 @@ class _RestaurantViewState extends State<RestaurantView> {
         _isLoading = false;
         _errorMessage =
         'Unable to load nearby restaurants. '
-            'Please try again.';
+            'Please check your connection and try again.';
       });
     }
   }
 
-  // ============================================================
   // REFRESH LOCATION
-  // ============================================================
-
   Future<void> _refreshWithCurrentLocation() async {
-    debugPrint(
-      '🔄 Refreshing restaurant location...',
-    );
+    if (_isLoading) return;
 
-    try {
-      final serviceEnabled =
-      await Geolocator.isLocationServiceEnabled();
-
-      if (!serviceEnabled) {
-        if (!mounted) return;
-
-        setState(() {
-          _errorMessage =
-          'Location services are disabled.';
-        });
-
-        return;
-      }
-
-      LocationPermission permission =
-      await Geolocator.checkPermission();
-
-      if (permission ==
-          LocationPermission.denied) {
-        permission =
-        await Geolocator.requestPermission();
-      }
-
-      if (permission ==
-          LocationPermission.denied ||
-          permission ==
-              LocationPermission.deniedForever) {
-        if (!mounted) return;
-
-        setState(() {
-          _errorMessage =
-          'Location permission is required.';
-        });
-
-        return;
-      }
-
-      final position =
-      await Geolocator.getCurrentPosition(
-        locationSettings:
-        const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-
-      final location = LatLng(
-        position.latitude,
-        position.longitude,
-      );
-
-      debugPrint(
-        '🔄 Refreshed GPS location: '
-            '${position.latitude}, ${position.longitude}',
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _userLocation = location;
-      });
-
-      _mapController.move(
-        location,
-        14,
-      );
-
-      await _loadRestaurants(
-        location: location,
-      );
-    } catch (e) {
-      debugPrint(
-        '❌ Refresh location error: $e',
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _isLoading = false;
-        _errorMessage =
-        'Unable to get your current location.';
-      });
-    }
+    await _initializeLocation();
   }
 
-  // ============================================================
   // BUILD
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
-    final t =
-    AppLocalizations.of(context)!;
+    final t = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    final theme =
-    Theme.of(context);
-
-    final isDark =
-        theme.brightness ==
-            Brightness.dark;
-
-    final mapCenter =
-        _userLocation ??
-            defaultLocation;
+    final mapCenter = _userLocation ?? defaultLocation;
 
     return Scaffold(
-      backgroundColor:
-      theme.scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor:
-        theme.scaffoldBackgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme:
-        const IconThemeData(
-          color: primaryGreen,
-        ),
+        iconTheme: const IconThemeData(color: primaryGreen),
         title: Text(
           t.restaurantsTitle,
-          style:
-          const TextStyle(
+          style: const TextStyle(
             color: primaryGreen,
-            fontWeight:
-            FontWeight.bold,
+            fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
         actions: [
           IconButton(
-            onPressed: _isLoading
-                ? null
-                : _refreshWithCurrentLocation,
-            tooltip: 'Refresh',
-            icon:
-            const Icon(
-              Icons.refresh_rounded,
-            ),
+            onPressed: _isLoading ? null : _refreshWithCurrentLocation,
+            tooltip: 'Refresh restaurants',
+            icon: const Icon(Icons.refresh_rounded),
           ),
+          const SizedBox(width: 6),
         ],
       ),
       body: Column(
         children: [
+          // MAP
           Expanded(
             flex: 6,
             child: Container(
-              margin:
-              const EdgeInsets.fromLTRB(
-                12,
-                8,
-                12,
-                8,
-              ),
-              clipBehavior:
-              Clip.antiAlias,
-              decoration:
-              BoxDecoration(
-                borderRadius:
-                BorderRadius.circular(
-                  20,
-                ),
+              margin: const EdgeInsets.fromLTRB(14, 6, 14, 12),
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color:
-                    Colors.black.withOpacity(
-                      isDark
-                          ? 0.25
-                          : 0.08,
+                    color: Colors.black.withOpacity(
+                      isDark ? 0.22 : 0.07,
                     ),
-                    blurRadius: 14,
-                    offset:
-                    const Offset(
-                      0,
-                      5,
-                    ),
+                    blurRadius: 16,
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
-              child: FlutterMap(
-                mapController:
-                _mapController,
-                options:
-                MapOptions(
-                  initialCenter:
-                  mapCenter,
-                  initialZoom: 14,
-                  minZoom: 5,
-                  maxZoom: 19,
-                ),
+              child: Stack(
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                    'https://tile.openstreetmap.org/'
-                        '{z}/{x}/{y}.png',
-                    userAgentPackageName:
-                    'com.example.wasfati',
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point:
-                        _userLocation ??
-                            defaultLocation,
-                        width: 50,
-                        height: 50,
-                        child:
-                        Container(
-                          decoration:
-                          BoxDecoration(
-                            color:
-                            Colors.blue,
-                            shape:
-                            BoxShape.circle,
-                            border:
-                            Border.all(
-                              color:
-                              Colors.white,
-                              width: 4,
-                            ),
-                            boxShadow:
-                            const [
-                              BoxShadow(
-                                color:
-                                Colors.black26,
-                                blurRadius:
-                                6,
-                              ),
-                            ],
-                          ),
-                          child:
-                          const Icon(
-                            Icons
-                                .my_location,
-                            color:
-                            Colors.white,
-                            size: 24,
-                          ),
-                        ),
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: mapCenter,
+                      initialZoom: 14,
+                      minZoom: 5,
+                      maxZoom: 19,
+                      onMapReady: () {
+                        _mapReady = true;
+
+                        if (_userLocation != null) {
+                          _mapController.move(_userLocation!, 14);
+                        }
+                      },
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.example.wasfati',
                       ),
-                      ..._restaurants.map(
-                            (
-                            restaurant,
-                            ) {
-                          return Marker(
-                            point:
-                            restaurant
-                                .location,
-                            width: 55,
-                            height: 65,
-                            child:
-                            GestureDetector(
-                              onTap: () {
-                                _showRestaurant(
-                                  context,
-                                  restaurant,
-                                );
-                              },
-                              child:
-                              Column(
-                                children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration:
-                                    BoxDecoration(
-                                      color:
-                                      primaryGreen,
-                                      shape:
-                                      BoxShape.circle,
-                                      border:
-                                      Border.all(
-                                        color:
-                                        Colors.white,
-                                        width: 3,
-                                      ),
-                                      boxShadow:
-                                      const [
-                                        BoxShadow(
-                                          color:
-                                          Colors.black26,
-                                          blurRadius:
-                                          6,
-                                          offset:
-                                          Offset(
-                                            0,
-                                            2,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    child:
-                                    const Icon(
-                                      Icons
-                                          .restaurant_rounded,
-                                      color:
-                                      Colors.white,
-                                      size: 22,
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons
-                                        .arrow_drop_down,
-                                    color:
-                                    primaryGreen,
-                                    size: 18,
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: _userLocation ?? defaultLocation,
+                            width: 48,
+                            height: 48,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 4,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 7,
                                   ),
                                 ],
                               ),
+                              child: const Icon(
+                                Icons.my_location_rounded,
+                                color: Colors.white,
+                                size: 23,
+                              ),
                             ),
-                          );
-                        },
+                          ),
+                          ..._restaurants.map(
+                                (restaurant) => Marker(
+                              point: restaurant.location,
+                              width: 52,
+                              height: 62,
+                              child: GestureDetector(
+                                onTap: () => _showRestaurant(
+                                  context,
+                                  restaurant,
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: primaryGreen,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 3,
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.restaurant_rounded,
+                                        color: Colors.white,
+                                        size: 21,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: primaryGreen,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      RichAttributionWidget(
+                        attributions: [
+                          TextSourceAttribution(
+                            'OpenStreetMap contributors',
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  RichAttributionWidget(
-                    attributions: [
-                      TextSourceAttribution(
-                        'OpenStreetMap contributors',
+
+                  // MAP LOCATION LABEL
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    right: 12,
+                    child: IgnorePointer(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.cardColor.withOpacity(0.95),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.near_me_rounded,
+                                size: 17,
+                                color: primaryGreen,
+                              ),
+                              const SizedBox(width: 7),
+                              Text(
+                                _userLocation == null
+                                    ? 'Finding your location...'
+                                    : 'Restaurants near you',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ],
+                    ),
                   ),
+
+                  if (_isLoading)
+                    Positioned(
+                      bottom: 12,
+                      left: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.cardColor.withOpacity(0.96),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(
+                          children: [
+                            SizedBox(
+                              width: 19,
+                              height: 19,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.3,
+                                color: primaryGreen,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Finding nearby restaurants...',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
+
+          // RESTAURANT LIST
           Expanded(
-            flex: 4,
+            flex: 5,
             child: Container(
               width: double.infinity,
-              decoration:
-              BoxDecoration(
-                color:
-                theme.cardColor,
-                borderRadius:
-                const BorderRadius
-                    .vertical(
-                  top:
-                  Radius.circular(
-                    24,
-                  ),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(26),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(
+                      isDark ? 0.12 : 0.035,
+                    ),
+                    blurRadius: 12,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
               ),
-              child:
-              _buildRestaurantList(
-                context,
-                t,
-              ),
+              child: _buildRestaurantList(context, t),
             ),
           ),
         ],
@@ -866,503 +555,339 @@ class _RestaurantViewState extends State<RestaurantView> {
     );
   }
 
-  // ============================================================
   // RESTAURANT LIST
-  // ============================================================
-
   Widget _buildRestaurantList(
       BuildContext context,
       AppLocalizations t,
       ) {
-    final theme =
-    Theme.of(context);
-
-    if (_isLoading) {
-      return const Center(
-        child:
-        CircularProgressIndicator(
-          color: primaryGreen,
-        ),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding:
-          const EdgeInsets.all(
-            24,
-          ),
-          child: Column(
-            mainAxisSize:
-            MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons
-                    .location_off_rounded,
-                size: 48,
-                color: Colors.grey,
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Text(
-                _errorMessage!,
-                textAlign:
-                TextAlign.center,
-                style:
-                TextStyle(
-                  color: theme
-                      .textTheme
-                      .bodyMedium
-                      ?.color,
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              ElevatedButton.icon(
-                onPressed:
-                _initializeLocation,
-                icon:
-                const Icon(
-                  Icons
-                      .my_location_rounded,
-                ),
-                label:
-                const Text(
-                  'Try again',
-                ),
-                style:
-                ElevatedButton
-                    .styleFrom(
-                  backgroundColor:
-                  primaryGreen,
-                  foregroundColor:
-                  Colors.white,
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_restaurants.isEmpty) {
-      return Center(
-        child: Padding(
-          padding:
-          const EdgeInsets.all(
-            24,
-          ),
-          child: Column(
-            mainAxisSize:
-            MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons
-                    .restaurant_outlined,
-                size: 48,
-                color: Colors.grey,
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              Text(
-                'No restaurants found nearby.',
-                textAlign:
-                TextAlign.center,
-                style:
-                TextStyle(
-                  color: theme
-                      .textTheme
-                      .bodyMedium
-                      ?.color,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final theme = Theme.of(context);
 
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-          const EdgeInsets.fromLTRB(
-            20,
-            18,
-            20,
-            10,
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 17, 20, 12),
           child: Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
-                decoration:
-                BoxDecoration(
-                  color:
-                  const Color(
-                    0xFFE8F5E9,
-                  ),
-                  borderRadius:
-                  BorderRadius.circular(
-                    13,
-                  ),
+                width: 43,
+                height: 43,
+                decoration: BoxDecoration(
+                  color: lightGreen,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child:
-                const Icon(
-                  Icons
-                      .restaurant_rounded,
-                  color:
-                  primaryGreen,
+                child: const Icon(
+                  Icons.restaurant_rounded,
+                  color: primaryGreen,
+                  size: 23,
                 ),
               ),
-              const SizedBox(
-                width: 12,
-              ),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  t.exploreRestaurants,
-                  style:
-                  TextStyle(
-                    fontSize: 19,
-                    fontWeight:
-                    FontWeight.bold,
-                    color: theme
-                        .textTheme
-                        .titleLarge
-                        ?.color,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.exploreRestaurants,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      _isLoading
+                          ? 'Searching nearby places'
+                          : '${_restaurants.length} places found',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_restaurants.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: lightGreen,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${_restaurants.length}',
+                    style: const TextStyle(
+                      color: primaryGreen,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                '${_restaurants.length}',
-                style:
-                const TextStyle(
-                  color:
-                  primaryGreen,
-                  fontWeight:
-                  FontWeight.bold,
-                ),
-              ),
             ],
           ),
         ),
         Expanded(
-          child:
-          ListView.separated(
-            padding:
-            const EdgeInsets.fromLTRB(
-              20,
-              4,
-              20,
-              20,
-            ),
-            itemCount:
-            _restaurants.length,
-            separatorBuilder:
-                (_, __) =>
-            const SizedBox(
-              height: 10,
-            ),
-            itemBuilder:
-                (context, index) {
-              final restaurant =
-              _restaurants[index];
-
-              return _RestaurantCard(
-                restaurant:
-                restaurant,
-                onTap: () {
-                  _showRestaurant(
-                    context,
-                    restaurant,
-                  );
-                },
-              );
-            },
-          ),
+          child: _buildRestaurantListContent(context),
         ),
       ],
     );
   }
 
-  // ============================================================
-  // RESTAURANT DETAILS
-  // ============================================================
+  Widget _buildRestaurantListContent(BuildContext context) {
+    final theme = Theme.of(context);
 
+    if (_isLoading && _restaurants.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 34,
+                height: 34,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: primaryGreen,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Finding restaurants near you...',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_errorMessage != null && _restaurants.isEmpty) {
+      return _buildEmptyState(
+        context,
+        icon: Icons.location_searching_rounded,
+        title: 'Unable to load restaurants',
+        message: _errorMessage!,
+        buttonLabel: 'Try again',
+        onPressed: _refreshWithCurrentLocation,
+      );
+    }
+
+    if (_restaurants.isEmpty) {
+      return _buildEmptyState(
+        context,
+        icon: Icons.search_off_rounded,
+        title: 'No restaurants found',
+        message:
+        'No nearby places were returned. Refresh your location and try again.',
+        buttonLabel: 'Search again',
+        onPressed: _refreshWithCurrentLocation,
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 18),
+      itemCount: _restaurants.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final restaurant = _restaurants[index];
+
+        return _RestaurantCard(
+          restaurant: restaurant,
+          onTap: () => _showRestaurant(context, restaurant),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required String message,
+        required String buttonLabel,
+        required VoidCallback onPressed,
+      }) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 12,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 66,
+              height: 66,
+              decoration: BoxDecoration(
+                color: lightGreen,
+                borderRadius: BorderRadius.circular(21),
+              ),
+              child: Icon(
+                icon,
+                color: primaryGreen,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                height: 1.45,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _isLoading ? null : onPressed,
+              icon: const Icon(Icons.refresh_rounded, size: 19),
+              label: Text(buttonLabel),
+              style: FilledButton.styleFrom(
+                backgroundColor: primaryGreen,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // RESTAURANT DETAILS
   void _showRestaurant(
       BuildContext context,
       _Restaurant restaurant,
       ) {
-    final theme =
-    Theme.of(context);
+    final theme = Theme.of(context);
 
     showModalBottomSheet(
       context: context,
-      backgroundColor:
-      theme.cardColor,
-      shape:
-      const RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.vertical(
-          top:
-          Radius.circular(
-            24,
-          ),
+      isScrollControlled: true,
+      backgroundColor: theme.cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(26),
         ),
       ),
       builder: (context) {
         return SafeArea(
-          child: Padding(
-            padding:
-            const EdgeInsets.all(
-              24,
-            ),
-            child: Column(
-              mainAxisSize:
-              MainAxisSize.min,
-              children: [
-                Container(
-                  width: 45,
-                  height: 5,
-                  decoration:
-                  BoxDecoration(
-                    color:
-                    Colors.grey.shade400,
-                    borderRadius:
-                    BorderRadius.circular(
-                      10,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: theme.dividerColor,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 24,
-                ),
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration:
-                  BoxDecoration(
-                    color:
-                    const Color(
-                      0xFFE8F5E9,
+                  const SizedBox(height: 24),
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: lightGreen,
+                      borderRadius: BorderRadius.circular(22),
                     ),
-                    borderRadius:
-                    BorderRadius.circular(
-                      18,
+                    child: const Icon(
+                      Icons.restaurant_rounded,
+                      color: primaryGreen,
+                      size: 35,
                     ),
                   ),
-                  child:
-                  const Icon(
-                    Icons
-                        .restaurant_rounded,
-                    color:
-                    primaryGreen,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                Text(
-                  restaurant.name,
-                  textAlign:
-                  TextAlign.center,
-                  style:
-                  const TextStyle(
-                    fontSize: 21,
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-                if (restaurant
-                    .distanceMeters !=
-                    null) ...[
-                  const SizedBox(
-                    height: 8,
-                  ),
+                  const SizedBox(height: 17),
                   Text(
-                    _formatDistance(
-                      restaurant
-                          .distanceMeters!,
-                    ),
-                    style:
-                    const TextStyle(
-                      color:
-                      primaryGreen,
-                      fontWeight:
-                      FontWeight.w600,
+                    restaurant.name,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-                if (restaurant.address !=
-                    null) ...[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-                    children: [
-                      const Icon(
-                        Icons
-                            .location_on_outlined,
-                        size: 20,
-                        color:
-                        primaryGreen,
+                  if (restaurant.distanceMeters != null) ...[
+                    const SizedBox(height: 9),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 13,
+                        vertical: 7,
                       ),
-                      const SizedBox(
-                        width: 8,
+                      decoration: BoxDecoration(
+                        color: lightGreen,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      Expanded(
-                        child:
-                        Text(
-                          restaurant
-                              .address!,
-                          style:
-                          TextStyle(
-                            color: theme
-                                .textTheme
-                                .bodyMedium
-                                ?.color
-                                ?.withOpacity(
-                              0.7,
-                            ),
-                          ),
+                      child: Text(
+                        _formatDistance(restaurant.distanceMeters!),
+                        style: const TextStyle(
+                          color: primaryGreen,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-                if (restaurant.phone !=
-                    null) ...[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons
-                            .phone_outlined,
-                        size: 20,
-                        color:
-                        primaryGreen,
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      Expanded(
-                        child:
-                        Text(
-                          restaurant
-                              .phone!,
-                          style:
-                          TextStyle(
-                            color: theme
-                                .textTheme
-                                .bodyMedium
-                                ?.color
-                                ?.withOpacity(
-                              0.7,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                if (restaurant.website !=
-                    null) ...[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons
-                            .language_rounded,
-                        size: 20,
-                        color:
-                        primaryGreen,
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      Expanded(
-                        child:
-                        Text(
-                          restaurant
-                              .website!,
-                          maxLines: 1,
-                          overflow:
-                          TextOverflow
-                              .ellipsis,
-                          style:
-                          TextStyle(
-                            color: theme
-                                .textTheme
-                                .bodyMedium
-                                ?.color
-                                ?.withOpacity(
-                              0.7,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(
-                  height: 22,
-                ),
-                SizedBox(
-                  width:
-                  double.infinity,
-                  height: 50,
-                  child:
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(
-                        context,
-                      );
-                    },
-                    icon:
-                    const Icon(
-                      Icons
-                          .close_rounded,
                     ),
-                    label:
-                    const Text(
-                      'Close',
+                  ],
+                  const SizedBox(height: 22),
+                  if (restaurant.address != null)
+                    _DetailRow(
+                      icon: Icons.location_on_outlined,
+                      text: restaurant.address!,
                     ),
-                    style:
-                    ElevatedButton
-                        .styleFrom(
-                      backgroundColor:
-                      primaryGreen,
-                      foregroundColor:
-                      Colors.white,
-                      elevation: 0,
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                          14,
+                  if (restaurant.phone != null) ...[
+                    const SizedBox(height: 15),
+                    _DetailRow(
+                      icon: Icons.phone_outlined,
+                      text: restaurant.phone!,
+                    ),
+                  ],
+                  if (restaurant.website != null) ...[
+                    const SizedBox(height: 15),
+                    _DetailRow(
+                      icon: Icons.language_rounded,
+                      text: restaurant.website!,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: FilledButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.check_rounded),
+                      label: const Text('Done'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: primaryGreen,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -1370,13 +895,7 @@ class _RestaurantViewState extends State<RestaurantView> {
     );
   }
 
-  // ============================================================
-  // DISTANCE FORMAT
-  // ============================================================
-
-  String _formatDistance(
-      double meters,
-      ) {
+  String _formatDistance(double meters) {
     if (meters < 1000) {
       return '${meters.round()} m away';
     }
@@ -1385,10 +904,7 @@ class _RestaurantViewState extends State<RestaurantView> {
   }
 }
 
-// ================================================================
 // RESTAURANT MODEL
-// ================================================================
-
 class _Restaurant {
   final String name;
   final LatLng location;
@@ -1407,12 +923,55 @@ class _Restaurant {
   });
 }
 
-// ================================================================
-// RESTAURANT CARD
-// ================================================================
+// DETAIL ROW
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
 
-class _RestaurantCard
-    extends StatelessWidget {
+  const _DetailRow({
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 39,
+          height: 39,
+          decoration: BoxDecoration(
+            color: lightGreen,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: primaryGreen,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 9),
+            child: SelectableText(
+              text,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                height: 1.4,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// RESTAURANT CARD
+class _RestaurantCard extends StatelessWidget {
   final _Restaurant restaurant;
   final VoidCallback onTap;
 
@@ -1422,128 +981,107 @@ class _RestaurantCard
   });
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
-    final theme =
-    Theme.of(context);
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Material(
-      color: theme
-          .scaffoldBackgroundColor,
-      borderRadius:
-      BorderRadius.circular(
-        16,
-      ),
+      color: theme.scaffoldBackgroundColor,
+      borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
-        borderRadius:
-        BorderRadius.circular(
-          16,
-        ),
-        child: Padding(
-          padding:
-          const EdgeInsets.all(
-            13,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: theme.dividerColor.withOpacity(0.12),
+            ),
           ),
           child: Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
-                decoration:
-                BoxDecoration(
-                  color:
-                  const Color(
-                    0xFFE8F5E9,
-                  ),
-                  borderRadius:
-                  BorderRadius.circular(
-                    14,
-                  ),
+                width: 53,
+                height: 53,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? primaryGreen.withOpacity(0.18)
+                      : lightGreen,
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                child:
-                const Icon(
-                  Icons
-                      .restaurant_rounded,
-                  color:
-                  primaryGreen,
+                child: const Icon(
+                  Icons.restaurant_rounded,
+                  color: primaryGreen,
+                  size: 27,
                 ),
               ),
-              const SizedBox(
-                width: 13,
-              ),
+              const SizedBox(width: 13),
               Expanded(
-                child:
-                Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       restaurant.name,
                       maxLines: 1,
-                      overflow:
-                      TextOverflow
-                          .ellipsis,
-                      style:
-                      const TextStyle(
-                        fontSize: 15,
-                        fontWeight:
-                        FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      restaurant.address ??
-                          'Nearby restaurant',
-                      maxLines: 1,
-                      overflow:
-                      TextOverflow
-                          .ellipsis,
-                      style:
-                      TextStyle(
-                        fontSize: 12,
-                        color: theme
-                            .textTheme
-                            .bodySmall
-                            ?.color
-                            ?.withOpacity(
-                          0.6,
-                        ),
+                    const SizedBox(height: 5),
+                    if (restaurant.address != null)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              restaurant.address!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    if (restaurant
-                        .distanceMeters !=
-                        null) ...[
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        _formatCardDistance(
-                          restaurant
-                              .distanceMeters!,
-                        ),
-                        style:
-                        const TextStyle(
-                          fontSize: 11,
-                          color:
-                          primaryGreen,
-                          fontWeight:
-                          FontWeight.w600,
-                        ),
+                    if (restaurant.distanceMeters != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.near_me_outlined,
+                            color: primaryGreen,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCardDistance(
+                              restaurant.distanceMeters!,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: primaryGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
               const Icon(
-                Icons
-                    .chevron_right_rounded,
-                color:
-                primaryGreen,
+                Icons.chevron_right_rounded,
+                color: primaryGreen,
+                size: 24,
               ),
             ],
           ),
@@ -1552,9 +1090,7 @@ class _RestaurantCard
     );
   }
 
-  String _formatCardDistance(
-      double meters,
-      ) {
+  String _formatCardDistance(double meters) {
     if (meters < 1000) {
       return '${meters.round()} m away';
     }

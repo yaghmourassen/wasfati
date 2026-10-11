@@ -276,15 +276,6 @@ right: 12,
 child: Container(
 width: 34,
 height: 34,
-decoration: BoxDecoration(
-color: Colors.white.withOpacity(0.90),
-shape: BoxShape.circle,
-),
-child: const Icon(
-Icons.restaurant_rounded,
-color: green,
-size: 18,
-),
 ),
 ),
 
