@@ -25,6 +25,9 @@ dependencies:
 
   provider: ^6.1.2
 
+  # 👇 أضف هاتين الحزمتين هنا لتفعيل الإشعارات والتوقيت
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
   flutter_localizations:
     sdk: flutter
 

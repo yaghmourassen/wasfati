@@ -3,9 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ShoppingPlanService {
   final _db = FirebaseFirestore.instance;
 
-  // ADD
+  // ADD (تم التعديل ليستخدم الـ id كمعرف للوثيقة)
   Future<void> addItem(Map<String, dynamic> data) async {
-    await _db.collection('shopping_items').add(data);
+    final String id = data['id'];
+    await _db.collection('shopping_items').doc(id).set(data);
   }
 
   // DELETE
