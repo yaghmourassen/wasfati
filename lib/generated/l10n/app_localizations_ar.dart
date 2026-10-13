@@ -72,7 +72,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noRecipes => 'لا توجد وصفات بعد';
 
   @override
-  String get welcomeHome => 'مرحبًا بك في وصفتـي 🌿';
+  String get welcomeHome => 'تطبيق وصفتـي';
 
   @override
   String get kitchenHub => 'مطبخك الذكي';
@@ -317,4 +317,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorOccurred => 'تعذر تحميل المطاعم';
+
+  @override
+  String get reminder => 'التذكير';
+
+  @override
+  String get setReminder => 'تحديد وقت التذكير';
 }

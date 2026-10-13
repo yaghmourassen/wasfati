@@ -24,7 +24,7 @@
   "myRecipes": "وصفاتي",
   "noRecipes": "لا توجد وصفات بعد",
 
-  "welcomeHome": "مرحبًا بك في وصفتـي 🌿",
+  "welcomeHome": "تطبيق وصفتـي",
   "kitchenHub": "مطبخك الذكي",
   "homeDescription": "استكشف الوصفات، احفظ المفضلة وشارك إبداعاتك.",
   "exploreRecipes": "استعرض الوصفات",
@@ -122,5 +122,7 @@
             "tryAgain": "إعادة المحاولة",
             "done": "تم",
             "refreshRestaurants": "تحديث المطاعم",
-            "errorOccurred": "تعذر تحميل المطاعم"
+           "errorOccurred": "تعذر تحميل المطاعم",
+           "reminder": "التذكير",
+           "setReminder": "تحديد وقت التذكير"
 }

@@ -14,7 +14,7 @@ import 'core/user_session.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Firebase init
+
   await Firebase.initializeApp();
 
   // 📢 AdMob init (IMPORTANT)

@@ -24,7 +24,7 @@
   "myRecipes": "My Recipes",
   "noRecipes": "No recipes yet",
 
-  "welcomeHome": "Welcome to Wasfaty 🌿",
+  "welcomeHome": "Wasfaty app",
   "kitchenHub": "Your Kitchen Hub",
   "homeDescription": "Explore recipes, save favorites, and share your cooking creations.",
   "exploreRecipes": "Explore Recipes",
@@ -123,7 +123,9 @@
             "tryAgain": "Try again",
             "done": "Done",
             "refreshRestaurants": "Refresh restaurants",
-            "errorOccurred": "Unable to load restaurants"
+           "errorOccurred": "Unable to load restaurants",
+           "reminder": "Reminder",
+           "setReminder": "Set reminder time"
 
 
 }

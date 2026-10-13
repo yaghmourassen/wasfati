@@ -72,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecipes => 'No recipes yet';
 
   @override
-  String get welcomeHome => 'Welcome to Wasfaty 🌿';
+  String get welcomeHome => 'Wasfaty app';
 
   @override
   String get kitchenHub => 'Your Kitchen Hub';
@@ -319,4 +319,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOccurred => 'Unable to load restaurants';
+
+  @override
+  String get reminder => 'Reminder';
+
+  @override
+  String get setReminder => 'Set reminder time';
 }

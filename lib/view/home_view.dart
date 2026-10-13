@@ -117,6 +117,7 @@ builder: (_) => const RestaurantView(),
 );
 },
 ),
+
 const SizedBox(width: 7),
 _headerIconButton(
 context,

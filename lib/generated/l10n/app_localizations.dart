@@ -227,7 +227,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeHome.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Wasfaty 🌿'**
+  /// **'Wasfaty app'**
   String get welcomeHome;
 
   /// No description provided for @kitchenHub.
@@ -709,6 +709,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to load restaurants'**
   String get errorOccurred;
+
+  /// No description provided for @reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminder;
+
+  /// No description provided for @setReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Set reminder time'**
+  String get setReminder;
 }
 
 class _AppLocalizationsDelegate
