@@ -325,4 +325,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setReminder => 'Set reminder time';
+
+  @override
+  String get updateComment => 'Update your comment...';
+
+  @override
+  String get edit => 'Edit';
 }

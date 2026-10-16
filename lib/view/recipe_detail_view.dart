@@ -1103,7 +1103,7 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
               decoration: InputDecoration(
                 hintText: myComment == null
                     ? t.writeComment
-                    : "Update your comment...",
+                    : t.updateComment, // <--- Updated to localized key
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                   color: colorScheme.onSurfaceVariant,
@@ -1160,6 +1160,7 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
       String currentUserId,
       ) {
     final colorScheme = Theme.of(context).colorScheme;
+    final t = AppLocalizations.of(context)!; // <--- Added localizations instance
 
     return Container(
       width: double.infinity,
@@ -1223,17 +1224,17 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                             setState(() {});
                           }
                         },
-                        itemBuilder: (context) => const [
+                        itemBuilder: (context) => [ // <--- Removed 'const' here
                           PopupMenuItem(
                             value: "edit",
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.edit_outlined,
                                   size: 18,
                                 ),
-                                SizedBox(width: 8),
-                                Text("Edit"),
+                                const SizedBox(width: 8),
+                                Text(t.edit), // <--- Localized Edit
                               ],
                             ),
                           ),
@@ -1241,13 +1242,16 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                             value: "delete",
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.delete_outline,
                                   size: 18,
                                   color: Colors.red,
                                 ),
-                                SizedBox(width: 8),
-                                Text("Delete"),
+                                const SizedBox(width: 8),
+                                Text(
+                                  t.delete, // <--- Localized Delete
+                                  style: const TextStyle(color: Colors.red),
+                                ),
                               ],
                             ),
                           ),

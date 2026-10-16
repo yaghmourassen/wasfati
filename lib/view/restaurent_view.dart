@@ -91,6 +91,18 @@ class _RestaurantViewBody extends StatelessWidget {
                         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'com.example.wasfati',
                       ),
+                      if (controller.routePoints.length >= 2)
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: controller.routePoints,
+                              strokeWidth: 5,
+                              color: Colors.blueAccent,
+                              borderStrokeWidth: 2,
+                              borderColor: Colors.white,
+                            ),
+                          ],
+                        ),
                       MarkerLayer(
                         markers: [
                           Marker(
@@ -174,35 +186,105 @@ class _RestaurantViewBody extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (controller.isLoading)
+                  if (controller.selectedRestaurant != null)
                     Positioned(
-                      bottom: 12,
+                      top: 62,
                       left: 12,
                       right: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: theme.cardColor.withOpacity(0.96),
-                          borderRadius: BorderRadius.circular(14),
+                      child: Card(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 19,
-                              height: 19,
-                              child: CircularProgressIndicator(strokeWidth: 2.3, color: primaryGreen),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                t.searchingNearbyPlaces, // Clé l10n recommandée
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.directions_rounded,
+                                color: primaryGreen,
+                                size: 28,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      controller.selectedRestaurant!.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    if (controller.isLoadingRoute)
+                                      const LinearProgressIndicator(
+                                        color: primaryGreen,
+                                      )
+                                    else if (controller.routePoints.length >= 2)
+                                      Text(
+                                        '${controller.formatRouteDistance(controller.routeDistanceMeters ?? 0)}'
+                                            ' • '
+                                            '${controller.formatRouteDuration(controller.routeDurationSeconds ?? 0)}',
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                      )
+                                    else if (controller.routeErrorMessage != null)
+                                        Text(
+                                          controller.routeErrorMessage!,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.error,
+                                          ),
+                                        )
+                                      else
+                                        Text(
+                                          _routeText(
+                                            context,
+                                            'Preparing route...',
+                                            'جارٍ تجهيز الطريق...',
+                                          ),
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: _routeText(context, 'Clear route', 'إخفاء الطريق'),
+                                onPressed: controller.clearRoute,
+                                icon: const Icon(Icons.close_rounded),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                  Positioned(
+                    right: 12,
+                    bottom: 12,
+                    child: Material(
+                      color: Theme.of(context).cardColor,
+                      elevation: 4,
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        onPressed: controller.userLocation == null
+                            ? null
+                            : controller.centerOnUser,
+                        icon: const Icon(
+                          Icons.my_location_rounded,
+                          color: primaryGreen,
+                        ),
+                        tooltip: t.restaurantsNearYou,
+                        iconSize: 23,
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          minHeight: 48,
+                        ),
+                      ),
+                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -446,6 +528,30 @@ class _RestaurantViewBody extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: FilledButton.icon(
+                      onPressed: controller.userLocation == null || controller.isLoadingRoute
+                          ? null
+                          : () async {
+                        Navigator.pop(context);
+                        await controller.showRouteToRestaurant(restaurant);
+                      },
+                      icon: const Icon(Icons.directions_rounded),
+                      label: Text(
+                        _routeText(context, 'Show route', 'اعرض الطريق'),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: FilledButton.icon(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.check_rounded),
                       label: Text(t.done ?? 'Done'),
@@ -586,4 +692,14 @@ class _RestaurantCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _routeText(
+    BuildContext context,
+    String english,
+    String arabic,
+    ) {
+  return Localizations.localeOf(context).languageCode == 'ar'
+      ? arabic
+      : english;
 }

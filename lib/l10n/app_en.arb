@@ -125,7 +125,10 @@
             "refreshRestaurants": "Refresh restaurants",
            "errorOccurred": "Unable to load restaurants",
            "reminder": "Reminder",
-           "setReminder": "Set reminder time"
+           "setReminder": "Set reminder time",
+           "updateComment": "Update your comment...",
+             "edit": "Edit",
+             "delete": "Delete"
 
 
 }

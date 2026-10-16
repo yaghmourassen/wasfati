@@ -323,4 +323,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get setReminder => 'تحديد وقت التذكير';
+
+  @override
+  String get updateComment => 'تحديث تعليقك...';
+
+  @override
+  String get edit => 'تعديل';
 }

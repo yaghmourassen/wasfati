@@ -721,6 +721,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set reminder time'**
   String get setReminder;
+
+  /// No description provided for @updateComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your comment...'**
+  String get updateComment;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
 }
 
 class _AppLocalizationsDelegate

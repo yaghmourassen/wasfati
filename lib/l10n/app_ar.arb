@@ -124,5 +124,8 @@
             "refreshRestaurants": "تحديث المطاعم",
            "errorOccurred": "تعذر تحميل المطاعم",
            "reminder": "التذكير",
-           "setReminder": "تحديد وقت التذكير"
+           "setReminder": "تحديد وقت التذكير",
+           "updateComment": "تحديث تعليقك...",
+             "edit": "تعديل",
+             "delete": "حذف"
 }
