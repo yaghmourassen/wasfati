@@ -329,4 +329,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get edit => 'تعديل';
+
+  @override
+  String get watchPreparationVideo => 'شاهد فيديو التحضير';
 }

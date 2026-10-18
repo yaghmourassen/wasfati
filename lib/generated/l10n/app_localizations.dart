@@ -733,6 +733,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
+
+  /// No description provided for @watchPreparationVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the preparation video'**
+  String get watchPreparationVideo;
 }
 
 class _AppLocalizationsDelegate

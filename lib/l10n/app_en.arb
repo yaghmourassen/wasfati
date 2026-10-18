@@ -128,7 +128,8 @@
            "setReminder": "Set reminder time",
            "updateComment": "Update your comment...",
              "edit": "Edit",
-             "delete": "Delete"
+             "delete": "Delete",
+             "watchPreparationVideo": "Watch the preparation video"
 
 
 }

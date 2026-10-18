@@ -127,5 +127,6 @@
            "setReminder": "تحديد وقت التذكير",
            "updateComment": "تحديث تعليقك...",
              "edit": "تعديل",
-             "delete": "حذف"
+             "delete": "حذف",
+             "watchPreparationVideo": "شاهد فيديو التحضير"
 }

@@ -978,7 +978,8 @@ class _RecipeDetailViewState extends State<RecipeDetailView> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      "Watch the preparation video",
+                      t.watchPreparationVideo,
+                      textAlign: TextAlign.start,
                       style: TextStyle(
                         color: Colors.white.withOpacity(.82),
                         fontSize: 12,
