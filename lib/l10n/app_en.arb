@@ -129,7 +129,18 @@
            "updateComment": "Update your comment...",
              "edit": "Edit",
              "delete": "Delete",
-             "watchPreparationVideo": "Watch the preparation video"
+             "watchPreparationVideo": "Watch the preparation video",
+             "restaurantRating": "Restaurant rating",
+             "rateRestaurant": "Rate this restaurant",
+             "averageRating": "Average rating",
+             "ratingCount": "Number of ratings",
+             "submitRating": "Submit rating",
+             "updateRating": "Update rating",
+             "ratingSubmitted": "Your rating was submitted successfully",
+             "ratingUpdated": "Your rating was updated successfully",
+             "loginToRate": "Please log in to rate this restaurant",
+             "noRatingsYet": "No ratings yet",
+             "ratingError": "Could not save your rating. Please try again"
 
 
 }

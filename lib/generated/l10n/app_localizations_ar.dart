@@ -332,4 +332,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get watchPreparationVideo => 'شاهد فيديو التحضير';
+
+  @override
+  String get restaurantRating => 'تقييم المطعم';
+
+  @override
+  String get rateRestaurant => 'قيّم هذا المطعم';
+
+  @override
+  String get averageRating => 'متوسط التقييم';
+
+  @override
+  String get ratingCount => 'عدد التقييمات';
+
+  @override
+  String get submitRating => 'إرسال التقييم';
+
+  @override
+  String get updateRating => 'تحديث التقييم';
+
+  @override
+  String get ratingSubmitted => 'تم إرسال تقييمك بنجاح';
+
+  @override
+  String get ratingUpdated => 'تم تحديث تقييمك بنجاح';
+
+  @override
+  String get loginToRate => 'يرجى تسجيل الدخول لتقييم المطعم';
+
+  @override
+  String get noRatingsYet => 'لا توجد تقييمات بعد';
+
+  @override
+  String get ratingError => 'تعذر حفظ التقييم، حاول مرة أخرى';
 }

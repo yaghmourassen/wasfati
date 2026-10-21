@@ -739,6 +739,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Watch the preparation video'**
   String get watchPreparationVideo;
+
+  /// No description provided for @restaurantRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant rating'**
+  String get restaurantRating;
+
+  /// No description provided for @rateRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate this restaurant'**
+  String get rateRestaurant;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get averageRating;
+
+  /// No description provided for @ratingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of ratings'**
+  String get ratingCount;
+
+  /// No description provided for @submitRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit rating'**
+  String get submitRating;
+
+  /// No description provided for @updateRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Update rating'**
+  String get updateRating;
+
+  /// No description provided for @ratingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating was submitted successfully'**
+  String get ratingSubmitted;
+
+  /// No description provided for @ratingUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating was updated successfully'**
+  String get ratingUpdated;
+
+  /// No description provided for @loginToRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in to rate this restaurant'**
+  String get loginToRate;
+
+  /// No description provided for @noRatingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get noRatingsYet;
+
+  /// No description provided for @ratingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your rating. Please try again'**
+  String get ratingError;
 }
 
 class _AppLocalizationsDelegate

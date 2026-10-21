@@ -128,5 +128,16 @@
            "updateComment": "تحديث تعليقك...",
              "edit": "تعديل",
              "delete": "حذف",
-             "watchPreparationVideo": "شاهد فيديو التحضير"
+             "watchPreparationVideo": "شاهد فيديو التحضير",
+             "restaurantRating": "تقييم المطعم",
+             "rateRestaurant": "قيّم هذا المطعم",
+             "averageRating": "متوسط التقييم",
+             "ratingCount": "عدد التقييمات",
+             "submitRating": "إرسال التقييم",
+             "updateRating": "تحديث التقييم",
+             "ratingSubmitted": "تم إرسال تقييمك بنجاح",
+             "ratingUpdated": "تم تحديث تقييمك بنجاح",
+             "loginToRate": "يرجى تسجيل الدخول لتقييم المطعم",
+             "noRatingsYet": "لا توجد تقييمات بعد",
+             "ratingError": "تعذر حفظ التقييم، حاول مرة أخرى"
 }

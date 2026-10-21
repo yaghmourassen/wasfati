@@ -1,11 +1,13 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/restaurant_controller.dart';
-import '../model/restaurant_model.dart';
 import '../generated/l10n/app_localizations.dart';
+import '../model/restaurant_model.dart';
+import '../services/restaurant_rating_service.dart';
 
 const Color primaryGreen = Color(0xFF2E7D32);
 const Color lightGreen = Color(0xFFE8F5E9);
@@ -291,8 +293,6 @@ class _RestaurantViewBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                // One scrollable contains the handle, header, and list.
-                // This lets dragging begin anywhere on the panel.
                 child: ListView(
                   controller: scrollController,
                   padding: EdgeInsets.zero,
@@ -314,7 +314,6 @@ class _RestaurantViewBody extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         20,
@@ -354,7 +353,8 @@ class _RestaurantViewBody extends StatelessWidget {
                                       ? t.searchingNearbyPlaces
                                       : '${controller.restaurants.length} places found',
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                    color:
+                                    theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -382,7 +382,7 @@ class _RestaurantViewBody extends StatelessWidget {
                       ),
                     ),
 
-                    // List content shares the sheet's controller.
+                    // Restaurant list.
                     _buildListContent(
                       context,
                       t,
@@ -634,6 +634,13 @@ class _RestaurantViewBody extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  // Five-star restaurant rating.
+                  const SizedBox(height: 12),
+                  _RestaurantRatingSection(
+                    restaurantId: restaurant.id,
+                  ),
+
                   if (restaurant.distanceMeters != null) ...[
                     const SizedBox(height: 9),
                     Container(
@@ -908,4 +915,303 @@ String _routeText(
   return Localizations.localeOf(context).languageCode == 'ar'
       ? arabic
       : english;
+}
+
+// -----------------------------------------------------------------------------
+// Restaurant rating widget.
+// Each authenticated user can submit one rating per restaurant and update it.
+// -----------------------------------------------------------------------------
+
+class _RestaurantRatingSection extends StatefulWidget {
+  final String restaurantId;
+
+  const _RestaurantRatingSection({
+    required this.restaurantId,
+  });
+
+  @override
+  State<_RestaurantRatingSection> createState() =>
+      _RestaurantRatingSectionState();
+}
+
+class _RestaurantRatingSectionState
+    extends State<_RestaurantRatingSection> {
+  final RestaurantRatingService _service = RestaurantRatingService();
+
+  int _selectedRating = 0;
+  int _savedRating = 0;
+  double _averageRating = 0;
+  int _ratingCount = 0;
+
+  bool _isLoading = true;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRatings();
+  }
+
+  Future<void> _loadRatings() async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final results = await Future.wait<Object?>([
+        _service.getUserRating(widget.restaurantId),
+        _service.getRatingSummary(widget.restaurantId),
+      ]);
+
+      if (!mounted) return;
+
+      final userRating = results[0] as int?;
+      final summary = results[1] as RestaurantRatingSummary;
+
+      setState(() {
+        _savedRating = userRating ?? 0;
+        _selectedRating = userRating ?? 0;
+        _averageRating = summary.averageRating;
+        _ratingCount = summary.ratingCount;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+        _errorMessage = AppLocalizations.of(context)!.ratingError;
+      });
+    }
+  }
+
+  Future<void> _submitRating() async {
+    final t = AppLocalizations.of(context)!;
+
+    if (FirebaseAuth.instance.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.loginToRate)),
+      );
+      return;
+    }
+
+    if (_selectedRating < 1 ||
+        _selectedRating > 5 ||
+        _isSubmitting) {
+      return;
+    }
+
+    final isUpdating = _savedRating > 0;
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _service.submitRating(
+        restaurantId: widget.restaurantId,
+        rating: _selectedRating,
+      );
+
+      // Refresh the average and count after saving.
+      final summary = await _service.getRatingSummary(
+        widget.restaurantId,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _savedRating = _selectedRating;
+        _averageRating = summary.averageRating;
+        _ratingCount = summary.ratingCount;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isUpdating ? t.ratingUpdated : t.ratingSubmitted,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = t.ratingError;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(
+          child: SizedBox(
+            width: 26,
+            height: 26,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: primaryGreen,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: lightGreen.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        children: [
+          Text(
+            t.restaurantRating,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          if (isLoggedIn) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.star_rounded,
+                  color: Colors.amber,
+                  size: 27,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  _averageRating.toStringAsFixed(1),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '($_ratingCount)',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              t.rateRestaurant,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                final star = index + 1;
+
+                return IconButton(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () {
+                    setState(() {
+                      _selectedRating = star;
+                    });
+                  },
+                  tooltip: '$star',
+                  iconSize: 34,
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(
+                    star <= _selectedRating
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: Colors.amber.shade700,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _isSubmitting || _selectedRating == 0
+                    ? null
+                    : _submitRating,
+                style: FilledButton.styleFrom(
+                  backgroundColor: primaryGreen,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: primaryGreen.withOpacity(0.4),
+                  disabledForegroundColor: Colors.white70,
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : Text(
+                  _savedRating > 0
+                      ? t.updateRating
+                      : t.submitRating,
+                ),
+              ),
+            ),
+          ] else
+            Text(
+              t.loginToRate,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
+            ),
+
+          if (_ratingCount == 0 && isLoggedIn) ...[
+            const SizedBox(height: 8),
+            Text(
+              t.noRatingsYet,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }

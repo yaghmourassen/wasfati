@@ -334,4 +334,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get watchPreparationVideo => 'Watch the preparation video';
+
+  @override
+  String get restaurantRating => 'Restaurant rating';
+
+  @override
+  String get rateRestaurant => 'Rate this restaurant';
+
+  @override
+  String get averageRating => 'Average rating';
+
+  @override
+  String get ratingCount => 'Number of ratings';
+
+  @override
+  String get submitRating => 'Submit rating';
+
+  @override
+  String get updateRating => 'Update rating';
+
+  @override
+  String get ratingSubmitted => 'Your rating was submitted successfully';
+
+  @override
+  String get ratingUpdated => 'Your rating was updated successfully';
+
+  @override
+  String get loginToRate => 'Please log in to rate this restaurant';
+
+  @override
+  String get noRatingsYet => 'No ratings yet';
+
+  @override
+  String get ratingError => 'Could not save your rating. Please try again';
 }
