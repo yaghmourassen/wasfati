@@ -365,4 +365,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ratingError => 'تعذر حفظ التقييم، حاول مرة أخرى';
+
+  @override
+  String get emailVerificationSent =>
+      'أرسلنا رابط التحقق إلى بريدك الإلكتروني. يرجى تأكيد البريد قبل تسجيل الدخول.';
+
+  @override
+  String get emailVerificationPending =>
+      'لم يتم التحقق من بريدك الإلكتروني بعد. افتح الرابط المرسل إلى بريدك قبل تسجيل الدخول.';
+
+  @override
+  String get resendVerificationEmail => 'إعادة إرسال رسالة التحقق';
+
+  @override
+  String get verificationEmailResent => 'تمت إعادة إرسال رسالة التحقق.';
+
+  @override
+  String get enterValidEmail => 'يرجى إدخال بريد إلكتروني صحيح.';
+
+  @override
+  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get passwordResetEmailSent =>
+      'إذا كان هذا البريد مسجلاً، فقد أرسلنا إليه رسالة لإعادة تعيين كلمة المرور.';
 }

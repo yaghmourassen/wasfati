@@ -367,4 +367,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ratingError => 'Could not save your rating. Please try again';
+
+  @override
+  String get emailVerificationSent =>
+      'We sent a verification link to your email. Please verify it before logging in.';
+
+  @override
+  String get emailVerificationPending =>
+      'Your email is not verified yet. Open the link sent to your inbox before logging in.';
+
+  @override
+  String get resendVerificationEmail => 'Resend verification email';
+
+  @override
+  String get verificationEmailResent => 'Verification email sent again.';
+
+  @override
+  String get enterValidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get passwordResetEmailSent =>
+      'If this email is registered, a password reset message has been sent.';
 }

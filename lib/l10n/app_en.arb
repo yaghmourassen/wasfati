@@ -140,7 +140,14 @@
              "ratingUpdated": "Your rating was updated successfully",
              "loginToRate": "Please log in to rate this restaurant",
              "noRatingsYet": "No ratings yet",
-             "ratingError": "Could not save your rating. Please try again"
+             "ratingError": "Could not save your rating. Please try again",
+               "emailVerificationSent": "We sent a verification link to your email. Please verify it before logging in.",
+               "emailVerificationPending": "Your email is not verified yet. Open the link sent to your inbox before logging in.",
+               "resendVerificationEmail": "Resend verification email",
+               "verificationEmailResent": "Verification email sent again.",
+               "enterValidEmail": "Please enter a valid email address.",
+               "forgotPassword": "Forgot password?",
+               "passwordResetEmailSent": "If this email is registered, a password reset message has been sent."
 
 
 }

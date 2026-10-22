@@ -805,6 +805,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save your rating. Please try again'**
   String get ratingError;
+
+  /// No description provided for @emailVerificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a verification link to your email. Please verify it before logging in.'**
+  String get emailVerificationSent;
+
+  /// No description provided for @emailVerificationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email is not verified yet. Open the link sent to your inbox before logging in.'**
+  String get emailVerificationPending;
+
+  /// No description provided for @resendVerificationEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend verification email'**
+  String get resendVerificationEmail;
+
+  /// No description provided for @verificationEmailResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email sent again.'**
+  String get verificationEmailResent;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get enterValidEmail;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @passwordResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If this email is registered, a password reset message has been sent.'**
+  String get passwordResetEmailSent;
 }
 
 class _AppLocalizationsDelegate
