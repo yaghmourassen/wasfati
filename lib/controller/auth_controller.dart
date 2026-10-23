@@ -1,13 +1,11 @@
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../model/user_model.dart';
 import '../core/user_session.dart';
+import '../services/auth_service.dart';
 
 class AuthController {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AuthService _authService = AuthService();
 
   // ================= SESSION HELPERS =================
 
@@ -17,39 +15,40 @@ class AuthController {
     UserSession.isAdmin = false;
   }
 
+  void _updateSession(String userId, String role) {
+    UserSession.userId = userId;
+    UserSession.role = role;
+    UserSession.isAdmin = role == 'admin';
+  }
+
   // ================= STREAM USER =================
 
   Stream<UserModel?> get userStream {
-    return _auth.authStateChanges().asyncMap((user) async {
+    return _authService.authStateChanges.asyncMap((user) async {
       if (user == null) {
         _clearSession();
         return null;
       }
 
-      await user.reload();
-      final refreshedUser = _auth.currentUser;
+      await _authService.reloadCurrentUser();
+      final refreshedUser = _authService.currentUser;
 
       if (refreshedUser == null || !refreshedUser.emailVerified) {
         _clearSession();
         return null;
       }
 
-      final userId = refreshedUser.uid;
-      final doc = await _firestore.collection('users').doc(userId).get();
+      final profile = await _authService.getUserProfile(
+        refreshedUser.uid,
+      );
 
-      if (!doc.exists) {
+      if (profile == null) {
         _clearSession();
         return null;
       }
 
-      final data = doc.data()!;
-      final role = (data['role'] as String?) ?? 'user';
-
-      UserSession.userId = userId;
-      UserSession.role = role;
-      UserSession.isAdmin = role == 'admin';
-
-      return UserModel.fromMap(data, doc.id);
+      _updateSession(refreshedUser.uid, profile.role);
+      return profile.user;
     });
   }
 
@@ -57,8 +56,8 @@ class AuthController {
 
   Future<UserModel?> login(String email, String password) async {
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
+      final credential = await _authService.login(
+        email: email,
         password: password,
       );
 
@@ -68,16 +67,15 @@ class AuthController {
         throw Exception('Login failed. Please try again.');
       }
 
-      await user.reload();
-      final refreshedUser = _auth.currentUser;
+      await _authService.reloadCurrentUser();
+      final refreshedUser = _authService.currentUser;
 
       if (refreshedUser == null) {
         throw Exception('Login failed. Please try again.');
       }
 
-      // Require email verification before accessing the account.
       if (!refreshedUser.emailVerified) {
-        await _auth.signOut();
+        await _authService.logout();
         _clearSession();
 
         throw Exception(
@@ -85,11 +83,12 @@ class AuthController {
         );
       }
 
-      final userId = refreshedUser.uid;
-      final doc = await _firestore.collection('users').doc(userId).get();
+      final profile = await _authService.getUserProfile(
+        refreshedUser.uid,
+      );
 
-      if (!doc.exists) {
-        await _auth.signOut();
+      if (profile == null) {
+        await _authService.logout();
         _clearSession();
 
         throw Exception(
@@ -97,14 +96,8 @@ class AuthController {
         );
       }
 
-      final data = doc.data()!;
-      final role = (data['role'] as String?) ?? 'user';
-
-      UserSession.userId = userId;
-      UserSession.role = role;
-      UserSession.isAdmin = role == 'admin';
-
-      return UserModel.fromMap(data, doc.id);
+      _updateSession(refreshedUser.uid, profile.role);
+      return profile.user;
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleFirebaseError(e));
     } catch (e) {
@@ -126,7 +119,7 @@ class AuthController {
       final normalizedName = name.trim();
       final normalizedEmail = email.trim();
 
-      credential = await _auth.createUserWithEmailAndPassword(
+      credential = await _authService.register(
         email: normalizedEmail,
         password: password,
       );
@@ -137,7 +130,10 @@ class AuthController {
         throw Exception('Registration failed. Please try again.');
       }
 
-      await user.updateDisplayName(normalizedName);
+      await _authService.updateDisplayName(
+        user: user,
+        name: normalizedName,
+      );
 
       final newUser = UserModel(
         id: user.uid,
@@ -146,29 +142,24 @@ class AuthController {
         profileImageUrl: null,
       );
 
-      await _firestore.collection('users').doc(user.uid).set({
-        ...newUser.toMap(),
-        'role': 'user',
-      });
-
-      await user.sendEmailVerification();
+      await _authService.createUserProfile(newUser);
+      await _authService.sendEmailVerification(user);
 
       UserSession.userId = user.uid;
       UserSession.role = 'user';
       UserSession.isAdmin = false;
 
-      // The user must verify the email before logging in.
       return newUser;
     } on FirebaseAuthException catch (e) {
       if (credential?.user != null) {
-        await _auth.signOut();
+        await _authService.logout();
       }
 
       _clearSession();
       throw Exception(_handleFirebaseError(e));
     } catch (e) {
       if (credential?.user != null) {
-        await _auth.signOut();
+        await _authService.logout();
       }
 
       _clearSession();
@@ -181,15 +172,15 @@ class AuthController {
   // ================= RESEND VERIFICATION =================
 
   Future<void> resendVerificationEmail() async {
-    final user = _auth.currentUser;
+    final user = _authService.currentUser;
 
     if (user == null) {
       throw Exception('Please register or log in again.');
     }
 
-    await user.reload();
+    await _authService.reloadCurrentUser();
 
-    final refreshedUser = _auth.currentUser;
+    final refreshedUser = _authService.currentUser;
 
     if (refreshedUser == null) {
       throw Exception('Please register or log in again.');
@@ -199,16 +190,14 @@ class AuthController {
       return;
     }
 
-    await refreshedUser.sendEmailVerification();
+    await _authService.sendEmailVerification(refreshedUser);
   }
 
   // ================= PASSWORD RESET =================
 
   Future<void> resetPassword(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(
-        email: email.trim(),
-      );
+      await _authService.resetPassword(email);
     } on FirebaseAuthException catch (e) {
       throw Exception(_handleFirebaseError(e));
     }
@@ -218,7 +207,7 @@ class AuthController {
 
   Future<void> logout() async {
     try {
-      await _auth.signOut();
+      await _authService.logout();
     } finally {
       _clearSession();
     }
